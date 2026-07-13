@@ -5,6 +5,7 @@ import {
   type DetectedSignals,
   type LeadClassification,
 } from '../../leads/lead-scoring.service';
+import type { Json } from '../../types/database.types';
 
 type IncomingWhatsappMessage = {
   instanceName: string;
@@ -239,7 +240,9 @@ export class EvolutionWebhookService {
 
       score: scoringResult.messageScore,
       classification: scoringResult.classification,
-      detected_signals: scoringResult.signals,
+      detected_signals: JSON.parse(
+        JSON.stringify(scoringResult.signals),
+      ) as Json,
       classification_reason: scoringResult.classificationReason,
     });
 
