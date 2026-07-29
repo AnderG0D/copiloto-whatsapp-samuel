@@ -151,6 +151,7 @@ export class LeadScoringService {
       'cita',
       'verlo',
       'verla',
+      'la puedo ver',
       'lo quiero ver',
       'la quiero ver',
       'cuando puedo ir',
@@ -239,7 +240,7 @@ export class LeadScoringService {
       score = 5;
     }
 
-    return Math.min(score, 60);
+    return Math.min(score, 70);
   }
 
   private classifyAdvanced(
