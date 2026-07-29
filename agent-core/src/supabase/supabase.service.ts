@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../types/database.types';
 
 @Injectable()
 export class SupabaseService {
   private readonly logger = new Logger(SupabaseService.name);
-  private readonly supabase: SupabaseClient;
+  private readonly supabase: SupabaseClient<Database>;
 
   constructor() {
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -21,7 +22,7 @@ export class SupabaseService {
             throw new Error('Missing SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY');
         }
 
-    this.supabase = createClient(supabaseUrl, supabaseKey, {
+    this.supabase = createClient<Database>(supabaseUrl, supabaseKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,

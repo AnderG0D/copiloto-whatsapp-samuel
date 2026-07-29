@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
+import { LeadsModule } from '../../leads/leads.module';
 import { SupabaseModule } from '../../supabase/supabase.module';
 import { EvolutionWebhookController } from './evolution-webhook.controller';
 import { EvolutionWebhookService } from './evolution-webhook.service';
-import { LeadScoringService } from '../../leads/lead-scoring.service';
 
 @Module({
-  imports: [SupabaseModule],
+  imports: [SupabaseModule, LeadsModule],
   controllers: [EvolutionWebhookController],
-  providers: [EvolutionWebhookService, LeadScoringService],
+  providers: [EvolutionWebhookService],
 })
 export class EvolutionWebhookModule {}

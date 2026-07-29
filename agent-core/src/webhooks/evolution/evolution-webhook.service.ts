@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
-import { LeadScoringService } from '../../leads/lead-scoring.service';
+import {
+  LeadScoringService,
+  type DetectedSignals,
+  type LeadClassification,
+} from '../../leads/lead-scoring.service';
+import type { Json } from '../../types/database.types';
 
 type IncomingWhatsappMessage = {
   instanceName: string;
@@ -17,7 +22,9 @@ type SavedIncomingMessage = {
   duplicated: boolean;
   messageScore?: number;
   leadScore?: number;
-  classification?: string;
+  classification?: LeadClassification;
+  classificationReason?: string;
+  signals?: DetectedSignals;
 };
 
 @Injectable()
@@ -80,6 +87,7 @@ export class EvolutionWebhookService {
         `Score mensaje: ${savedMessage.messageScore}`,
         `Score lead: ${savedMessage.leadScore}`,
         `Clasificación: ${savedMessage.classification}`,
+        `Razón: ${savedMessage.classificationReason}`,
       ].join(' | '),
     );
 
@@ -89,6 +97,8 @@ export class EvolutionWebhookService {
       saved: true,
       score: savedMessage.leadScore,
       classification: savedMessage.classification,
+      classificationReason: savedMessage.classificationReason,
+      signals: savedMessage.signals,
     };
   }
 
@@ -212,17 +222,11 @@ export class EvolutionWebhookService {
       return null;
     }
 
-    const messageScore = this.leadScoringService.calculateMessageScore(
-      message.text,
-    );
-
-    const newLeadScore = this.leadScoringService.calculateLeadScore(
-      lead.score ?? 0,
-      messageScore,
-    );
-
-    const classification =
-      this.leadScoringService.classify(newLeadScore);
+    const scoringResult = this.leadScoringService.scoreMessage({
+      message: message.text,
+      currentLeadScore: lead.score ?? 0,
+      businessType: business.business_type,
+    });
 
     const { error: messageError } = await supabase.from('messages').insert({
       business_id: business.id,
@@ -233,8 +237,13 @@ export class EvolutionWebhookService {
       content: message.text,
       external_message_id: message.messageId,
       raw_payload: message.rawPayload,
-      score: messageScore,
-      classification,
+
+      score: scoringResult.messageScore,
+      classification: scoringResult.classification,
+      detected_signals: JSON.parse(
+        JSON.stringify(scoringResult.signals),
+      ) as Json,
+      classification_reason: scoringResult.classificationReason,
     });
 
     if (messageError) {
@@ -266,8 +275,9 @@ export class EvolutionWebhookService {
     const { error: leadUpdateError } = await supabase
       .from('leads')
       .update({
-        score: newLeadScore,
-        classification,
+        score: scoringResult.leadScore,
+        classification: scoringResult.classification,
+        classification_reason: scoringResult.classificationReason,
         last_message: message.text,
         last_message_at: now,
         updated_at: now,
@@ -280,8 +290,9 @@ export class EvolutionWebhookService {
           'Error al actualizar score/clasificación del lead',
           `Negocio: ${business.name}`,
           `Lead ID: ${lead.id}`,
-          `Score: ${newLeadScore}`,
-          `Clasificación: ${classification}`,
+          `Score: ${scoringResult.leadScore}`,
+          `Clasificación: ${scoringResult.classification}`,
+          `Razón: ${scoringResult.classificationReason}`,
           `Error: ${leadUpdateError.message}`,
         ].join(' | '),
       );
@@ -289,13 +300,28 @@ export class EvolutionWebhookService {
       return null;
     }
 
+    this.logger.debug(
+      [
+        '📊 Análisis avanzado del lead',
+        `Negocio: ${business.name}`,
+        `Lead ID: ${lead.id}`,
+        `Score mensaje: ${scoringResult.messageScore}`,
+        `Score acumulado: ${scoringResult.leadScore}`,
+        `Clasificación: ${scoringResult.classification}`,
+        `Razón: ${scoringResult.classificationReason}`,
+        `Señales: ${JSON.stringify(scoringResult.signals)}`,
+      ].join(' | '),
+    );
+
     return {
       businessName: business.name,
       leadId: lead.id,
       duplicated: false,
-      messageScore,
-      leadScore: newLeadScore,
-      classification,
+      messageScore: scoringResult.messageScore,
+      leadScore: scoringResult.leadScore,
+      classification: scoringResult.classification,
+      classificationReason: scoringResult.classificationReason,
+      signals: scoringResult.signals,
     };
   }
 
