@@ -162,17 +162,17 @@ export class LeadScoringService {
       'test drive',
     ]);
 
-    const urgency = this.includesAny(message, [
-      'hoy',
-      'manana',
-      'ahorita',
-      'urgente',
-      'ya',
-      'en la tarde',
-      'mas tarde',
-      'este fin',
-      'fin de semana',
-    ]);
+    const urgency =
+      this.includesAny(message, [
+        'hoy',
+        'manana',
+        'ahorita',
+        'urgente',
+        'en la tarde',
+        'mas tarde',
+        'este fin',
+        'fin de semana',
+      ]) || this.includesWholeWord(message, 'ya');
 
     const generalInterest = this.includesAny(message, [
       'me interesa',
@@ -320,6 +320,13 @@ export class LeadScoringService {
     return keywords.some((keyword) => message.includes(keyword));
   }
 
+  private includesWholeWord(message: string, keyword: string): boolean {
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wholeWordPattern = new RegExp(`(^|\\W)${escapedKeyword}(?=$|\\W)`);
+
+    return wholeWordPattern.test(message);
+  }
+
   private detectVehicleMention(message: string): string | null {
     const vehicles: { label: string; keywords: string[] }[] = [
       {
@@ -383,7 +390,7 @@ export class LeadScoringService {
     ];
 
     const foundVersion = versionKeywords.find((version) =>
-      message.includes(version),
+      this.includesWholeWord(message, version),
     );
 
     const parts: string[] = [];
