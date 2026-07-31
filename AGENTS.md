@@ -45,6 +45,20 @@
 - Do not commit, push, open a pull request or merge unless the task explicitly requests it.
 - The `npm run lint` script applies automatic fixes. If it is used, inspect every resulting change before keeping it.
 
+## Documentation governance
+
+- The repository copy under `docs/obsidian/Copiloto WhatsApp Samuel/` is the source of truth for project documentation.
+- Follow `docs/control/documentation-policy.json` when changing project notes.
+- Treat `03 Decisions/` as human-owned. Never create, accept, supersede or rewrite an ADR automatically.
+- Treat `90 Archive/` as immutable history. Do not modernize old examples, model names, branches or conversations there.
+- Do not change product vision, milestone scope, acceptance criteria or roadmap order unless Hiram explicitly approves that decision.
+- Automated documentation may replace only complete files classified as `generated` or content inside matching `<!-- AUTO:BEGIN name -->` and `<!-- AUTO:END name -->` markers in `mixed` files.
+- Never perform a global search-and-replace for providers, models, milestone states or PR numbers.
+- Derive code, dependency, module, model, commit, PR and CI facts from the repository and GitHub. Do not infer them from chat memory.
+- Do not mark a milestone `DONE` unless its configured acceptance evidence, merge state and required checks are verifiably complete.
+- Technology reviews create recommendations only. They must not change dependencies, model defaults, ADRs or roadmap items automatically.
+- Keep exactly one canonical next action in `_generated/Siguiente accion.md`; other Obsidian panels must transclude it instead of copying it.
+
 ## Validation
 
 For backend code or dependency changes, run from `agent-core/`:
@@ -60,6 +74,7 @@ npm run build
 - Do not claim a validation passed unless the command was actually executed successfully.
 - If a command cannot run, report the exact command, failure and remaining unverified risk.
 - For documentation-only changes, tests and build may be skipped when clearly reported as not applicable.
+- For documentation automation changes, run `npm run docs:check` from the repository root once that script is available.
 
 ## Definition of done
 

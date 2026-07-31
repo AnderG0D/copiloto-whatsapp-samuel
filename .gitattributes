@@ -1,0 +1,2 @@
+# Obsidian notes may intentionally use two trailing spaces as Markdown hard breaks.
+docs/obsidian/** whitespace=-trailing-space,-blank-at-eof

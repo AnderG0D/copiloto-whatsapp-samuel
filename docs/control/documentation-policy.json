@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "repositoryDocsRoot": "docs/obsidian/Copiloto WhatsApp Samuel",
+  "autoMarkers": {
+    "begin": "<!-- AUTO:BEGIN {name} -->",
+    "end": "<!-- AUTO:END {name} -->"
+  },
+  "classes": {
+    "generated": [
+      "docs/obsidian/Copiloto WhatsApp Samuel/_generated/**"
+    ],
+    "mixed": [
+      "docs/obsidian/Copiloto WhatsApp Samuel/00 Copiloto WhatsApp Samuel - MOC.md",
+      "docs/obsidian/Copiloto WhatsApp Samuel/01 Panel de Proyecto - Copiloto WhatsApp Samuel.md",
+      "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/**",
+      "docs/obsidian/Copiloto WhatsApp Samuel/04 Docs/Arquitectura y Flujo Principal.md",
+      "docs/obsidian/Copiloto WhatsApp Samuel/04 Docs/Mapa del Codigo - agent-core.md",
+      "docs/obsidian/Copiloto WhatsApp Samuel/04 Docs/Setup Local - Como levantar el proyecto.md",
+      "docs/obsidian/Copiloto WhatsApp Samuel/05 Diagramas/Diagrama - Arquitectura Codigo agent-core.md"
+    ],
+    "protected": [
+      "docs/obsidian/Copiloto WhatsApp Samuel/03 Decisions/**",
+      "docs/obsidian/Copiloto WhatsApp Samuel/90 Archive/**"
+    ],
+    "human": [
+      "docs/obsidian/Copiloto WhatsApp Samuel/**"
+    ]
+  },
+  "automationRules": {
+    "allowGeneratedFileReplacement": true,
+    "allowMixedChangesOnlyInsideAutoBlocks": true,
+    "rejectProtectedChanges": true,
+    "rejectHumanChanges": true,
+    "requireReviewPullRequest": true
+  },
+  "canonicalNextAction": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Siguiente accion.md"
+}

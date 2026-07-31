@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "mode": "recommend-only",
+  "sources": [
+    {
+      "name": "Gemini API",
+      "officialDomains": ["ai.google.dev"],
+      "topics": ["models", "deprecations", "SDK"]
+    },
+    {
+      "name": "Groq",
+      "officialDomains": ["console.groq.com"],
+      "topics": ["models", "deprecations", "speech-to-text"]
+    },
+    {
+      "name": "NestJS",
+      "officialDomains": ["docs.nestjs.com"],
+      "topics": ["releases", "migration"]
+    },
+    {
+      "name": "Supabase",
+      "officialDomains": ["supabase.com"],
+      "topics": ["JavaScript SDK", "Postgres", "Storage"]
+    },
+    {
+      "name": "Evolution API",
+      "officialDomains": ["doc.evolution-api.com", "github.com"],
+      "topics": ["releases", "breaking changes"]
+    },
+    {
+      "name": "Node.js",
+      "officialDomains": ["nodejs.org"],
+      "topics": ["LTS", "security"]
+    },
+    {
+      "name": "GitHub Actions",
+      "officialDomains": ["docs.github.com", "github.com"],
+      "topics": ["runner", "official actions", "security"]
+    }
+  ],
+  "forbiddenAutomaticActions": [
+    "change an ADR",
+    "change roadmap scope",
+    "upgrade a dependency",
+    "change a model default",
+    "merge a pull request"
+  ]
+}
