@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import type { AiProvider } from './ai-provider.interface';
 import type { AiMessage, GenerateTextInput } from './ai.types';
 
-const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite';
 
 @Injectable()
 export class GeminiProvider implements AiProvider {
