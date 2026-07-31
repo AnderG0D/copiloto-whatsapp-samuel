@@ -16,5 +16,7 @@ flowchart TD
     E["AiProvider contract"] -. "implemented by" .-> F["GeminiProvider"]
 ```
 
-`GeminiProvider` existe y está probado, pero todavía no está registrado en un módulo ni conectado al webhook. `ConversationContextService`, `ResponseDraftService`, inventario, reportes, medios y envío permanecen fuera de la implementación observada.
+`GeminiProvider` existe y está probado, pero todavía no está registrado en un módulo.
+
+El contrato de IA no está conectado al webhook; no puede generar ni enviar respuestas desde ese flujo.
 <!-- AUTO:END architecture -->
