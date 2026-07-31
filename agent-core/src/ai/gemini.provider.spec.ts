@@ -8,7 +8,7 @@ jest.mock('@google/genai', () => ({
 }));
 
 const SAFE_API_KEY = 'unit-test-api-key-not-a-secret';
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-3.1-flash-lite';
 
 type GenerateContent = GoogleGenAI['models']['generateContent'];
 
@@ -78,7 +78,7 @@ describe('GeminiProvider', () => {
     });
   });
 
-  it('uses gemini-2.5-flash-lite when GEMINI_MODEL is undefined', async () => {
+  it('uses gemini-3.1-flash-lite when GEMINI_MODEL is undefined', async () => {
     const provider = createProvider();
 
     await provider.generateText(createInput());
