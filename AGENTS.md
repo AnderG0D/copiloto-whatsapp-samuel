@@ -53,3 +53,24 @@ For backend code or dependency changes, run from `agent-core/`:
 npm test -- --runInBand
 npm run test:e2e -- --runInBand
 npm run build
+```
+
+- Use only documented dummy environment values when the e2e baseline requires configuration.
+- Never load real credentials merely to make a test pass.
+- Do not claim a validation passed unless the command was actually executed successfully.
+- If a command cannot run, report the exact command, failure and remaining unverified risk.
+- For documentation-only changes, tests and build may be skipped when clearly reported as not applicable.
+
+## Definition of done
+
+A backend behavior or dependency change is complete only when:
+
+1. The requested behavior is implemented.
+2. Relevant unit tests pass.
+3. The e2e baseline passes.
+4. The build passes.
+5. The final diff contains only intended changes.
+6. No unauthorized external calls or message sending were introduced.
+7. Remaining risks, assumptions and skipped validations are reported.
+
+A documentation-only change is complete when its content and final diff have been reviewed and no unrelated files are included.
