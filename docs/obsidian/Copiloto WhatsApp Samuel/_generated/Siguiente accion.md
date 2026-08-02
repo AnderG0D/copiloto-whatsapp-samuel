@@ -2,15 +2,13 @@
 type: generated-next-action
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-07-31
+updated: 2026-08-02
 ---
 
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] En la rama `feature/hito-4-2-response-drafts`, implementar únicamente el checkpoint **4.2-A: Contratos neutrales de contexto y borrador** y sus pruebas, sin ampliar el alcance.
+- [ ] Comprobar el merge y los checks finales del Hito 4.2; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.
 
-**Commit sugerido:** `feat: add response draft contracts`
-
-**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
+**Termina cuando:** El hito está fusionado, la validación está verde y su estado documental coincide con GitHub.
 <!-- AUTO:END next-action -->

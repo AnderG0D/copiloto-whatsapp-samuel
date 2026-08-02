@@ -57,7 +57,7 @@ Lead + historial limitado + señales + reglas seguras
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.2-A: Contratos neutrales de contexto y borrador**.
+- No hay checkpoints técnicos pendientes; falta comprobar el cierre del Hito 4.2.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

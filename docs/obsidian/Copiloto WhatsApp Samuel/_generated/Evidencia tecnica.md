@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-07-31
+updated: 2026-08-02
 ---
 
 # Evidencia técnica
@@ -10,13 +10,14 @@ updated: 2026-07-31
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `a82bdfd`, asociado al [PR #7](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/7).
-- Commit completo: `a82bdfd9d59c182c4d526f931097bfdf91400160`.
-- Mensaje: chore: update default Gemini model to 3.1 Flash-Lite (#7).
+- Fuente: `main` en `22040b4`, asociado al [PR #11](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/11).
+- Commit completo: `22040b4d356324f5a6092947ae968be47e8a61b1`.
+- Mensaje: ci: open protected documentation sync PRs (#11).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30739571530).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 43 casos ejecutados.
+- **Unitarias:** `APROBADO` — 72 casos ejecutados.
 - **E2E:** `APROBADO` — 1 caso ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
