@@ -68,6 +68,16 @@ function evaluateEvidence(evidence, sourceFiles, sourceTexts) {
       sourceFiles.some((file) => path.basename(file) === name)
     )));
   }
+  if (evidence.pathContentAllAny) {
+    checks.push(evidence.pathContentAllAny.some((candidate) => {
+      const source = sourceTexts.get(candidate.path);
+      return Boolean(
+        source
+        && candidate.contentAll?.length > 0
+        && candidate.contentAll.every((needle) => source.includes(needle)),
+      );
+    }));
+  }
 
   return checks.length > 0 && checks.every(Boolean);
 }
@@ -191,6 +201,12 @@ const webhookText = [...sourceTexts]
   .filter(([file]) => file.includes('/webhooks/evolution/'))
   .map(([, text]) => text)
   .join('\n');
+const conversationContextText = sourceTexts.get(
+  'agent-core/src/ai/response-drafts/conversation-context.builder.ts',
+) ?? '';
+const responseDraftText = sourceTexts.get(
+  'agent-core/src/ai/response-drafts/response-draft.service.ts',
+) ?? '';
 const has = async (file) => pathExists(file);
 
 const components = {
@@ -201,8 +217,10 @@ const components = {
   geminiProvider: await has('agent-core/src/ai/gemini.provider.ts'),
   geminiRegistered: /\b(?:GeminiProvider|AI_PROVIDER)\b/.test(moduleFiles),
   aiConnectedToWebhook: /\b(?:GeminiProvider|AI_PROVIDER|AiProvider)\b/.test(webhookText),
-  conversationContext: checkpoints.some((item) => item.id === '4.2-B' && item.complete),
-  responseDraft: checkpoints.some((item) => item.id === '4.2-C' && item.complete),
+  conversationContext: /\bexport class ConversationContextBuilder\b/.test(
+    conversationContextText,
+  ),
+  responseDraft: /\bexport class ResponseDraftService\b/.test(responseDraftText),
   inventory: sourceFiles.some((file) => /\/inventory\//.test(file)),
   reports: sourceFiles.some((file) => /\/reports?\//.test(file)),
   media: sourceFiles.some((file) => /\/media\//.test(file)),

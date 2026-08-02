@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "activeMilestone": "4.2",
+  "activeMilestone": "4.3",
   "milestones": [
     {
       "id": "2",
@@ -44,51 +44,92 @@
     {
       "id": "4.2",
       "title": "Contexto confiable y borradores seguros de respuesta",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta DONE.md",
+      "evidence": {
+        "pullRequests": [8],
+        "mergeCommit": "2f9cc2595e1a339e97eaafb36a84e14f9a245f32",
+        "requiredPaths": [
+          "agent-core/src/ai/response-drafts/conversation-context.builder.spec.ts",
+          "agent-core/src/ai/response-drafts/conversation-context.builder.ts",
+          "agent-core/src/ai/response-drafts/response-draft.service.spec.ts",
+          "agent-core/src/ai/response-drafts/response-draft.service.ts",
+          "agent-core/src/ai/response-drafts/response-draft.types.ts"
+        ]
+      }
+    },
+    {
+      "id": "4.3",
+      "title": "Persistencia e integración de borradores sin envío",
       "status": "active",
-      "workingBranch": "feature/hito-4-2-response-drafts",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE.md",
+      "workingBranch": "feature/hito-4-3-persist-drafts-no-send",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.3 - Persistencia e integracion de borradores sin envio ACTIVE.md",
       "checkpoints": [
         {
-          "id": "4.2-A",
-          "title": "Contratos neutrales de contexto y borrador",
-          "commitHint": "feat: add response draft contracts",
+          "id": "4.3-A",
+          "title": "Persistencia trazable de borradores PROPOSED",
+          "commitHint": "feat: persist proposed response drafts",
           "evidence": {
-            "contentAny": [
-              "export type ResponseDraft",
-              "export interface ResponseDraft"
+            "pathContentAllAny": [
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft.repository.ts",
+                "contentAll": ["ResponseDraftRepository", "PROPOSED"]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft.persistence.ts",
+                "contentAll": ["ResponseDraftPersistence", "PROPOSED"]
+              }
             ]
           }
         },
         {
-          "id": "4.2-B",
-          "title": "Constructor determinista de contexto seguro",
-          "commitHint": "feat: build safe lead conversation context",
+          "id": "4.3-B",
+          "title": "Registro de la capa de IA y borradores en NestJS",
+          "commitHint": "feat: register AI response draft services",
           "evidence": {
-            "contentAny": [
-              "class ConversationContextBuilder",
-              "class ConversationContextService"
+            "pathContentAllAny": [
+              {
+                "path": "agent-core/src/ai/ai.module.ts",
+                "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-drafts.module.ts",
+                "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
+              }
             ]
           }
         },
         {
-          "id": "4.2-C",
-          "title": "Servicio aislado de borradores",
-          "commitHint": "feat: generate isolated AI response drafts",
+          "id": "4.3-C",
+          "title": "Integración después del scoring sin envío",
+          "commitHint": "feat: persist drafts after lead scoring",
           "evidence": {
-            "contentAny": [
-              "class ResponseDraftService"
+            "pathContentAllAny": [
+              {
+                "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.ts",
+                "contentAll": [
+                  "LeadScoringService",
+                  "ResponseDraftService",
+                  "responseDraftService.generate"
+                ]
+              }
             ]
           }
         },
         {
-          "id": "4.2-D",
-          "title": "Pruebas del contexto y los borradores",
-          "commitHint": "test: cover response draft generation",
+          "id": "4.3-D",
+          "title": "Pruebas de persistencia, idempotencia y ausencia de envío",
+          "commitHint": "test: cover persisted drafts without sending",
           "evidence": {
-            "fileNameAny": [
-              "response-draft.service.spec.ts",
-              "conversation-context.builder.spec.ts",
-              "conversation-context.service.spec.ts"
+            "pathContentAllAny": [
+              {
+                "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
+                "contentAll": ["PROPOSED", "duplicate", "send"]
+              },
+              {
+                "path": "agent-core/test/app.e2e-spec.ts",
+                "contentAll": ["PROPOSED", "duplicate", "send"]
+              }
             ]
           }
         }

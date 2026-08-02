@@ -4,8 +4,8 @@ project: Copiloto WhatsApp Samuel
 system: Pensar-Hacer v1
 status: active
 fase: Fase 2 — IA de texto segura
-hito_actual: Hito 4.2 — Contexto y borradores seguros
-updated: 2026-07-31
+hito_actual: Hito 4.3 — Persistencia e integración sin envío
+updated: 2026-08-02
 aliases:
   - Panel de Ejecucion - Copiloto WhatsApp Samuel
 ---
@@ -29,16 +29,16 @@ aliases:
 
 ## Hito activo
 
-**Hito 4.2 — Contexto confiable y borradores seguros de respuesta**
+**Hito 4.3 — Persistencia e integración de borradores sin envío**
 
 Resultado esperado:
 
 ```text
-Lead + historial limitado + señales + reglas seguras
-→ contexto neutral
-→ AI_PROVIDER
-→ borrador interno
-→ sin persistencia y sin envío
+mensaje guardado y scoreado
+→ contexto seguro
+→ borrador PROPOSED
+→ persistencia trazable
+→ sin envío
 ```
 
 ## Producto final
@@ -57,7 +57,7 @@ Lead + historial limitado + señales + reglas seguras
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- No hay checkpoints técnicos pendientes; falta comprobar el cierre del Hito 4.2.
+- Hito 4.3 inicia en 0/4 checkpoints; el primero pendiente es 4.3-A.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

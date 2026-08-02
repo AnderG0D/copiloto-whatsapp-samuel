@@ -1,10 +1,11 @@
 ---
 type: milestone
 project: Copiloto WhatsApp Samuel
-status: active
+status: done
 fase: Fase 2 — IA de texto segura
 hito: 4.2
-updated: 2026-07-31
+completed: 2026-08-01
+updated: 2026-08-02
 aliases:
   - Hito 4.2 - Contexto confiable y borradores
   - Hito 4.2 - Response Draft Service
@@ -114,16 +115,16 @@ La salida no representa aprobación ni envío.
 
 ## Criterios de aceptación
 
-- [ ] El consumidor depende de `AiProvider`, no de `GeminiProvider`.
-- [ ] Un lead `HOT` conserva score, señales y razón dentro del contexto seguro.
-- [ ] El historial respeta el límite configurado.
-- [ ] Los roles se transforman correctamente.
-- [ ] No se incluyen teléfono, `raw_payload` ni credenciales.
-- [ ] El proveedor simulado recibe exactamente los mensajes esperados.
-- [ ] El resultado tiene estado `PROPOSED`.
-- [ ] Ningún código puede enviar el borrador.
-- [ ] No hay llamadas reales a Gemini durante pruebas.
-- [ ] `AUTO_SEND_MESSAGES=false` permanece.
+- [x] El consumidor depende de `AiProvider`, no de `GeminiProvider`.
+- [x] Un lead `HOT` conserva score, señales y razón dentro del contexto seguro.
+- [x] El historial respeta el límite configurado.
+- [x] Los roles se transforman correctamente.
+- [x] No se incluyen teléfono, `raw_payload` ni credenciales.
+- [x] El proveedor simulado recibe exactamente los mensajes esperados.
+- [x] El resultado tiene estado `PROPOSED`.
+- [x] Ningún código puede enviar el borrador.
+- [x] No hay llamadas reales a Gemini durante pruebas.
+- [x] `AUTO_SEND_MESSAGES=false` permanece.
 
 ## Checkpoints recomendados
 
@@ -164,16 +165,24 @@ La división exacta debe ajustarse después de inspeccionar el repositorio.
 
 ## DONE cuando
 
-- [ ] Alcance aprobado.
-- [ ] Cambios pequeños y revisables.
-- [ ] Unitarias aprobadas.
-- [ ] E2E existente aprobado.
-- [ ] Build aprobado.
-- [ ] ESLint de archivos modificados aprobado.
-- [ ] `git diff --check` limpio.
-- [ ] GitHub Actions verde.
-- [ ] Sin llamadas reales ni mensajes reales.
-- [ ] Documentación actualizada.
+- [x] Alcance aprobado.
+- [x] Cambios pequeños y revisables.
+- [x] Unitarias aprobadas.
+- [x] E2E existente aprobado.
+- [x] Build aprobado.
+- [x] ESLint de archivos modificados aprobado.
+- [x] `git diff --check` limpio.
+- [x] GitHub Actions verde.
+- [x] Sin llamadas reales ni mensajes reales.
+- [x] Documentación actualizada.
+
+## Evidencia de cierre
+
+- PR #8 fusionado el 2026-08-01 mediante el commit `2f9cc2595e1a339e97eaafb36a84e14f9a245f32`.
+- 72 pruebas unitarias y 1 prueba e2e aprobadas.
+- Build, ESLint, Prettier y `git diff --check` aprobados.
+- Los cuatro checkpoints quedaron implementados en los cinco archivos de contexto y borradores registrados en `docs/control/milestones.json`.
+- El alcance no agregó persistencia de borradores, conexión con el webhook, llamadas reales a Supabase o Gemini ni envío de WhatsApp; `AUTO_SEND_MESSAGES=false` permaneció.
 
 ## Lo que sigue
 

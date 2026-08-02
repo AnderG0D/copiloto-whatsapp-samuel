@@ -82,4 +82,4 @@ Código consumidor
 
 ## Siguiente hito
 
-- [[Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE]]
+- [[Hito 04.2 - Contexto y borradores seguros de respuesta DONE]]
