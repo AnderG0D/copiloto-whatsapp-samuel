@@ -2,7 +2,7 @@
 type: generated-architecture
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-07-31
+updated: 2026-08-02
 ---
 
 # Arquitectura actual observada
@@ -14,6 +14,7 @@ flowchart TD
     B --> C["SupabaseModule"]
     B --> D["LeadsModule"]
     E["AiProvider contract"] -. "implemented by" .-> F["GeminiProvider"]
+    G["ResponseDraftService"] --> E
 ```
 
 `GeminiProvider` existe y está probado, pero todavía no está registrado en un módulo.

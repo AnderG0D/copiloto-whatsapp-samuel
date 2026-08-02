@@ -29,10 +29,10 @@ Crear una capa aislada que reciba datos seguros del negocio, lead e historial, c
 ## Progreso observado
 
 <!-- AUTO:BEGIN milestone-progress -->
-- [ ] 4.2-A — Contratos neutrales de contexto y borrador.
-- [ ] 4.2-B — Constructor determinista de contexto seguro.
-- [ ] 4.2-C — Servicio aislado de borradores.
-- [ ] 4.2-D — Pruebas del contexto y los borradores.
+- [x] 4.2-A — Contratos neutrales de contexto y borrador.
+- [x] 4.2-B — Constructor determinista de contexto seguro.
+- [x] 4.2-C — Servicio aislado de borradores.
+- [x] 4.2-D — Pruebas del contexto y los borradores.
 <!-- AUTO:END milestone-progress -->
 
 ## Flujo

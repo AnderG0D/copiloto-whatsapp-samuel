@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-07-31",
+  "observedDate": "2026-08-02",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "origin/main",
+    "ref": "HEAD",
     "branch": "main",
-    "sha": "a82bdfd9d59c182c4d526f931097bfdf91400160",
-    "shortSha": "a82bdfd",
-    "subject": "chore: update default Gemini model to 3.1 Flash-Lite (#7)",
-    "committedAt": "2026-07-31T15:35:40-06:00",
+    "sha": "22040b4d356324f5a6092947ae968be47e8a61b1",
+    "shortSha": "22040b4",
+    "subject": "ci: open protected documentation sync PRs (#11)",
+    "committedAt": "2026-08-02T02:20:01-06:00",
     "pullRequest": {
-      "number": 7,
-      "title": "chore: update default Gemini model to 3.1 Flash-Lite (#7)",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/7",
+      "number": 11,
+      "title": "ci: open protected documentation sync PRs",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/11",
       "state": "closed",
-      "mergedAt": null,
-      "source": "commit-subject"
+      "mergedAt": "2026-08-02T08:20:01Z",
+      "source": "github-api"
     },
-    "ciUrl": null
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30739571530"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 43,
+      "unit": 72,
       "e2e": 1
     }
   },
@@ -68,8 +68,8 @@
       "geminiProvider": true,
       "geminiRegistered": false,
       "aiConnectedToWebhook": false,
-      "conversationContext": false,
-      "responseDraft": false,
+      "conversationContext": true,
+      "responseDraft": true,
       "inventory": false,
       "reports": false,
       "media": false,
@@ -135,7 +135,7 @@
             "export interface ResponseDraft"
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.2-B",
@@ -147,7 +147,7 @@
             "class ConversationContextService"
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.2-C",
@@ -158,7 +158,7 @@
             "class ResponseDraftService"
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.2-D",
@@ -171,7 +171,7 @@
             "conversation-context.service.spec.ts"
           ]
         },
-        "complete": false
+        "complete": true
       }
     ],
     "completionRequires": [
@@ -182,10 +182,10 @@
     ]
   },
   "nextAction": {
-    "kind": "implement-checkpoint",
-    "title": "4.2-A: Contratos neutrales de contexto y borrador",
-    "text": "En la rama `feature/hito-4-2-response-drafts`, implementar únicamente el checkpoint **4.2-A: Contratos neutrales de contexto y borrador** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: add response draft contracts",
-    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
+    "kind": "close-milestone",
+    "title": "Cerrar Hito 4.2",
+    "text": "Comprobar el merge y los checks finales del Hito 4.2; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.",
+    "commitHint": null,
+    "doneWhen": "El hito está fusionado, la validación está verde y su estado documental coincide con GitHub."
   }
 }
