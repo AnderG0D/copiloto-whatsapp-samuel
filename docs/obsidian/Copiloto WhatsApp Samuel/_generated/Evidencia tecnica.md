@@ -10,10 +10,10 @@ updated: 2026-08-02
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `22040b4`, asociado al [PR #11](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/11).
-- Commit completo: `22040b4d356324f5a6092947ae968be47e8a61b1`.
-- Mensaje: ci: open protected documentation sync PRs (#11).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30739571530).
+- Fuente: `main` en `ca4c918`, asociado al [PR #13](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/13).
+- Commit completo: `ca4c9187fed294da8bc70e6a99a9d481fec6a3e8`.
+- Mensaje: docs: close milestone 4.2 and activate 4.3 (#13).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30743342413).
 
 ## Validación
 

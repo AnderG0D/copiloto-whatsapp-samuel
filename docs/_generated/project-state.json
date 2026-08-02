@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "22040b4d356324f5a6092947ae968be47e8a61b1",
-    "shortSha": "22040b4",
-    "subject": "ci: open protected documentation sync PRs (#11)",
-    "committedAt": "2026-08-02T02:20:01-06:00",
+    "sha": "ca4c9187fed294da8bc70e6a99a9d481fec6a3e8",
+    "shortSha": "ca4c918",
+    "subject": "docs: close milestone 4.2 and activate 4.3 (#13)",
+    "committedAt": "2026-08-02T04:14:08-06:00",
     "pullRequest": {
-      "number": 11,
-      "title": "ci: open protected documentation sync PRs",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/11",
+      "number": 13,
+      "title": "docs: close milestone 4.2 and activate 4.3",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/13",
       "state": "closed",
-      "mergedAt": "2026-08-02T08:20:01Z",
+      "mergedAt": "2026-08-02T10:14:08Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30739571530"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30743342413"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -114,64 +114,114 @@
     {
       "id": "4.2",
       "title": "Contexto confiable y borradores seguros de respuesta",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta DONE.md"
+    },
+    {
+      "id": "4.3",
+      "title": "Persistencia e integración de borradores sin envío",
       "status": "active",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE.md"
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.3 - Persistencia e integracion de borradores sin envio ACTIVE.md"
     }
   ],
   "milestone": {
-    "id": "4.2",
-    "title": "Contexto confiable y borradores seguros de respuesta",
+    "id": "4.3",
+    "title": "Persistencia e integración de borradores sin envío",
     "status": "active",
-    "workingBranch": "feature/hito-4-2-response-drafts",
-    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE.md",
+    "workingBranch": "feature/hito-4-3-persist-drafts-no-send",
+    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.3 - Persistencia e integracion de borradores sin envio ACTIVE.md",
     "checkpoints": [
       {
-        "id": "4.2-A",
-        "title": "Contratos neutrales de contexto y borrador",
-        "commitHint": "feat: add response draft contracts",
+        "id": "4.3-A",
+        "title": "Persistencia trazable de borradores PROPOSED",
+        "commitHint": "feat: persist proposed response drafts",
         "evidence": {
-          "contentAny": [
-            "export type ResponseDraft",
-            "export interface ResponseDraft"
+          "pathContentAllAny": [
+            {
+              "path": "agent-core/src/ai/response-drafts/response-draft.repository.ts",
+              "contentAll": [
+                "ResponseDraftRepository",
+                "PROPOSED"
+              ]
+            },
+            {
+              "path": "agent-core/src/ai/response-drafts/response-draft.persistence.ts",
+              "contentAll": [
+                "ResponseDraftPersistence",
+                "PROPOSED"
+              ]
+            }
           ]
         },
-        "complete": true
+        "complete": false
       },
       {
-        "id": "4.2-B",
-        "title": "Constructor determinista de contexto seguro",
-        "commitHint": "feat: build safe lead conversation context",
+        "id": "4.3-B",
+        "title": "Registro de la capa de IA y borradores en NestJS",
+        "commitHint": "feat: register AI response draft services",
         "evidence": {
-          "contentAny": [
-            "class ConversationContextBuilder",
-            "class ConversationContextService"
+          "pathContentAllAny": [
+            {
+              "path": "agent-core/src/ai/ai.module.ts",
+              "contentAll": [
+                "AI_PROVIDER",
+                "ResponseDraftService"
+              ]
+            },
+            {
+              "path": "agent-core/src/ai/response-drafts/response-drafts.module.ts",
+              "contentAll": [
+                "AI_PROVIDER",
+                "ResponseDraftService"
+              ]
+            }
           ]
         },
-        "complete": true
+        "complete": false
       },
       {
-        "id": "4.2-C",
-        "title": "Servicio aislado de borradores",
-        "commitHint": "feat: generate isolated AI response drafts",
+        "id": "4.3-C",
+        "title": "Integración después del scoring sin envío",
+        "commitHint": "feat: persist drafts after lead scoring",
         "evidence": {
-          "contentAny": [
-            "class ResponseDraftService"
+          "pathContentAllAny": [
+            {
+              "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.ts",
+              "contentAll": [
+                "LeadScoringService",
+                "ResponseDraftService",
+                "responseDraftService.generate"
+              ]
+            }
           ]
         },
-        "complete": true
+        "complete": false
       },
       {
-        "id": "4.2-D",
-        "title": "Pruebas del contexto y los borradores",
-        "commitHint": "test: cover response draft generation",
+        "id": "4.3-D",
+        "title": "Pruebas de persistencia, idempotencia y ausencia de envío",
+        "commitHint": "test: cover persisted drafts without sending",
         "evidence": {
-          "fileNameAny": [
-            "response-draft.service.spec.ts",
-            "conversation-context.builder.spec.ts",
-            "conversation-context.service.spec.ts"
+          "pathContentAllAny": [
+            {
+              "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
+              "contentAll": [
+                "PROPOSED",
+                "duplicate",
+                "send"
+              ]
+            },
+            {
+              "path": "agent-core/test/app.e2e-spec.ts",
+              "contentAll": [
+                "PROPOSED",
+                "duplicate",
+                "send"
+              ]
+            }
           ]
         },
-        "complete": true
+        "complete": false
       }
     ],
     "completionRequires": [
@@ -182,10 +232,10 @@
     ]
   },
   "nextAction": {
-    "kind": "close-milestone",
-    "title": "Cerrar Hito 4.2",
-    "text": "Comprobar el merge y los checks finales del Hito 4.2; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.",
-    "commitHint": null,
-    "doneWhen": "El hito está fusionado, la validación está verde y su estado documental coincide con GitHub."
+    "kind": "implement-checkpoint",
+    "title": "4.3-A: Persistencia trazable de borradores PROPOSED",
+    "text": "En la rama `feature/hito-4-3-persist-drafts-no-send`, implementar únicamente el checkpoint **4.3-A: Persistencia trazable de borradores PROPOSED** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: persist proposed response drafts",
+    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }

@@ -8,7 +8,9 @@ updated: 2026-08-02
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] Comprobar el merge y los checks finales del Hito 4.2; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.
+- [ ] En la rama `feature/hito-4-3-persist-drafts-no-send`, implementar únicamente el checkpoint **4.3-A: Persistencia trazable de borradores PROPOSED** y sus pruebas, sin ampliar el alcance.
 
-**Termina cuando:** El hito está fusionado, la validación está verde y su estado documental coincide con GitHub.
+**Commit sugerido:** `feat: persist proposed response drafts`
+
+**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
 <!-- AUTO:END next-action -->
