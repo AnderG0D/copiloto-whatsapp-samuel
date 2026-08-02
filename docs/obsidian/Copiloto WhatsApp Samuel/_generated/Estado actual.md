@@ -9,11 +9,11 @@ updated: 2026-08-02
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `22040b4`, asociado al [PR #11](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/11). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `ca4c918`, asociado al [PR #13](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/13). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
-**Hito 4.2 — Contexto confiable y borradores seguros de respuesta**.
+**Hito 4.3 — Persistencia e integración de borradores sin envío**.
 
 ## Hitos confirmados
 
@@ -24,7 +24,8 @@ updated: 2026-08-02
 | 3.2 | Score y clasificación avanzada | `DONE` | Configurado como cerrado |
 | 3.3 | E2E real del webhook y CI | `DONE` | Configurado como cerrado |
 | 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
-| 4.2 | Contexto confiable y borradores seguros de respuesta | `READY_TO_CLOSE` | 4/4 checkpoints observados |
+| 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
+| 4.3 | Persistencia e integración de borradores sin envío | `ACTIVE` | 0/4 checkpoints observados |
 
 ## Componentes confirmados
 
