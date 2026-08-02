@@ -1,4 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ResponseDraftRepository } from '../../ai/response-drafts/response-draft.repository';
+import { ResponseDraftService } from '../../ai/response-drafts/response-draft.service';
+import type {
+  SafeHistoryMessage,
+  SafeHistoryRole,
+} from '../../ai/response-drafts/response-draft.types';
 import { SupabaseService } from '../../supabase/supabase.service';
 import {
   LeadScoringService,
@@ -17,15 +23,26 @@ type IncomingWhatsappMessage = {
 };
 
 type SavedIncomingMessage = {
+  businessId: string;
+  businessName: string;
+  businessType: string;
+  leadId: string;
+  sourceMessageId: string;
+  duplicated: false;
+  messageScore: number;
+  leadScore: number;
+  classification: LeadClassification;
+  classificationReason: string;
+  signals: DetectedSignals;
+};
+
+type DuplicateIncomingMessage = {
   businessName: string;
   leadId: string;
-  duplicated: boolean;
-  messageScore?: number;
-  leadScore?: number;
-  classification?: LeadClassification;
-  classificationReason?: string;
-  signals?: DetectedSignals;
+  duplicated: true;
 };
+
+const SAFE_HISTORY_ROLES: SafeHistoryRole[] = ['customer', 'bot', 'human'];
 
 @Injectable()
 export class EvolutionWebhookService {
@@ -34,6 +51,8 @@ export class EvolutionWebhookService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly leadScoringService: LeadScoringService,
+    private readonly responseDraftService: ResponseDraftService,
+    private readonly responseDraftRepository: ResponseDraftRepository,
   ) {}
 
   async handleIncomingWebhook(payload: any) {
@@ -91,6 +110,11 @@ export class EvolutionWebhookService {
       ].join(' | '),
     );
 
+    const draftSaved = await this.generateAndPersistResponseDraft(
+      savedMessage,
+      incomingMessage.text,
+    );
+
     return {
       ok: true,
       received: true,
@@ -99,6 +123,8 @@ export class EvolutionWebhookService {
       classification: savedMessage.classification,
       classificationReason: savedMessage.classificationReason,
       signals: savedMessage.signals,
+      draftSaved,
+      ...(draftSaved && { draftStatus: 'PROPOSED' as const }),
     };
   }
 
@@ -166,7 +192,7 @@ export class EvolutionWebhookService {
 
   private async saveIncomingMessage(
     message: IncomingWhatsappMessage,
-  ): Promise<SavedIncomingMessage | null> {
+  ): Promise<SavedIncomingMessage | DuplicateIncomingMessage | null> {
     const supabase = this.supabaseService.client;
     const now = new Date().toISOString();
 
@@ -228,23 +254,27 @@ export class EvolutionWebhookService {
       businessType: business.business_type,
     });
 
-    const { error: messageError } = await supabase.from('messages').insert({
-      business_id: business.id,
-      lead_id: lead.id,
-      phone: message.phone,
-      direction: 'IN',
-      role: 'customer',
-      content: message.text,
-      external_message_id: message.messageId,
-      raw_payload: message.rawPayload,
+    const { data: insertedMessage, error: messageError } = await supabase
+      .from('messages')
+      .insert({
+        business_id: business.id,
+        lead_id: lead.id,
+        phone: message.phone,
+        direction: 'IN',
+        role: 'customer',
+        content: message.text,
+        external_message_id: message.messageId,
+        raw_payload: message.rawPayload,
 
-      score: scoringResult.messageScore,
-      classification: scoringResult.classification,
-      detected_signals: JSON.parse(
-        JSON.stringify(scoringResult.signals),
-      ) as Json,
-      classification_reason: scoringResult.classificationReason,
-    });
+        score: scoringResult.messageScore,
+        classification: scoringResult.classification,
+        detected_signals: JSON.parse(
+          JSON.stringify(scoringResult.signals),
+        ) as Json,
+        classification_reason: scoringResult.classificationReason,
+      })
+      .select('id')
+      .single();
 
     if (messageError) {
       if (messageError.code === '23505') {
@@ -266,6 +296,18 @@ export class EvolutionWebhookService {
           `Lead ID: ${lead.id}`,
           `Message ID: ${message.messageId ?? 'unknown_message_id'}`,
           `Error: ${messageError.message}`,
+        ].join(' | '),
+      );
+
+      return null;
+    }
+
+    if (!insertedMessage) {
+      this.logger.error(
+        [
+          'Mensaje guardado sin UUID interno',
+          `Negocio: ${business.name}`,
+          `Lead ID: ${lead.id}`,
         ].join(' | '),
       );
 
@@ -314,8 +356,11 @@ export class EvolutionWebhookService {
     );
 
     return {
+      businessId: business.id,
       businessName: business.name,
+      businessType: business.business_type,
       leadId: lead.id,
+      sourceMessageId: insertedMessage.id,
       duplicated: false,
       messageScore: scoringResult.messageScore,
       leadScore: scoringResult.leadScore,
@@ -323,6 +368,94 @@ export class EvolutionWebhookService {
       classificationReason: scoringResult.classificationReason,
       signals: scoringResult.signals,
     };
+  }
+
+  private async generateAndPersistResponseDraft(
+    savedMessage: SavedIncomingMessage,
+    currentMessage: string,
+  ): Promise<boolean> {
+    try {
+      const history = await this.loadSafeHistory(
+        savedMessage.leadId,
+        savedMessage.sourceMessageId,
+      );
+      const draft = await this.responseDraftService.generate({
+        business: {
+          name: savedMessage.businessName,
+          businessType: savedMessage.businessType,
+        },
+        lead: {
+          score: savedMessage.leadScore,
+          classification: savedMessage.classification,
+          signals: savedMessage.signals,
+          classificationReason: savedMessage.classificationReason,
+        },
+        currentMessage,
+        history,
+      });
+
+      await this.responseDraftRepository.create({
+        businessId: savedMessage.businessId,
+        leadId: savedMessage.leadId,
+        sourceMessageId: savedMessage.sourceMessageId,
+        draft,
+      });
+
+      return true;
+    } catch (error) {
+      this.logger.error(
+        [
+          'Error al generar o persistir borrador',
+          `Negocio: ${savedMessage.businessName}`,
+          `Lead ID: ${savedMessage.leadId}`,
+          `Source Message ID: ${savedMessage.sourceMessageId}`,
+          `Tipo de error: ${
+            error instanceof Error ? error.name : 'UnknownError'
+          }`,
+        ].join(' | '),
+      );
+
+      return false;
+    }
+  }
+
+  private async loadSafeHistory(
+    leadId: string,
+    sourceMessageId: string,
+  ): Promise<SafeHistoryMessage[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('messages')
+      .select('role, content, created_at')
+      .eq('lead_id', leadId)
+      .neq('id', sourceMessageId)
+      .in('role', SAFE_HISTORY_ROLES)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      throw new Error(`Failed to load safe message history: ${error.message}`);
+    }
+
+    return (data ?? []).flatMap((historyMessage) => {
+      if (
+        !this.isSafeHistoryRole(historyMessage.role) ||
+        !historyMessage.created_at
+      ) {
+        return [];
+      }
+
+      return [
+        {
+          role: historyMessage.role,
+          content: historyMessage.content,
+          createdAt: historyMessage.created_at,
+        },
+      ];
+    });
+  }
+
+  private isSafeHistoryRole(role: string | null): role is SafeHistoryRole {
+    return SAFE_HISTORY_ROLES.some((safeRole) => safeRole === role);
   }
 
   private normalizeEventName(event?: string): string | undefined {
