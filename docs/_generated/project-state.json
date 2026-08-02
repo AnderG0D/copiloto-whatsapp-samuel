@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "observedDate": "2026-07-31",
+  "repository": "AnderG0D/copiloto-whatsapp-samuel",
+  "source": {
+    "ref": "origin/main",
+    "branch": "main",
+    "sha": "a82bdfd9d59c182c4d526f931097bfdf91400160",
+    "shortSha": "a82bdfd",
+    "subject": "chore: update default Gemini model to 3.1 Flash-Lite (#7)",
+    "committedAt": "2026-07-31T15:35:40-06:00",
+    "pullRequest": {
+      "number": 7,
+      "title": "chore: update default Gemini model to 3.1 Flash-Lite (#7)",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/7",
+      "state": "closed",
+      "mergedAt": null,
+      "source": "commit-subject"
+    },
+    "ciUrl": null
+  },
+  "runtime": {
+    "node": "22 (GitHub Actions)",
+    "framework": {
+      "name": "NestJS",
+      "version": "^11.0.1"
+    },
+    "dependencies": {
+      "googleGenAi": "^2.15.0",
+      "supabaseJs": "^2.108.2",
+      "axios": "^1.16.1"
+    },
+    "defaultGeminiModel": "gemini-3.1-flash-lite"
+  },
+  "verification": {
+    "unit": "passed",
+    "e2e": "passed",
+    "build": "passed",
+    "discoveredTests": {
+      "unit": 43,
+      "e2e": 1
+    }
+  },
+  "architecture": {
+    "modules": [
+      {
+        "name": "AppModule",
+        "path": "agent-core/src/app.module.ts"
+      },
+      {
+        "name": "EvolutionWebhookModule",
+        "path": "agent-core/src/webhooks/evolution/evolution-webhook.module.ts"
+      },
+      {
+        "name": "LeadsModule",
+        "path": "agent-core/src/leads/leads.module.ts"
+      },
+      {
+        "name": "SupabaseModule",
+        "path": "agent-core/src/supabase/supabase.module.ts"
+      }
+    ],
+    "components": {
+      "evolutionWebhook": true,
+      "supabase": true,
+      "leadScoring": true,
+      "aiProviderContract": true,
+      "geminiProvider": true,
+      "geminiRegistered": false,
+      "aiConnectedToWebhook": false,
+      "conversationContext": false,
+      "responseDraft": false,
+      "inventory": false,
+      "reports": false,
+      "media": false,
+      "sender": false
+    },
+    "migrations": [
+      "supabase/migrations/20260713050133_initial_remote_schema.sql",
+      "supabase/migrations/20260713052850_add_lead_scoring_columns.sql"
+    ]
+  },
+  "milestones": [
+    {
+      "id": "2",
+      "title": "Primer flujo programable",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 02 - Primer Flujo Programable DONE.md"
+    },
+    {
+      "id": "3",
+      "title": "Score y clasificación básica",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 03 - Score y Clasificacion Basica DONE.md"
+    },
+    {
+      "id": "3.2",
+      "title": "Score y clasificación avanzada",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 03.2 - Score y Clasificacion Avanzada DONE.md"
+    },
+    {
+      "id": "3.3",
+      "title": "E2E real del webhook y CI",
+      "status": "done",
+      "document": null
+    },
+    {
+      "id": "4.1",
+      "title": "Abstracción IA y Gemini",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.1 - Abstraccion IA y Gemini DONE.md"
+    },
+    {
+      "id": "4.2",
+      "title": "Contexto confiable y borradores seguros de respuesta",
+      "status": "active",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE.md"
+    }
+  ],
+  "milestone": {
+    "id": "4.2",
+    "title": "Contexto confiable y borradores seguros de respuesta",
+    "status": "active",
+    "workingBranch": "feature/hito-4-2-response-drafts",
+    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.2 - Contexto y borradores seguros de respuesta ACTIVE.md",
+    "checkpoints": [
+      {
+        "id": "4.2-A",
+        "title": "Contratos neutrales de contexto y borrador",
+        "commitHint": "feat: add response draft contracts",
+        "evidence": {
+          "contentAny": [
+            "export type ResponseDraft",
+            "export interface ResponseDraft"
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.2-B",
+        "title": "Constructor determinista de contexto seguro",
+        "commitHint": "feat: build safe lead conversation context",
+        "evidence": {
+          "contentAny": [
+            "class ConversationContextBuilder",
+            "class ConversationContextService"
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.2-C",
+        "title": "Servicio aislado de borradores",
+        "commitHint": "feat: generate isolated AI response drafts",
+        "evidence": {
+          "contentAny": [
+            "class ResponseDraftService"
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.2-D",
+        "title": "Pruebas del contexto y los borradores",
+        "commitHint": "test: cover response draft generation",
+        "evidence": {
+          "fileNameAny": [
+            "response-draft.service.spec.ts",
+            "conversation-context.builder.spec.ts",
+            "conversation-context.service.spec.ts"
+          ]
+        },
+        "complete": false
+      }
+    ],
+    "completionRequires": [
+      "unit",
+      "e2e",
+      "build",
+      "mergedPullRequest"
+    ]
+  },
+  "nextAction": {
+    "kind": "implement-checkpoint",
+    "title": "4.2-A: Contratos neutrales de contexto y borrador",
+    "text": "En la rama `feature/hito-4-2-response-drafts`, implementar únicamente el checkpoint **4.2-A: Contratos neutrales de contexto y borrador** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: add response draft contracts",
+    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
+  }
+}

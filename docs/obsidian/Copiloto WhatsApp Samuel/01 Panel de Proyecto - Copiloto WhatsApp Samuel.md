@@ -57,8 +57,7 @@ Lead + historial limitado + señales + reglas seguras
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- No hay fallas conocidas de CI en el commit observado.
-- El Hito 4.2 aún no implementa contratos, contexto ni borradores.
+- El primer checkpoint pendiente es **4.2-A: Contratos neutrales de contexto y borrador**.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

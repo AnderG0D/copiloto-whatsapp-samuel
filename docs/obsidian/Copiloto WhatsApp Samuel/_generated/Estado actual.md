@@ -9,22 +9,22 @@ updated: 2026-07-31
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` (`a82bdfd`) después del PR #7. Este bloque se regenerará desde el código y GitHub.
+> Estado observado en `main` en `a82bdfd`, asociado al [PR #7](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/7). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
-**Hito 4.2 — Contexto confiable y borradores seguros de respuesta** (`ACTIVE`).
+**Hito 4.2 — Contexto confiable y borradores seguros de respuesta**.
 
 ## Hitos confirmados
 
-| Hito | Estado | Evidencia principal |
-| --- | --- | --- |
-| 2 | `DONE` | Webhook Evolution → NestJS → Supabase |
-| 3 | `DONE` | Score y clasificación básica |
-| 3.2 | `DONE` | Scoring avanzado y pruebas |
-| 3.3 | `DONE` | E2E real del webhook y CI |
-| 4.1 | `DONE` | PR #5, #6 y #7 fusionados |
-| 4.2 | `ACTIVE` | Primer checkpoint pendiente |
+| Hito | Resultado | Estado | Evidencia |
+| --- | --- | --- | --- |
+| 2 | Primer flujo programable | `DONE` | Configurado como cerrado |
+| 3 | Score y clasificación básica | `DONE` | Configurado como cerrado |
+| 3.2 | Score y clasificación avanzada | `DONE` | Configurado como cerrado |
+| 3.3 | E2E real del webhook y CI | `DONE` | Configurado como cerrado |
+| 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
+| 4.2 | Contexto confiable y borradores seguros de respuesta | `ACTIVE` | 0/4 checkpoints observados |
 
 ## Componentes confirmados
 
@@ -33,6 +33,19 @@ updated: 2026-07-31
 - Scoring de leads.
 - Contrato neutral `AiProvider`.
 - `GeminiProvider` aislado y probado.
-- Modelo predeterminado `gemini-3.1-flash-lite`.
-- El provider de IA no está conectado al webhook.
+
+## Todavía fuera del runtime
+
+- `GeminiProvider` no está registrado en un módulo.
+- La IA no está conectada al webhook.
+- El constructor de contexto seguro aún no existe.
+- El servicio de borradores aún no existe.
+- Inventario aún no implementado.
+- Reportes aún no implementados.
+- Medios aún no implementados.
+- Envío automático aún no implementado.
+
+## Modelo predeterminado observado
+
+`gemini-3.1-flash-lite`
 <!-- AUTO:END project-state -->
