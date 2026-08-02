@@ -1,0 +1,156 @@
+name: Documentation sync
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: documentation-sync-main
+  cancel-in-progress: true
+
+jobs:
+  synchronize:
+    name: Generate reviewable documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+
+    steps:
+      - name: Checkout merged revision
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: agent-core/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: agent-core
+        run: npm ci
+
+      - name: Run unit tests
+        id: unit
+        continue-on-error: true
+        working-directory: agent-core
+        run: npm test -- --runInBand --json --outputFile=/tmp/docs-unit-results.json
+
+      - name: Run end-to-end tests
+        id: e2e
+        continue-on-error: true
+        working-directory: agent-core
+        run: npm run test:e2e -- --runInBand --json --outputFile=/tmp/docs-e2e-results.json
+
+      - name: Build backend
+        id: build
+        continue-on-error: true
+        working-directory: agent-core
+        run: npm run build
+
+      - name: Collect project state
+        env:
+          UNIT_STATUS: ${{ steps.unit.outcome == 'success' && 'passed' || 'failed' }}
+          E2E_STATUS: ${{ steps.e2e.outcome == 'success' && 'passed' || 'failed' }}
+          BUILD_STATUS: ${{ steps.build.outcome == 'success' && 'passed' || 'failed' }}
+          DOCS_CI_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          node scripts/docs/collect-project-state.mjs
+          --source-ref HEAD
+          --source-branch main
+          --unit-status "$UNIT_STATUS"
+          --e2e-status "$E2E_STATUS"
+          --build-status "$BUILD_STATUS"
+          --unit-results /tmp/docs-unit-results.json
+          --e2e-results /tmp/docs-e2e-results.json
+          --ci-url "$DOCS_CI_URL"
+
+      - name: Render managed documentation
+        run: npm run docs:render
+
+      - name: Validate protected zones
+        run: node scripts/docs/validate-documentation.mjs --automation-base HEAD
+
+      - name: Test documentation automation
+        run: npm run test:docs
+
+      - name: Detect documentation changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- docs; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect optional Codex configuration
+        id: codex_config
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
+        run: |
+          if [ -n "$OPENAI_API_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Optional Codex audit
+        id: codex_audit
+        if: steps.codex_config.outputs.enabled == 'true' && steps.changes.outputs.changed == 'true'
+        continue-on-error: true
+        uses: openai/codex-action@v1
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          prompt-file: .github/codex/prompts/documentation-audit.md
+          sandbox: read-only
+          safety-strategy: drop-sudo
+          codex-args: '["--ephemeral"]'
+          output-file: codex-docs-audit.md
+
+      - name: Add Codex audit to workflow summary
+        if: steps.codex_audit.outcome == 'success' && steps.codex_audit.outputs.final-message != ''
+        env:
+          CODEX_AUDIT: ${{ steps.codex_audit.outputs.final-message }}
+        run: |
+          printf '%s\n' '## Codex documentation audit' >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "$CODEX_AUDIT" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open documentation pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          branch="docs/auto-sync-${RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add docs
+          git commit -m "docs: sync project state for ${SOURCE_SHA:0:7}"
+          git push --set-upstream origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "docs: sync project state for ${SOURCE_SHA:0:7}" \
+            --body "Generated from code, GitHub and executed verification. Decisions, ADRs, roadmap and archive remain human-controlled. Review the generated state, diagram and canonical next action before merging."
+
+      - name: Preserve failing verification signal
+        if: always() && (steps.unit.outcome != 'success' || steps.e2e.outcome != 'success' || steps.build.outcome != 'success')
+        run: exit 1
