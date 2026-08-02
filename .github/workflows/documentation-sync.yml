@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - 'docs/control/milestones.json'
 
 permissions:
   contents: write

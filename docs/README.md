@@ -29,7 +29,7 @@ La nota canónica es:
 Copiloto WhatsApp Samuel/_generated/Siguiente accion.md
 ```
 
-El Panel del proyecto ya la transcluye. En `Panel Principal - Pensar-Hacer.md` basta agregar una sola vez:
+El Panel del proyecto ya la transcluye. En `Panel Principal - Pensar-Hacer v1.md` basta agregar una sola vez:
 
 ```md
 ![[Copiloto WhatsApp Samuel/_generated/Siguiente accion]]
