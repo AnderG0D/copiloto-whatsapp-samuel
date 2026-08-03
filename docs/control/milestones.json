@@ -72,12 +72,13 @@
           "evidence": {
             "pathContentAllAny": [
               {
-                "path": "agent-core/src/ai/response-drafts/response-draft.repository.ts",
-                "contentAll": ["ResponseDraftRepository", "PROPOSED"]
-              },
-              {
-                "path": "agent-core/src/ai/response-drafts/response-draft.persistence.ts",
-                "contentAll": ["ResponseDraftPersistence", "PROPOSED"]
+                "path": "agent-core/src/ai/response-drafts/response-draft.repository.spec.ts",
+                "contentAll": [
+                  "ResponseDraftRepository",
+                  "response_drafts",
+                  "source_message_id",
+                  "PROPOSED"
+                ]
               }
             ]
           }
@@ -93,7 +94,7 @@
                 "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
               },
               {
-                "path": "agent-core/src/ai/response-drafts/response-drafts.module.ts",
+                "path": "agent-core/src/ai/response-drafts/response-draft.module.ts",
                 "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
               }
             ]
@@ -124,11 +125,11 @@
             "pathContentAllAny": [
               {
                 "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
-                "contentAll": ["PROPOSED", "duplicate", "send"]
-              },
-              {
-                "path": "agent-core/test/app.e2e-spec.ts",
-                "contentAll": ["PROPOSED", "duplicate", "send"]
+                "contentAll": [
+                  "draftStatus: 'PROPOSED'",
+                  "duplicate message",
+                  "expect(createDraftMock).not.toHaveBeenCalled()"
+                ]
               }
             ]
           }
