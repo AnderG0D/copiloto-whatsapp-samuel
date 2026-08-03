@@ -2,15 +2,25 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
+import type { AiProvider } from './../src/ai/ai-provider.interface';
+import { AI_PROVIDER } from './../src/ai/ai.constants';
 import { AppModule } from './../src/app.module';
 
 describe('EvolutionWebhookController (e2e)', () => {
   let app: INestApplication<App>;
+  const generateTextMock: jest.MockedFunction<AiProvider['generateText']> =
+    jest.fn();
+  const fakeAiProvider: AiProvider = {
+    generateText: generateTextMock,
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(AI_PROVIDER)
+      .useValue(fakeAiProvider)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -27,6 +37,8 @@ describe('EvolutionWebhookController (e2e)', () => {
         ok: true,
         ignored: true,
       });
+
+    expect(generateTextMock).not.toHaveBeenCalled();
   });
 
   afterAll(async () => {
