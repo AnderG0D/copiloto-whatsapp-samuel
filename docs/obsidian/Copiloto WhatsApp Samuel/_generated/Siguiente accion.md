@@ -2,15 +2,13 @@
 type: generated-next-action
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] En la rama `feature/hito-4-3-persist-drafts-no-send`, implementar únicamente el checkpoint **4.3-A: Persistencia trazable de borradores PROPOSED** y sus pruebas, sin ampliar el alcance.
+- [ ] Comprobar el merge y los checks finales del Hito 4.3; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.
 
-**Commit sugerido:** `feat: persist proposed response drafts`
-
-**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
+**Termina cuando:** El hito está fusionado, la validación está verde y su estado documental coincide con GitHub.
 <!-- AUTO:END next-action -->

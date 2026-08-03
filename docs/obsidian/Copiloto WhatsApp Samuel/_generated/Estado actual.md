@@ -2,14 +2,14 @@
 type: generated-project-state
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # Estado actual
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `ca4c918`, asociado al [PR #13](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/13). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `ad7cb62`, asociado al [PR #16](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/16). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
@@ -25,7 +25,7 @@ updated: 2026-08-02
 | 3.3 | E2E real del webhook y CI | `DONE` | Configurado como cerrado |
 | 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
 | 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
-| 4.3 | Persistencia e integración de borradores sin envío | `ACTIVE` | 0/4 checkpoints observados |
+| 4.3 | Persistencia e integración de borradores sin envío | `READY_TO_CLOSE` | 4/4 checkpoints observados |
 
 ## Componentes confirmados
 
@@ -39,7 +39,6 @@ updated: 2026-08-02
 
 ## Todavía fuera del runtime
 
-- `GeminiProvider` no está registrado en un módulo.
 - La IA no está conectada al webhook.
 - Inventario aún no implementado.
 - Reportes aún no implementados.
