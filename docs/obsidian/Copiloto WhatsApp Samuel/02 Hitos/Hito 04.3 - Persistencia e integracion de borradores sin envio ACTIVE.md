@@ -38,10 +38,10 @@ Este hito no fija todavía el diseño irreversible del esquema. El checkpoint 4.
 ## Progreso observado
 
 <!-- AUTO:BEGIN milestone-progress -->
-- [ ] 4.3-A — Persistencia trazable de borradores PROPOSED.
-- [ ] 4.3-B — Registro de la capa de IA y borradores en NestJS.
-- [ ] 4.3-C — Integración después del scoring sin envío.
-- [ ] 4.3-D — Pruebas de persistencia, idempotencia y ausencia de envío.
+- [x] 4.3-A — Persistencia trazable de borradores PROPOSED.
+- [x] 4.3-B — Registro de la capa de IA y borradores en NestJS.
+- [x] 4.3-C — Integración después del scoring sin envío.
+- [x] 4.3-D — Pruebas de persistencia, idempotencia y ausencia de envío.
 <!-- AUTO:END milestone-progress -->
 
 ## Checkpoints

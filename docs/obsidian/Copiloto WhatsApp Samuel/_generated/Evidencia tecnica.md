@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # Evidencia técnica
@@ -10,14 +10,14 @@ updated: 2026-08-02
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `ca4c918`, asociado al [PR #13](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/13).
-- Commit completo: `ca4c9187fed294da8bc70e6a99a9d481fec6a3e8`.
-- Mensaje: docs: close milestone 4.2 and activate 4.3 (#13).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30743342413).
+- Fuente: `main` en `cea0cb7`, asociado al [PR #18](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/18).
+- Commit completo: `cea0cb7a321b3028f29ec480e6185b4d17502313`.
+- Mensaje: fix: detect indirect AI webhook integration (#18).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30854279782).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 72 casos ejecutados.
+- **Unitarias:** `APROBADO` — 82 casos ejecutados.
 - **E2E:** `APROBADO` — 1 caso ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
@@ -33,10 +33,12 @@ updated: 2026-08-02
 - `AppModule` — `agent-core/src/app.module.ts`.
 - `EvolutionWebhookModule` — `agent-core/src/webhooks/evolution/evolution-webhook.module.ts`.
 - `LeadsModule` — `agent-core/src/leads/leads.module.ts`.
+- `ResponseDraftModule` — `agent-core/src/ai/response-drafts/response-draft.module.ts`.
 - `SupabaseModule` — `agent-core/src/supabase/supabase.module.ts`.
 
 ## Migraciones detectadas
 
 - `supabase/migrations/20260713050133_initial_remote_schema.sql`
 - `supabase/migrations/20260713052850_add_lead_scoring_columns.sql`
+- `supabase/migrations/20260802111346_create_response_drafts.sql`
 <!-- AUTO:END technical-evidence -->
