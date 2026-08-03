@@ -197,10 +197,12 @@ const moduleFiles = [...sourceTexts]
   .filter(([file]) => file.endsWith('.module.ts'))
   .map(([, text]) => text)
   .join('\n');
-const webhookText = [...sourceTexts]
-  .filter(([file]) => file.includes('/webhooks/evolution/'))
-  .map(([, text]) => text)
-  .join('\n');
+const webhookServiceText = sourceTexts.get(
+  'agent-core/src/webhooks/evolution/evolution-webhook.service.ts',
+) ?? '';
+const webhookModuleText = sourceTexts.get(
+  'agent-core/src/webhooks/evolution/evolution-webhook.module.ts',
+) ?? '';
 const conversationContextText = sourceTexts.get(
   'agent-core/src/ai/response-drafts/conversation-context.builder.ts',
 ) ?? '';
@@ -209,6 +211,19 @@ const responseDraftText = sourceTexts.get(
 ) ?? '';
 const has = async (file) => pathExists(file);
 
+const responseDraftConnectedToWebhook = (
+  /\bResponseDraftModule\b/.test(webhookModuleText)
+  && /\bResponseDraftService\b/.test(webhookServiceText)
+  && /\bresponseDraftService\.generate\s*\(/.test(webhookServiceText)
+);
+const responseDraftUsesAiProvider = (
+  /\bAI_PROVIDER\b/.test(responseDraftText)
+  && /\baiProvider\.generateText\s*\(/.test(responseDraftText)
+);
+const aiDirectlyConnectedToWebhook = (
+  /\b(?:GeminiProvider|AI_PROVIDER|AiProvider)\b/.test(webhookServiceText)
+);
+
 const components = {
   evolutionWebhook: await has('agent-core/src/webhooks/evolution/evolution-webhook.service.ts'),
   supabase: await has('agent-core/src/supabase/supabase.service.ts'),
@@ -216,11 +231,15 @@ const components = {
   aiProviderContract: await has('agent-core/src/ai/ai-provider.interface.ts'),
   geminiProvider: await has('agent-core/src/ai/gemini.provider.ts'),
   geminiRegistered: /\b(?:GeminiProvider|AI_PROVIDER)\b/.test(moduleFiles),
-  aiConnectedToWebhook: /\b(?:GeminiProvider|AI_PROVIDER|AiProvider)\b/.test(webhookText),
+  aiConnectedToWebhook: (
+    aiDirectlyConnectedToWebhook
+    || (responseDraftConnectedToWebhook && responseDraftUsesAiProvider)
+  ),
   conversationContext: /\bexport class ConversationContextBuilder\b/.test(
     conversationContextText,
   ),
   responseDraft: /\bexport class ResponseDraftService\b/.test(responseDraftText),
+  responseDraftConnectedToWebhook,
   inventory: sourceFiles.some((file) => /\/inventory\//.test(file)),
   reports: sourceFiles.some((file) => /\/reports?\//.test(file)),
   media: sourceFiles.some((file) => /\/media\//.test(file)),

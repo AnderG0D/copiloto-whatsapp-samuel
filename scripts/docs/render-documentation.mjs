@@ -119,7 +119,10 @@ function architectureDiagram() {
   ];
 
   if (components.responseDraft) lines.push('    G["ResponseDraftService"] --> E');
-  if (components.aiConnectedToWebhook) lines.push('    B --> E');
+  if (components.responseDraftConnectedToWebhook) lines.push('    B --> G');
+  if (components.aiConnectedToWebhook && !components.responseDraftConnectedToWebhook) {
+    lines.push('    B --> E');
+  }
   lines.push('```');
   return lines.join('\n');
 }
@@ -201,9 +204,12 @@ ${state.architecture.components.geminiRegistered
   ? '`GeminiProvider` está registrado en el runtime.'
   : '`GeminiProvider` existe y está probado, pero todavía no está registrado en un módulo.'}
 
-${state.architecture.components.aiConnectedToWebhook
-  ? 'El contrato de IA participa en el flujo del webhook.'
-  : 'El contrato de IA no está conectado al webhook; no puede generar ni enviar respuestas desde ese flujo.'}`;
+${state.architecture.components.responseDraftConnectedToWebhook
+  && state.architecture.components.aiConnectedToWebhook
+  ? '`EvolutionWebhookService` llama a `ResponseDraftService`, que usa `AI_PROVIDER` para generar borradores. El flujo los persiste como `PROPOSED`; no envía mensajes a WhatsApp.'
+  : state.architecture.components.aiConnectedToWebhook
+    ? 'El contrato de IA participa directamente en el flujo del webhook.'
+    : 'El contrato de IA no está conectado al webhook; no puede generar respuestas desde ese flujo.'}`;
 
 const generatedFiles = {
   [`${projectRoot}/_generated/Estado actual.md`]: generatedDocument(
