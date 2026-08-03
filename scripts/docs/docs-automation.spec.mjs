@@ -137,6 +137,14 @@ test('Hito 4.2 components remain detected after the active milestone changes', a
   assert.equal(state.architecture.components.responseDraft, true);
 });
 
+test('the indirect webhook AI path is detected without claiming message sending', async () => {
+  const state = await collectCurrentProjectState();
+
+  assert.equal(state.architecture.components.responseDraftConnectedToWebhook, true);
+  assert.equal(state.architecture.components.aiConnectedToWebhook, true);
+  assert.equal(state.architecture.components.sender, false);
+});
+
 test('the current Hito 4.3 evidence detects all four checkpoints', async () => {
   const state = await collectCurrentProjectState();
 
