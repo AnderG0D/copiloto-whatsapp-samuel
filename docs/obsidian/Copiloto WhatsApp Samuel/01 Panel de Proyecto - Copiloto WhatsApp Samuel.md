@@ -57,7 +57,7 @@ mensaje guardado y scoreado
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.3-A: Persistencia trazable de borradores PROPOSED**.
+- No hay checkpoints técnicos pendientes; falta comprobar el cierre del Hito 4.3.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

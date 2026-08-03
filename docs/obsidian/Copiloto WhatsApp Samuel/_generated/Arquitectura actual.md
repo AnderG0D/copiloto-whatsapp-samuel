@@ -2,7 +2,7 @@
 type: generated-architecture
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-02
+updated: 2026-08-03
 ---
 
 # Arquitectura actual observada
@@ -15,9 +15,10 @@ flowchart TD
     B --> D["LeadsModule"]
     E["AiProvider contract"] -. "implemented by" .-> F["GeminiProvider"]
     G["ResponseDraftService"] --> E
+    B --> G
 ```
 
-`GeminiProvider` existe y está probado, pero todavía no está registrado en un módulo.
+`GeminiProvider` está registrado en el runtime.
 
-El contrato de IA no está conectado al webhook; no puede generar ni enviar respuestas desde ese flujo.
+`EvolutionWebhookService` llama a `ResponseDraftService`, que usa `AI_PROVIDER` para generar borradores. El flujo los persiste como `PROPOSED`; no envía mensajes a WhatsApp.
 <!-- AUTO:END architecture -->
