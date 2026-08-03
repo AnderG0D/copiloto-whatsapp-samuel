@@ -121,13 +121,13 @@ test('first incomplete checkpoint becomes the next action', () => {
   assert.match(action.text, /4\.2-B/);
 });
 
-test('Hito 4.3 selects its first pending checkpoint as the next action', async () => {
+test('Hito 4.3 selects milestone closure after detecting every checkpoint', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.id, '4.3');
-  assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.match(state.nextAction.title, /^4\.3-A:/);
-  assert.match(state.nextAction.text, /4\.3-A/);
+  assert.equal(state.nextAction.kind, 'close-milestone');
+  assert.equal(state.nextAction.title, 'Cerrar Hito 4.3');
+  assert.match(state.nextAction.text, /Hito 4\.3/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
@@ -137,12 +137,12 @@ test('Hito 4.2 components remain detected after the active milestone changes', a
   assert.equal(state.architecture.components.responseDraft, true);
 });
 
-test('the current Hito 4.3 evidence starts at zero of four checkpoints', async () => {
+test('the current Hito 4.3 evidence detects all four checkpoints', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.checkpoints.length, 4);
   assert.equal(
     state.milestone.checkpoints.filter((checkpoint) => checkpoint.complete).length,
-    0,
+    4,
   );
 });
