@@ -3,7 +3,7 @@ type: project-moc
 project: Copiloto WhatsApp Samuel
 system: Pensar-Hacer v1
 status: active
-updated: 2026-08-02
+updated: 2026-08-04
 aliases:
   - Copiloto WhatsApp Samuel
   - Proyecto Copiloto Samuel
@@ -33,10 +33,11 @@ aliases:
 - [[Hito 03.2 - Score y Clasificacion Avanzada DONE]]
 - [[Hito 04.1 - Abstraccion IA y Gemini DONE]]
 - [[Hito 04.2 - Contexto y borradores seguros de respuesta DONE]]
+- [[Hito 04.3 - Persistencia e integracion de borradores sin envio DONE]]
 
 ### Actual
 
-- [[Hito 04.3 - Persistencia e integracion de borradores sin envio ACTIVE]]
+- [[Hito 04.4 - Revision y aprobacion humana ACTIVE]]
 
 ## Decisiones
 

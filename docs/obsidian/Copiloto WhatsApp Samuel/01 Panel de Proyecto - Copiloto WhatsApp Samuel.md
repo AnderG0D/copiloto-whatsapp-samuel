@@ -4,8 +4,8 @@ project: Copiloto WhatsApp Samuel
 system: Pensar-Hacer v1
 status: active
 fase: Fase 2 — IA de texto segura
-hito_actual: Hito 4.3 — Persistencia e integración sin envío
-updated: 2026-08-02
+hito_actual: Hito 4.4 — Revisión y aprobación humana
+updated: 2026-08-04
 aliases:
   - Panel de Ejecucion - Copiloto WhatsApp Samuel
 ---
@@ -29,17 +29,24 @@ aliases:
 
 ## Hito activo
 
-**Hito 4.3 — Persistencia e integración de borradores sin envío**
+**Hito 4.4 — Revisión y aprobación humana**
 
 Resultado esperado:
 
 ```text
-mensaje guardado y scoreado
-→ contexto seguro
-→ borrador PROPOSED
-→ persistencia trazable
+borrador PROPOSED
+→ operador autenticado
+→ aprobar | editar y aprobar | rechazar
+→ texto original preservado
+→ decisión auditable
 → sin envío
 ```
+
+### Condición previa al desarrollo funcional
+
+Antes de comenzar técnicamente 4.4-A debe quedar fusionado y validado, en un PR independiente, el sistema determinista de relevo automático entre hitos.
+
+Este gate documental no reemplaza la próxima acción canónica generada ni forma parte de los checkpoints funcionales 4.4-A a 4.4-D.
 
 ## Producto final
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "activeMilestone": "4.3",
+  "activeMilestone": "4.4",
   "milestones": [
     {
       "id": "2",
@@ -61,22 +61,93 @@
     {
       "id": "4.3",
       "title": "Persistencia e integración de borradores sin envío",
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.3 - Persistencia e integracion de borradores sin envio DONE.md",
+      "evidence": {
+        "pullRequests": [
+          15,
+          16,
+          18,
+          19
+        ],
+        "mergeCommit": "a6c5ab4ea594af7a1e097090d22495ef71bc6b32",
+        "requiredPaths": [
+          "supabase/migrations/20260802111346_create_response_drafts.sql",
+          "agent-core/src/ai/response-drafts/response-draft.repository.ts",
+          "agent-core/src/ai/response-drafts/response-draft.module.ts",
+          "agent-core/src/webhooks/evolution/evolution-webhook.service.ts",
+          "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
+          "agent-core/test/app.e2e-spec.ts"
+        ]
+      }
+    },
+    {
+      "id": "4.4",
+      "title": "Revisión y aprobación humana",
       "status": "active",
-      "workingBranch": "feature/hito-4-3-persist-drafts-no-send",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.3 - Persistencia e integracion de borradores sin envio ACTIVE.md",
+      "workingBranch": "feature/hito-4-4-human-review",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana ACTIVE.md",
       "checkpoints": [
         {
-          "id": "4.3-A",
-          "title": "Persistencia trazable de borradores PROPOSED",
-          "commitHint": "feat: persist proposed response drafts",
+          "id": "4.4-A",
+          "title": "Persistencia auditable de decisiones humanas",
+          "commitHint": "feat: persist auditable response draft decisions",
           "evidence": {
             "pathContentAllAny": [
               {
                 "path": "agent-core/src/ai/response-drafts/response-draft.repository.spec.ts",
                 "contentAll": [
-                  "ResponseDraftRepository",
-                  "response_drafts",
-                  "source_message_id",
+                  "approve",
+                  "reject",
+                  "operator"
+                ]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft-review.repository.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "reject",
+                  "operator"
+                ]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft-decision.repository.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "reject",
+                  "operator"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.4-B",
+          "title": "Servicio de revisión humana",
+          "commitHint": "feat: add human response draft review service",
+          "evidence": {
+            "pathContentAllAny": [
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft.service.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "reject",
+                  "PROPOSED"
+                ]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "reject",
+                  "PROPOSED"
+                ]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/human-review.service.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "reject",
                   "PROPOSED"
                 ]
               }
@@ -84,51 +155,66 @@
           }
         },
         {
-          "id": "4.3-B",
-          "title": "Registro de la capa de IA y borradores en NestJS",
-          "commitHint": "feat: register AI response draft services",
+          "id": "4.4-C",
+          "title": "Interfaz administrativa autenticada",
+          "commitHint": "feat: expose authenticated response draft review API",
           "evidence": {
             "pathContentAllAny": [
               {
-                "path": "agent-core/src/ai/ai.module.ts",
-                "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
+                "path": "agent-core/test/app.e2e-spec.ts",
+                "contentAll": [
+                  "unauthorized",
+                  "operator",
+                  "approve"
+                ]
               },
               {
-                "path": "agent-core/src/ai/response-drafts/response-draft.module.ts",
-                "contentAll": ["AI_PROVIDER", "ResponseDraftService"]
-              }
-            ]
-          }
-        },
-        {
-          "id": "4.3-C",
-          "title": "Integración después del scoring sin envío",
-          "commitHint": "feat: persist drafts after lead scoring",
-          "evidence": {
-            "pathContentAllAny": [
-              {
-                "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.ts",
+                "path": "agent-core/src/ai/response-drafts/response-draft-review.controller.spec.ts",
                 "contentAll": [
-                  "LeadScoringService",
-                  "ResponseDraftService",
-                  "responseDraftService.generate"
+                  "unauthorized",
+                  "operator",
+                  "approve"
+                ]
+              },
+              {
+                "path": "agent-core/src/admin/response-drafts/response-draft-review.controller.spec.ts",
+                "contentAll": [
+                  "unauthorized",
+                  "operator",
+                  "approve"
                 ]
               }
             ]
           }
         },
         {
-          "id": "4.3-D",
-          "title": "Pruebas de persistencia, idempotencia y ausencia de envío",
-          "commitHint": "test: cover persisted drafts without sending",
+          "id": "4.4-D",
+          "title": "Pruebas, idempotencia y ausencia de envío",
+          "commitHint": "test: cover human review without sending",
           "evidence": {
             "pathContentAllAny": [
               {
+                "path": "agent-core/test/app.e2e-spec.ts",
+                "contentAll": [
+                  "approve",
+                  "send",
+                  "not.toHaveBeenCalled"
+                ]
+              },
+              {
                 "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
                 "contentAll": [
-                  "draftStatus: 'PROPOSED'",
-                  "duplicate message",
-                  "expect(createDraftMock).not.toHaveBeenCalled()"
+                  "approve",
+                  "send",
+                  "not.toHaveBeenCalled"
+                ]
+              },
+              {
+                "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
+                "contentAll": [
+                  "approve",
+                  "send",
+                  "not.toHaveBeenCalled"
                 ]
               }
             ]
