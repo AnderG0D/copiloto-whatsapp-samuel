@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-03
+updated: 2026-08-04
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-08-03
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `cea0cb7`, asociado al [PR #18](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/18).
-- Commit completo: `cea0cb7a321b3028f29ec480e6185b4d17502313`.
-- Mensaje: fix: detect indirect AI webhook integration (#18).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30854279782).
+- Fuente: `main` en `e56348e`, asociado al [PR #20](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/20).
+- Commit completo: `e56348e7a590a12ceb937eda7783122fb22d1f91`.
+- Mensaje: docs: close milestone 4.3 and activate 4.4 (#20).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30966288753).
 
 ## Validación
 
