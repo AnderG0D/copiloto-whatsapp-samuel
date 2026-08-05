@@ -2,13 +2,15 @@
 type: generated-next-action
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-03
+updated: 2026-08-04
 ---
 
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] Comprobar el merge y los checks finales del Hito 4.3; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.
+- [ ] En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-A: Persistencia auditable de decisiones humanas** y sus pruebas, sin ampliar el alcance.
 
-**Termina cuando:** El hito está fusionado, la validación está verde y su estado documental coincide con GitHub.
+**Commit sugerido:** `feat: persist auditable response draft decisions`
+
+**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
 <!-- AUTO:END next-action -->
