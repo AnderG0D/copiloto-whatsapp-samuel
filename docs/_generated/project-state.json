@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-04",
+  "observedDate": "2026-08-05",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "e56348e7a590a12ceb937eda7783122fb22d1f91",
-    "shortSha": "e56348e",
-    "subject": "docs: close milestone 4.3 and activate 4.4 (#20)",
-    "committedAt": "2026-08-04T19:24:29-06:00",
+    "sha": "168f58a6f43e225d631a76f11b010fb8bf1cbdc3",
+    "shortSha": "168f58a",
+    "subject": "feat(docs): automate deterministic milestone handoffs (#22)",
+    "committedAt": "2026-08-05T15:44:04-06:00",
     "pullRequest": {
-      "number": 20,
-      "title": "docs: close milestone 4.3 and activate 4.4",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/20",
+      "number": 22,
+      "title": "feat(docs): automate deterministic milestone handoffs",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/22",
       "state": "closed",
-      "mergedAt": "2026-08-05T01:24:30Z",
+      "mergedAt": "2026-08-05T21:44:04Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30966288753"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31049899735"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
