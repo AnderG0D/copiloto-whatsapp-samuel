@@ -8,7 +8,8 @@
   "classes": {
     "generated": [
       "docs/_generated/**",
-      "docs/obsidian/Copiloto WhatsApp Samuel/_generated/**"
+      "docs/obsidian/Copiloto WhatsApp Samuel/_generated/**",
+      "docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.3 a 04.4.md"
     ],
     "mixed": [
       "docs/obsidian/Copiloto WhatsApp Samuel/00 Copiloto WhatsApp Samuel - MOC.md",

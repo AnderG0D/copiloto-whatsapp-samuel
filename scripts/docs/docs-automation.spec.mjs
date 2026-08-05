@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
@@ -12,9 +13,75 @@ import {
   repositoryRoot,
   stripAutoBlockBodies,
 } from './shared.mjs';
+import {
+  autoBlockComparisonText,
+  documentDigest,
+  normalizeLineEndings,
+  readNormalizedTextFile,
+  validateFrontmatter,
+  validateGeneratedDeclaration,
+} from './validate-documentation.mjs';
 
 const execFileAsync = promisify(execFile);
 let currentProjectStatePromise;
+
+function fixtureNote(lineEnding, overrides = {}) {
+  const values = {
+    type: 'fixture-note',
+    project: 'Documentation fixture',
+    generated: 'true',
+    ...overrides,
+  };
+  return [
+    '---',
+    ...Object.entries(values).map(([key, value]) => `${key}: ${value}`),
+    '---',
+    '',
+    '# Fixture note',
+    '',
+  ].join(lineEnding);
+}
+
+async function createTextFixture(t, content, prefix = '.docs-eol-test-') {
+  const temporaryDirectory = await mkdtemp(path.join(tmpdir(), prefix));
+  t.after(async () => rm(temporaryDirectory, { recursive: true, force: true }));
+  const file = path.join(temporaryDirectory, 'note.md');
+  await writeFile(file, content, 'utf8');
+  return file;
+}
+
+async function createGitTextFixture(t) {
+  const temporaryDirectory = await mkdtemp(
+    path.join(tmpdir(), '.docs-eol-git-test-'),
+  );
+  t.after(async () => rm(temporaryDirectory, { recursive: true, force: true }));
+  const file = path.join(temporaryDirectory, 'note.md');
+  const base = `${fixtureNote('\n')}
+Human content.
+
+<!-- AUTO:BEGIN fixture -->
+Old generated content.
+<!-- AUTO:END fixture -->
+`;
+
+  await execFileAsync('git', ['init', '--quiet'], { cwd: temporaryDirectory });
+  await execFileAsync('git', ['config', 'user.name', 'Documentation Test'], {
+    cwd: temporaryDirectory,
+  });
+  await execFileAsync('git', ['config', 'user.email', 'docs-test@example.invalid'], {
+    cwd: temporaryDirectory,
+  });
+  await writeFile(file, base, 'utf8');
+  await execFileAsync('git', ['add', 'note.md'], { cwd: temporaryDirectory });
+  await execFileAsync('git', ['commit', '-m', 'docs: add fixture'], {
+    cwd: temporaryDirectory,
+  });
+
+  const { stdout } = await execFileAsync('git', ['show', 'HEAD:note.md'], {
+    cwd: temporaryDirectory,
+  });
+  return { base, blob: normalizeLineEndings(stdout), file };
+}
 
 async function collectCurrentProjectState() {
   if (!currentProjectStatePromise) {
@@ -153,4 +220,121 @@ test('the current Hito 4.4 starts with four incomplete checkpoints', async () =>
     0,
   );
   assert.equal(state.architecture.components.sender, false);
+});
+
+test('complete LF frontmatter remains valid', async (t) => {
+  const file = await createTextFixture(t, fixtureNote('\n'));
+  const text = await readNormalizedTextFile(file);
+  const issues = [];
+
+  const frontmatter = validateFrontmatter('fixture-lf.md', text, issues);
+
+  assert.deepEqual(issues, []);
+  assert.match(frontmatter, /^type: fixture-note$/m);
+});
+
+test('complete CRLF frontmatter is normalized and remains valid', async (t) => {
+  const file = await createTextFixture(t, fixtureNote('\r\n'));
+  const text = await readNormalizedTextFile(file);
+  const issues = [];
+
+  const frontmatter = validateFrontmatter('fixture-crlf.md', text, issues);
+
+  assert.deepEqual(issues, []);
+  assert.match(frontmatter, /^type: fixture-note$/m);
+  assert.equal(text.includes('\r'), false);
+});
+
+test('CRLF frontmatter exposes fields between valid opening and closing delimiters', async (t) => {
+  const file = await createTextFixture(
+    t,
+    fixtureNote('\r\n', { status: 'active', hito: '4.4' }),
+  );
+  const text = await readNormalizedTextFile(file);
+  const issues = [];
+
+  const frontmatter = validateFrontmatter('fixture-fields.md', text, issues);
+
+  assert.deepEqual(issues, []);
+  assert.match(frontmatter, /^status: active$/m);
+  assert.match(frontmatter, /^hito: 4\.4$/m);
+});
+
+test('a document truly missing frontmatter still fails', async (t) => {
+  const file = await createTextFixture(t, '# No frontmatter\r\n');
+  const text = await readNormalizedTextFile(file);
+  const issues = [];
+
+  const frontmatter = validateFrontmatter('missing-frontmatter.md', text, issues);
+
+  assert.equal(frontmatter, null);
+  assert.deepEqual(issues, [
+    'missing-frontmatter.md: missing YAML frontmatter',
+  ]);
+});
+
+test('automation comparison treats an LF Git blob and equivalent CRLF working tree as equal', async (t) => {
+  const fixture = await createGitTextFixture(t);
+  const workingCrlf = fixture.base
+    .replace('Old generated content.', 'New generated content.')
+    .replace(/\n/g, '\r\n');
+  await writeFile(fixture.file, workingCrlf, 'utf8');
+
+  const working = await readNormalizedTextFile(fixture.file);
+
+  assert.match(await readFile(fixture.file, 'utf8'), /\r\n/);
+  assert.doesNotMatch(fixture.blob, /\r/);
+  assert.equal(
+    autoBlockComparisonText(fixture.blob),
+    autoBlockComparisonText(working),
+  );
+});
+
+test('duplicate hashes are equal for semantically identical LF and CRLF notes', async (t) => {
+  const temporaryDirectory = await mkdtemp(
+    path.join(tmpdir(), '.docs-eol-hash-test-'),
+  );
+  t.after(async () => rm(temporaryDirectory, { recursive: true, force: true }));
+  const lfFile = path.join(temporaryDirectory, 'lf.md');
+  const crlfFile = path.join(temporaryDirectory, 'crlf.md');
+  await writeFile(lfFile, fixtureNote('\n'), 'utf8');
+  await writeFile(crlfFile, fixtureNote('\r\n'), 'utf8');
+
+  const lfDigest = documentDigest(await readNormalizedTextFile(lfFile));
+  const crlfDigest = documentDigest(await readNormalizedTextFile(crlfFile));
+
+  assert.equal(crlfDigest, lfDigest);
+});
+
+test('automation comparison continues to detect a real human-content difference', async (t) => {
+  const fixture = await createGitTextFixture(t);
+  const changedCrlf = fixture.base
+    .replace('Human content.', 'Changed human content.')
+    .replace('Old generated content.', 'New generated content.')
+    .replace(/\n/g, '\r\n');
+  await writeFile(fixture.file, changedCrlf, 'utf8');
+
+  const working = await readNormalizedTextFile(fixture.file);
+
+  assert.notEqual(
+    autoBlockComparisonText(fixture.blob),
+    autoBlockComparisonText(working),
+  );
+});
+
+test('generated true is accepted after CRLF frontmatter normalization', async (t) => {
+  const file = await createTextFixture(t, fixtureNote('\r\n'));
+  const text = await readNormalizedTextFile(file);
+  const issues = [];
+  const frontmatter = validateFrontmatter('generated-crlf.md', text, issues);
+
+  validateGeneratedDeclaration(
+    'generated-crlf.md', 'generated', frontmatter, issues,
+  );
+
+  assert.deepEqual(issues, []);
+});
+
+test('line-ending normalization handles CRLF and lone CR without changing content', () => {
+  assert.equal(normalizeLineEndings('one\r\ntwo\rthree\n'), 'one\ntwo\nthree\n');
 });
