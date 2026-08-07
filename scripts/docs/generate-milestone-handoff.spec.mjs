@@ -674,6 +674,24 @@ test('rejects a frozen revision with an unexpected history relationship', async 
   );
 });
 
+test('rejects a logical change in the frozen historical snapshot', async (t) => {
+  const fixture = await createFixture(t);
+  await mutateJson(fixture.root, statePath, (state) => {
+    state.milestone.title = 'Logically changed historical title';
+  });
+  git(fixture.root, ['add', statePath]);
+  git(fixture.root, ['commit', '--amend', '--no-edit']);
+  const changedFrozenRevision = git(fixture.root, ['rev-parse', 'HEAD']);
+  await mutateJson(fixture.root, contractPath, (contract) => {
+    contract.frozenRevision = changedFrozenRevision;
+  });
+
+  await assert.rejects(
+    generateMilestoneHandoff({ root: fixture.root }),
+    /active milestone details differ between configuration and observed state \(historical state\)/,
+  );
+});
+
 test('rejects milestones that are not an actual consecutive transition', async (t) => {
   const fixture = await createFixture(t);
   await mutateJson(fixture.root, milestonesPath, (milestones) => {
@@ -764,6 +782,56 @@ test('two generations produce byte-identical content', async (t) => {
   }
 });
 
+test('keeps frozen outputs stable when live state advances from e56348e to 168f58a', async (t) => {
+  const fixture = await createFixture(t);
+  await generateMilestoneHandoff({ root: fixture.root });
+  const frozenOutputs = await outputBytes(fixture.root, fixture.outputPaths);
+
+  // Production regression: the handoff was frozen at e56348e, then main and
+  // docs/_generated/project-state.json legitimately advanced to 168f58a.
+  await writeFixtureFile(fixture.root, 'evidence/later-live-change.txt', 'merged\n');
+  const laterRevision = commitAll(
+    fixture.root,
+    'docs: publish deterministic handoff',
+  );
+  const liveState = await readFixtureJson(fixture.root, statePath);
+  liveState.observedDate = '2026-08-06';
+  liveState.source = {
+    ...liveState.source,
+    sha: laterRevision,
+    shortSha: laterRevision.slice(0, 7),
+    subject: 'docs: publish deterministic handoff',
+    committedAt: '2026-08-06T10:00:00-06:00',
+    pullRequest: {
+      ...liveState.source.pullRequest,
+      number: 22,
+      title: 'Publish deterministic documentation handoff',
+      url: 'https://example.invalid/pull/22',
+      mergedAt: '2026-08-06T16:00:00Z',
+    },
+  };
+  liveState.nextAction = deriveNextAction({
+    verification: liveState.verification,
+    activeMilestone: liveState.milestone,
+    pullRequest: liveState.source.pullRequest,
+  });
+  await writeFixtureJson(fixture.root, statePath, liveState);
+  await writeFixtureFile(
+    fixture.root,
+    canonicalActionPath,
+    canonicalActionDocument(liveState),
+  );
+
+  await generateMilestoneHandoff({ root: fixture.root, check: true });
+  const afterAdvance = await outputBytes(fixture.root, fixture.outputPaths);
+  for (const name of Object.keys(frozenOutputs)) {
+    assert.ok(
+      frozenOutputs[name].equals(afterAdvance[name]),
+      `${name} changed after live state advanced`,
+    );
+  }
+});
+
 test('a second generation does not create another historical handoff', async (t) => {
   const fixture = await createFixture(t);
   await generateMilestoneHandoff({ root: fixture.root });
@@ -773,7 +841,7 @@ test('a second generation does not create another historical handoff', async (t)
   assert.deepEqual(handoffs, ['Hito 04.3 a 04.4.md']);
 });
 
-test('check mode performs no writes', async (t) => {
+test('check mode accepts LF outputs without writes', async (t) => {
   const fixture = await createFixture(t);
   await generateMilestoneHandoff({ root: fixture.root });
   const before = await snapshotWorkingFiles(fixture.root);
@@ -782,6 +850,40 @@ test('check mode performs no writes', async (t) => {
   const after = await snapshotWorkingFiles(fixture.root);
 
   assert.deepEqual(after, before);
+});
+
+test('check mode accepts CRLF outputs without writes', async (t) => {
+  const fixture = await createFixture(t);
+  await generateMilestoneHandoff({ root: fixture.root });
+  for (const outputPath of Object.values(fixture.outputPaths)) {
+    const target = absolute(fixture.root, outputPath);
+    const content = await readFile(target, 'utf8');
+    await writeFile(target, content.replace(/\n/g, '\r\n'), 'utf8');
+  }
+  const before = await snapshotWorkingFiles(fixture.root);
+
+  await generateMilestoneHandoff({ root: fixture.root, check: true });
+  const after = await snapshotWorkingFiles(fixture.root);
+
+  assert.deepEqual(after, before);
+});
+
+test('check mode rejects logical drift after EOL canonicalization without writes', async (t) => {
+  const fixture = await createFixture(t);
+  await generateMilestoneHandoff({ root: fixture.root });
+  const target = absolute(fixture.root, fixture.outputPaths.masterPrompt);
+  const content = await readFile(target, 'utf8');
+  await writeFile(
+    target,
+    content.replace('Prompt maestro', 'Prompt logically changed').replace(/\n/g, '\r\n'),
+    'utf8',
+  );
+
+  await assertFailureWithoutWrites(
+    fixture.root,
+    () => generateMilestoneHandoff({ root: fixture.root, check: true }),
+    /generated output is out of date/,
+  );
 });
 
 test('check mode does not create completely absent output directories', async (t) => {
