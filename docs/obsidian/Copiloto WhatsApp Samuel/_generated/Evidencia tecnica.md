@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-04
+updated: 2026-08-07
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-08-04
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `e56348e`, asociado al [PR #20](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/20).
-- Commit completo: `e56348e7a590a12ceb937eda7783122fb22d1f91`.
-- Mensaje: docs: close milestone 4.3 and activate 4.4 (#20).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30966288753).
+- Fuente: `main` en `19e5411`, asociado al [PR #24](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/24).
+- Commit completo: `19e54117b6fa7fba7384aa84e0a174f74fca7f65`.
+- Mensaje: fix(docs): separate frozen handoff from live state (#24).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31155193435).
 
 ## Validación
 
