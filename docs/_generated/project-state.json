@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-04",
+  "observedDate": "2026-08-07",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "e56348e7a590a12ceb937eda7783122fb22d1f91",
-    "shortSha": "e56348e",
-    "subject": "docs: close milestone 4.3 and activate 4.4 (#20)",
-    "committedAt": "2026-08-04T19:24:29-06:00",
+    "sha": "19e54117b6fa7fba7384aa84e0a174f74fca7f65",
+    "shortSha": "19e5411",
+    "subject": "fix(docs): separate frozen handoff from live state (#24)",
+    "committedAt": "2026-08-07T00:47:26-06:00",
     "pullRequest": {
-      "number": 20,
-      "title": "docs: close milestone 4.3 and activate 4.4",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/20",
+      "number": 24,
+      "title": "fix(docs): separate frozen handoff from live state",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/24",
       "state": "closed",
-      "mergedAt": "2026-08-05T01:24:30Z",
+      "mergedAt": "2026-08-07T06:47:27Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/30966288753"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31155193435"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
