@@ -89,6 +89,9 @@ jobs:
       - name: Test documentation automation
         run: npm run test:docs
 
+      - name: Verify milestone handoff
+        run: npm run docs:handoff:check
+
       - name: Detect documentation changes
         id: changes
         shell: bash

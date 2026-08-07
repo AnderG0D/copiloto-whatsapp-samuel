@@ -482,8 +482,83 @@ Este archivo es una salida determinista del contrato \`${contractPath}\`; no deb
 `;
 }
 
+function readHistoricalState(root, frozenRevision) {
+  try {
+    return JSON.parse(git(
+      root, ['show', `${frozenRevision}:${observedStatePath}`],
+    ));
+  } catch {
+    throw validationError(
+      `frozenRevision does not contain valid ${observedStatePath}`,
+    );
+  }
+}
+
+function validateStateAgainstConfiguration({
+  active,
+  configuredProjection,
+  contract,
+  label,
+  lastClosed,
+  state,
+}) {
+  ensure(
+    Array.isArray(state.milestones),
+    `${observedStatePath} has no milestones (${label})`,
+  );
+  const observedActive = state.milestones.filter(
+    (milestone) => milestone.status === 'active',
+  );
+  ensure(
+    observedActive.length === 1,
+    `expected exactly one active milestone in ${observedStatePath} (${label}); found ${observedActive.length}`,
+  );
+  ensure(
+    observedActive[0].id === contract.activeMilestone,
+    `contract, milestone configuration and observed state disagree about the active milestone (${label})`,
+  );
+  const observedLastClosed = state.milestones.find(
+    (milestone) => milestone.id === contract.lastClosedMilestone,
+  );
+  ensure(
+    observedLastClosed?.status === 'done',
+    `observed state does not mark Hito ${lastClosed.id} as closed (${label})`,
+  );
+  ensure(
+    state.milestone?.id === active.id && state.milestone?.status === 'active',
+    `observed active milestone does not match the contract and milestone configuration (${label})`,
+  );
+  ensure(
+    isDeepStrictEqual(state.milestones, configuredProjection),
+    `milestone configuration and observed milestone list do not match (${label})`,
+  );
+  ensure(
+    state.milestone.title === active.title
+      && state.milestone.workingBranch === active.workingBranch
+      && state.milestone.document === active.document,
+    `active milestone details differ between configuration and observed state (${label})`,
+  );
+  ensure(
+    Array.isArray(active.checkpoints)
+      && Array.isArray(state.milestone.checkpoints)
+      && active.checkpoints.length === state.milestone.checkpoints.length,
+    `active milestone checkpoints differ between configuration and observed state (${label})`,
+  );
+  for (let index = 0; index < active.checkpoints.length; index += 1) {
+    const configured = active.checkpoints[index];
+    const observed = state.milestone.checkpoints[index];
+    ensure(
+      observed.id === configured.id
+        && observed.title === configured.title
+        && observed.commitHint === configured.commitHint
+        && isDeepStrictEqual(observed.evidence, configured.evidence),
+      `checkpoint ${configured.id} differs between configuration and observed state (${label})`,
+    );
+  }
+}
+
 async function validateAndBuild(root) {
-  const [contract, milestones, policy, state, agents] = await Promise.all([
+  const [contract, milestones, policy, liveState, agents] = await Promise.all([
     readJson(root, contractPath),
     readJson(root, milestonesPath),
     readJson(root, policyPath),
@@ -510,10 +585,6 @@ async function validateAndBuild(root) {
     contract.safetyInvariants?.autoSendMessages === false,
     'handoff contract must require AUTO_SEND_MESSAGES=false',
   );
-  ensure(
-    state.architecture?.components?.sender === false,
-    `${observedStatePath} must declare sender=false`,
-  );
   const safetyAndPrivacy = markdownSection(agentsPath, agents, 'Safety and privacy');
   ensure(
     /(?:^|[^A-Z0-9_])AUTO_SEND_MESSAGES=false(?:[^A-Z0-9_]|$)/.test(safetyAndPrivacy),
@@ -526,6 +597,63 @@ async function validateAndBuild(root) {
   ]) {
     ensure(/^[0-9a-f]{40}$/.test(revision ?? ''), `${name} must be a full Git SHA`);
   }
+
+  ensure(
+    git(root, ['rev-parse', `${contract.observedRevision}^{commit}`])
+      === contract.observedRevision,
+    'observedRevision does not resolve to the expected commit',
+  );
+  ensure(
+    git(root, ['rev-parse', `${contract.frozenRevision}^{commit}`])
+      === contract.frozenRevision,
+    'frozenRevision does not resolve to the expected commit',
+  );
+  const frozenParents = git(
+    root, ['rev-list', '--parents', '-n', '1', contract.frozenRevision],
+  ).split(/\s+/).slice(1);
+  ensure(
+    frozenParents[0] === contract.observedRevision,
+    'observedRevision is not the direct first parent of frozenRevision',
+  );
+  ensure(
+    isAncestor(root, contract.frozenRevision, 'HEAD'),
+    'frozenRevision is not in the current HEAD history',
+  );
+
+  const historicalState = readHistoricalState(root, contract.frozenRevision);
+  ensure(
+    historicalState.architecture?.components?.sender === false,
+    `${observedStatePath} must declare sender=false (historical state)`,
+  );
+  ensure(
+    liveState.architecture?.components?.sender === false,
+    `${observedStatePath} must declare sender=false (live state)`,
+  );
+  ensure(
+    historicalState.source?.sha === contract.observedRevision,
+    'contract observedRevision does not match the historical project state',
+  );
+  ensure(
+    /^\d{4}-\d{2}-\d{2}$/.test(historicalState.observedDate ?? ''),
+    'historical project state has no stable observedDate',
+  );
+  ensure(
+    /^\d{4}-\d{2}-\d{2}$/.test(liveState.observedDate ?? ''),
+    'live project state has no stable observedDate',
+  );
+  ensure(
+    /^[0-9a-f]{40}$/.test(liveState.source?.sha ?? ''),
+    'live project state source.sha must be a full Git SHA',
+  );
+  ensure(
+    git(root, ['rev-parse', `${liveState.source.sha}^{commit}`])
+      === liveState.source.sha,
+    'live project state source.sha does not resolve to the expected commit',
+  );
+  ensure(
+    isAncestor(root, liveState.source.sha, 'HEAD'),
+    'live project state source.sha is not in the current HEAD history',
+  );
 
   ensure(Array.isArray(milestones.milestones), `${milestonesPath} has no milestones`);
   const configuredActive = milestones.milestones.filter(
@@ -560,69 +688,25 @@ async function validateAndBuild(root) {
   ensure(typeof lastClosed.document === 'string', `Hito ${lastClosed.id} has no note`);
   ensure(typeof active.document === 'string', `Hito ${active.id} has no note`);
 
-  ensure(Array.isArray(state.milestones), `${observedStatePath} has no milestones`);
-  const observedActive = state.milestones.filter(
-    (milestone) => milestone.status === 'active',
-  );
-  ensure(
-    observedActive.length === 1,
-    `expected exactly one active milestone in ${observedStatePath}; found ${observedActive.length}`,
-  );
-  ensure(
-    observedActive[0].id === contract.activeMilestone,
-    'contract, milestone configuration and observed state disagree about the active milestone',
-  );
-  const observedLastClosed = state.milestones.find(
-    (milestone) => milestone.id === contract.lastClosedMilestone,
-  );
-  ensure(
-    observedLastClosed?.status === 'done',
-    `observed state does not mark Hito ${lastClosed.id} as closed`,
-  );
-  ensure(
-    state.milestone?.id === active.id && state.milestone?.status === 'active',
-    'observed active milestone does not match the contract and milestone configuration',
-  );
-
   const configuredProjection = milestones.milestones.map(
     ({ id, title, status, document }) => ({ id, title, status, document }),
   );
-  ensure(
-    isDeepStrictEqual(state.milestones, configuredProjection),
-    'milestone configuration and observed milestone list do not match',
-  );
-  ensure(
-    state.milestone.title === active.title
-      && state.milestone.workingBranch === active.workingBranch
-      && state.milestone.document === active.document,
-    'active milestone details differ between configuration and observed state',
-  );
-  ensure(
-    Array.isArray(active.checkpoints)
-      && Array.isArray(state.milestone.checkpoints)
-      && active.checkpoints.length === state.milestone.checkpoints.length,
-    'active milestone checkpoints differ between configuration and observed state',
-  );
-  for (let index = 0; index < active.checkpoints.length; index += 1) {
-    const configured = active.checkpoints[index];
-    const observed = state.milestone.checkpoints[index];
-    ensure(
-      observed.id === configured.id
-        && observed.title === configured.title
-        && observed.commitHint === configured.commitHint
-        && isDeepStrictEqual(observed.evidence, configured.evidence),
-      `checkpoint ${configured.id} differs between configuration and observed state`,
-    );
-  }
-
-  ensure(
-    state.source?.sha === contract.observedRevision,
-    'contract observedRevision does not match the observed project state',
-  );
-  ensure(
-    /^\d{4}-\d{2}-\d{2}$/.test(state.observedDate ?? ''),
-    'observed project state has no stable observedDate',
-  );
+  validateStateAgainstConfiguration({
+    active,
+    configuredProjection,
+    contract,
+    label: 'historical state',
+    lastClosed,
+    state: historicalState,
+  });
+  validateStateAgainstConfiguration({
+    active,
+    configuredProjection,
+    contract,
+    label: 'live state',
+    lastClosed,
+    state: liveState,
+  });
 
   const [lastClosedNote, activeNote] = await Promise.all([
     readText(root, lastClosed.document),
@@ -679,33 +763,45 @@ async function validateAndBuild(root) {
   );
   for (const verification of ['unit', 'e2e', 'build']) {
     ensure(
-      state.verification?.[verification] === 'passed',
-      `closing verification ${verification} is not passed`,
+      historicalState.verification?.[verification] === 'passed',
+      `closing verification ${verification} is not passed in historical state`,
     );
   }
   ensure(
-    state.source?.pullRequest?.state === 'closed'
-      && typeof state.source.pullRequest.mergedAt === 'string'
-      && state.source.pullRequest.mergedAt.length > 0,
-    'observed closing pull request is not confirmed as merged',
+    historicalState.source?.pullRequest?.state === 'closed'
+      && typeof historicalState.source.pullRequest.mergedAt === 'string'
+      && historicalState.source.pullRequest.mergedAt.length > 0,
+    'historical closing pull request is not confirmed as merged',
   );
 
-  const expectedNextAction = deriveNextAction({
-    verification: state.verification,
-    activeMilestone: state.milestone,
-    pullRequest: state.source.pullRequest,
+  const expectedHistoricalNextAction = deriveNextAction({
+    verification: historicalState.verification,
+    activeMilestone: historicalState.milestone,
+    pullRequest: historicalState.source.pullRequest,
   });
   ensure(
-    isDeepStrictEqual(state.nextAction, expectedNextAction),
-    'observed nextAction does not match the canonical nextAction logic',
+    isDeepStrictEqual(
+      historicalState.nextAction,
+      expectedHistoricalNextAction,
+    ),
+    'historical nextAction does not match the canonical nextAction logic',
   );
-  const firstIncomplete = state.milestone.checkpoints.find(
+  const expectedLiveNextAction = deriveNextAction({
+    verification: liveState.verification,
+    activeMilestone: liveState.milestone,
+    pullRequest: liveState.source.pullRequest,
+  });
+  ensure(
+    isDeepStrictEqual(liveState.nextAction, expectedLiveNextAction),
+    'live nextAction does not match the canonical nextAction logic',
+  );
+  const firstIncomplete = historicalState.milestone.checkpoints.find(
     (checkpoint) => !checkpoint.complete,
   );
   ensure(firstIncomplete, `Hito ${active.id} has no incomplete checkpoint`);
   ensure(
-    expectedNextAction.kind === 'implement-checkpoint'
-      && expectedNextAction.title
+    expectedHistoricalNextAction.kind === 'implement-checkpoint'
+      && expectedHistoricalNextAction.title
         === `${firstIncomplete.id}: ${firstIncomplete.title}`,
     `nextAction does not correspond to the first incomplete checkpoint ${firstIncomplete.id}`,
   );
@@ -725,10 +821,10 @@ async function validateAndBuild(root) {
     'handoff contract has no transition gate completion condition',
   );
   const progress = {
-    complete: state.milestone.checkpoints.filter(
+    complete: historicalState.milestone.checkpoints.filter(
       (checkpoint) => checkpoint.complete === true,
     ).length,
-    total: state.milestone.checkpoints.length,
+    total: historicalState.milestone.checkpoints.length,
   };
 
   ensure(
@@ -743,9 +839,9 @@ async function validateAndBuild(root) {
   );
   const canonicalNextAction = await readText(root, policy.canonicalNextAction);
   for (const expectedFragment of [
-    state.nextAction.text,
-    state.nextAction.commitHint,
-    state.nextAction.doneWhen,
+    liveState.nextAction.text,
+    liveState.nextAction.commitHint,
+    liveState.nextAction.doneWhen,
   ].filter(Boolean)) {
     ensure(
       canonicalNextAction.includes(expectedFragment),
@@ -753,16 +849,6 @@ async function validateAndBuild(root) {
     );
   }
 
-  ensure(
-    git(root, ['rev-parse', `${contract.observedRevision}^{commit}`])
-      === contract.observedRevision,
-    'observedRevision does not resolve to the expected commit',
-  );
-  ensure(
-    git(root, ['rev-parse', `${contract.frozenRevision}^{commit}`])
-      === contract.frozenRevision,
-    'frozenRevision does not resolve to the expected commit',
-  );
   ensure(
     git(root, ['rev-parse', `${evidence.mergeCommit}^{commit}`])
       === evidence.mergeCommit,
@@ -772,36 +858,6 @@ async function validateAndBuild(root) {
     isAncestor(root, evidence.mergeCommit, contract.observedRevision),
     'closing mergeCommit is not an ancestor of observedRevision',
   );
-  const frozenParents = git(
-    root, ['rev-list', '--parents', '-n', '1', contract.frozenRevision],
-  ).split(/\s+/).slice(1);
-  ensure(
-    frozenParents[0] === contract.observedRevision,
-    'observedRevision is not the direct first parent of frozenRevision',
-  );
-  ensure(
-    isAncestor(root, contract.frozenRevision, 'HEAD'),
-    'frozenRevision is not in the current HEAD history',
-  );
-
-  let frozenState;
-  try {
-    frozenState = JSON.parse(git(
-      root, ['show', `${contract.frozenRevision}:${observedStatePath}`],
-    ));
-  } catch (error) {
-    if (error.message.startsWith('Milestone handoff validation failed: invalid JSON')) {
-      throw error;
-    }
-    throw validationError(
-      `frozenRevision does not contain valid ${observedStatePath}`,
-    );
-  }
-  ensure(
-    isDeepStrictEqual(frozenState, state),
-    `${observedStatePath} differs from the frozen revision`,
-  );
-
   const sources = [
     agentsPath,
     milestonesPath,
@@ -824,7 +880,7 @@ async function validateAndBuild(root) {
     progress,
     project: activeFrontmatter.project,
     sources,
-    state,
+    state: historicalState,
   };
 
   return {
@@ -859,7 +915,14 @@ export async function generateMilestoneHandoff({
         }
         throw error;
       }
-      ensure(actual.equals(expected), `generated output is out of date: ${outputPath}`);
+      const canonicalActual = Buffer.from(
+        normalizeLf(actual.toString('utf8')),
+        'utf8',
+      );
+      ensure(
+        canonicalActual.equals(expected),
+        `generated output is out of date: ${outputPath}`,
+      );
       continue;
     }
 
