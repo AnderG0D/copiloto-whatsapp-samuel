@@ -188,6 +188,44 @@ export type Database = {
           },
         ]
       }
+      response_draft_decisions: {
+        Row: {
+          business_id: string
+          decided_at: string
+          decision: string
+          final_text: string | null
+          id: string
+          operator_id: string
+          response_draft_id: string
+        }
+        Insert: {
+          business_id: string
+          decided_at?: string
+          decision: string
+          final_text?: string | null
+          id?: string
+          operator_id: string
+          response_draft_id: string
+        }
+        Update: {
+          business_id?: string
+          decided_at?: string
+          decision?: string
+          final_text?: string | null
+          id?: string
+          operator_id?: string
+          response_draft_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "response_draft_decisions_response_draft_business_id_fkey"
+            columns: ["response_draft_id", "business_id"]
+            isOneToOne: true
+            referencedRelation: "response_drafts"
+            referencedColumns: ["id", "business_id"]
+          },
+        ]
+      }
       response_drafts: {
         Row: {
           business_id: string
