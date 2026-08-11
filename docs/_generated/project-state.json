@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-07",
+  "observedDate": "2026-08-10",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "19e54117b6fa7fba7384aa84e0a174f74fca7f65",
-    "shortSha": "19e5411",
-    "subject": "fix(docs): separate frozen handoff from live state (#24)",
-    "committedAt": "2026-08-07T00:47:26-06:00",
+    "sha": "de4247ddb4ae1ccb1f3a0537bb3a349686da16cc",
+    "shortSha": "de4247d",
+    "subject": "feat: persist auditable response draft decisions (#26)",
+    "committedAt": "2026-08-10T19:14:53-06:00",
     "pullRequest": {
-      "number": 24,
-      "title": "fix(docs): separate frozen handoff from live state",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/24",
+      "number": 26,
+      "title": "feat: persist auditable response draft decisions",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/26",
       "state": "closed",
-      "mergedAt": "2026-08-07T06:47:27Z",
+      "mergedAt": "2026-08-11T01:14:53Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31155193435"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31448713401"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 82,
+      "unit": 96,
       "e2e": 1
     }
   },
@@ -83,7 +83,8 @@
     "migrations": [
       "supabase/migrations/20260713050133_initial_remote_schema.sql",
       "supabase/migrations/20260713052850_add_lead_scoring_columns.sql",
-      "supabase/migrations/20260802111346_create_response_drafts.sql"
+      "supabase/migrations/20260802111346_create_response_drafts.sql",
+      "supabase/migrations/20260807020218_create_response_draft_decisions.sql"
     ]
   },
   "milestones": [
@@ -175,7 +176,7 @@
             }
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.4-B",
@@ -289,9 +290,9 @@
   },
   "nextAction": {
     "kind": "implement-checkpoint",
-    "title": "4.4-A: Persistencia auditable de decisiones humanas",
-    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-A: Persistencia auditable de decisiones humanas** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: persist auditable response draft decisions",
+    "title": "4.4-B: Servicio de revisión humana",
+    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-B: Servicio de revisión humana** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: add human response draft review service",
     "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }

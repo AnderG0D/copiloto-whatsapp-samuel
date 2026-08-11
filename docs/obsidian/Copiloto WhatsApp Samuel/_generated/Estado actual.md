@@ -2,14 +2,14 @@
 type: generated-project-state
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-07
+updated: 2026-08-10
 ---
 
 # Estado actual
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `19e5411`, asociado al [PR #24](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/24). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `de4247d`, asociado al [PR #26](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/26). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
@@ -26,7 +26,7 @@ updated: 2026-08-07
 | 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
 | 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
 | 4.3 | Persistencia e integración de borradores sin envío | `DONE` | Configurado como cerrado |
-| 4.4 | Revisión y aprobación humana | `ACTIVE` | 0/4 checkpoints observados |
+| 4.4 | Revisión y aprobación humana | `ACTIVE` | 1/4 checkpoints observados |
 
 ## Componentes confirmados
 
