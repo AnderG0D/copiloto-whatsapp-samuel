@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-07
+updated: 2026-08-10
 ---
 
 # Evidencia técnica
@@ -10,14 +10,14 @@ updated: 2026-08-07
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `19e5411`, asociado al [PR #24](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/24).
-- Commit completo: `19e54117b6fa7fba7384aa84e0a174f74fca7f65`.
-- Mensaje: fix(docs): separate frozen handoff from live state (#24).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31155193435).
+- Fuente: `main` en `de4247d`, asociado al [PR #26](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/26).
+- Commit completo: `de4247ddb4ae1ccb1f3a0537bb3a349686da16cc`.
+- Mensaje: feat: persist auditable response draft decisions (#26).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31448713401).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 82 casos ejecutados.
+- **Unitarias:** `APROBADO` — 96 casos ejecutados.
 - **E2E:** `APROBADO` — 1 caso ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
@@ -41,4 +41,5 @@ updated: 2026-08-07
 - `supabase/migrations/20260713050133_initial_remote_schema.sql`
 - `supabase/migrations/20260713052850_add_lead_scoring_columns.sql`
 - `supabase/migrations/20260802111346_create_response_drafts.sql`
+- `supabase/migrations/20260807020218_create_response_draft_decisions.sql`
 <!-- AUTO:END technical-evidence -->
