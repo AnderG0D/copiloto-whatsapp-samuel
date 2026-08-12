@@ -5,6 +5,7 @@ import type { AiProvider } from '../ai-provider.interface';
 import { AI_PROVIDER } from '../ai.constants';
 import { ResponseDraftModule } from './response-draft.module';
 import { ResponseDraftRepository } from './response-draft.repository';
+import { ResponseDraftReviewService } from './response-draft-review.service';
 import { ResponseDraftService } from './response-draft.service';
 
 @Injectable()
@@ -12,6 +13,7 @@ class ExternalConsumer {
   constructor(
     readonly responseDraftService: ResponseDraftService,
     readonly responseDraftRepository: ResponseDraftRepository,
+    readonly responseDraftReviewService: ResponseDraftReviewService,
   ) {}
 }
 
@@ -51,6 +53,9 @@ describe('ResponseDraftModule', () => {
     expect(consumer.responseDraftService).toBeInstanceOf(ResponseDraftService);
     expect(consumer.responseDraftRepository).toBeInstanceOf(
       ResponseDraftRepository,
+    );
+    expect(consumer.responseDraftReviewService).toBeInstanceOf(
+      ResponseDraftReviewService,
     );
     expect(generateTextMock).not.toHaveBeenCalled();
     expect(supabaseFromMock).not.toHaveBeenCalled();
