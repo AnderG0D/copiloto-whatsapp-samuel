@@ -10,10 +10,10 @@ updated: 2026-08-11
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `ed11bd7`, asociado al [PR #29](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/29).
-- Commit completo: `ed11bd7e4fa51cf694810aa7f659c517ed0ebdd1`.
-- Mensaje: feat: add response draft review service (#29).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31562017306).
+- Fuente: `main` en `7ae1d92`, asociado al [PR #30](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/30).
+- Commit completo: `7ae1d922af02bdd69fdc9f3933fcc3a0ac751bcb`.
+- Mensaje: docs: sync project state for ed11bd7 (#30).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31563679982).
 
 ## Validación
 
