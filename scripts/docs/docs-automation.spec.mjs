@@ -188,12 +188,12 @@ test('first incomplete checkpoint becomes the next action', () => {
   assert.match(action.text, /4\.2-B/);
 });
 
-test('Hito 4.4 selects 4.4-B after 4.4-A evidence is complete', async () => {
+test('Hito 4.4 selects 4.4-C after 4.4-B evidence is complete', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.id, '4.4');
   assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.match(state.nextAction.text, /4\.4-B/);
+  assert.match(state.nextAction.text, /4\.4-C/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
@@ -211,17 +211,17 @@ test('the indirect webhook AI path is detected without claiming message sending'
   assert.equal(state.architecture.components.sender, false);
 });
 
-test('the current Hito 4.4 records 4.4-A complete and three checkpoints pending', async () => {
+test('the current Hito 4.4 records 4.4-A and 4.4-B complete', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.checkpoints.length, 4);
   assert.equal(
     state.milestone.checkpoints.filter((checkpoint) => checkpoint.complete).length,
-    1,
+    2,
   );
   assert.equal(
     state.milestone.checkpoints.filter((checkpoint) => !checkpoint.complete).length,
-    3,
+    2,
   );
   assert.equal(state.architecture.components.sender, false);
 });

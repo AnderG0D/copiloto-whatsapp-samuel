@@ -26,7 +26,7 @@ updated: 2026-08-11
 | 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
 | 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
 | 4.3 | Persistencia e integración de borradores sin envío | `DONE` | Configurado como cerrado |
-| 4.4 | Revisión y aprobación humana | `ACTIVE` | 1/4 checkpoints observados |
+| 4.4 | Revisión y aprobación humana | `ACTIVE` | 2/4 checkpoints observados |
 
 ## Componentes confirmados
 

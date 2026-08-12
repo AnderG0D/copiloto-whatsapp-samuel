@@ -210,7 +210,7 @@
             }
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.4-C",
@@ -290,9 +290,9 @@
   },
   "nextAction": {
     "kind": "implement-checkpoint",
-    "title": "4.4-B: Servicio de revisión humana",
-    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-B: Servicio de revisión humana** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: add human response draft review service",
+    "title": "4.4-C: Interfaz administrativa autenticada",
+    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-C: Interfaz administrativa autenticada** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: expose authenticated response draft review API",
     "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }

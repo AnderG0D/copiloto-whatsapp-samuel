@@ -58,7 +58,7 @@ El diseño exacto de persistencia para 4.4-A todavía no está fijado. Primero s
 
 <!-- AUTO:BEGIN milestone-progress -->
 - [x] 4.4-A — Persistencia auditable de decisiones humanas.
-- [ ] 4.4-B — Servicio de revisión humana.
+- [x] 4.4-B — Servicio de revisión humana.
 - [ ] 4.4-C — Interfaz administrativa autenticada.
 - [ ] 4.4-D — Pruebas, idempotencia y ausencia de envío.
 <!-- AUTO:END milestone-progress -->
