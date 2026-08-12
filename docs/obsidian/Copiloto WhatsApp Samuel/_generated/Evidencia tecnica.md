@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-10
+updated: 2026-08-11
 ---
 
 # Evidencia técnica
@@ -10,14 +10,14 @@ updated: 2026-08-10
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `de4247d`, asociado al [PR #26](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/26).
-- Commit completo: `de4247ddb4ae1ccb1f3a0537bb3a349686da16cc`.
-- Mensaje: feat: persist auditable response draft decisions (#26).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31448713401).
+- Fuente: `main` en `ed11bd7`, asociado al [PR #29](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/29).
+- Commit completo: `ed11bd7e4fa51cf694810aa7f659c517ed0ebdd1`.
+- Mensaje: feat: add response draft review service (#29).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31562017306).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 96 casos ejecutados.
+- **Unitarias:** `APROBADO` — 117 casos ejecutados.
 - **E2E:** `APROBADO` — 1 caso ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
