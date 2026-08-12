@@ -10,13 +10,13 @@ export type CreateResponseDraftInput = {
   draft: ResponseDraft;
 };
 
+type ResponseDraftRow = Database['public']['Tables']['response_drafts']['Row'];
+
 @Injectable()
 export class ResponseDraftRepository {
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async create(
-    input: CreateResponseDraftInput,
-  ): Promise<Database['public']['Tables']['response_drafts']['Row']> {
+  async create(input: CreateResponseDraftInput): Promise<ResponseDraftRow> {
     const { data, error } = await this.supabaseService.client
       .from('response_drafts')
       .insert({
@@ -39,6 +39,26 @@ export class ResponseDraftRepository {
       throw new Error(
         'Failed to create response draft: Supabase returned no data',
       );
+    }
+
+    return data;
+  }
+
+  async findByIdForBusiness(
+    businessId: string,
+    responseDraftId: string,
+  ): Promise<ResponseDraftRow | null> {
+    const { data, error } = await this.supabaseService.client
+      .from('response_drafts')
+      .select(
+        'id, business_id, lead_id, source_message_id, text, status, created_at, updated_at',
+      )
+      .eq('business_id', businessId)
+      .eq('id', responseDraftId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Failed to find response draft: ${error.message}`);
     }
 
     return data;

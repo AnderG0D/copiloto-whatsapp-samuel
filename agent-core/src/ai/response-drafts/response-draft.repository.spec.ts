@@ -14,6 +14,10 @@ describe('ResponseDraftRepository', () => {
   let insertMock: jest.Mock;
   let selectMock: jest.Mock;
   let singleMock: jest.Mock;
+  let findSelectMock: jest.Mock;
+  let businessEqMock: jest.Mock;
+  let idEqMock: jest.Mock;
+  let maybeSingleMock: jest.Mock;
 
   const input: CreateResponseDraftInput = {
     businessId: 'business-1',
@@ -40,7 +44,14 @@ describe('ResponseDraftRepository', () => {
     singleMock = jest.fn();
     selectMock = jest.fn().mockReturnValue({ single: singleMock });
     insertMock = jest.fn().mockReturnValue({ select: selectMock });
-    fromMock = jest.fn().mockReturnValue({ insert: insertMock });
+    maybeSingleMock = jest.fn();
+    idEqMock = jest.fn().mockReturnValue({ maybeSingle: maybeSingleMock });
+    businessEqMock = jest.fn().mockReturnValue({ eq: idEqMock });
+    findSelectMock = jest.fn().mockReturnValue({ eq: businessEqMock });
+    fromMock = jest.fn().mockReturnValue({
+      insert: insertMock,
+      select: findSelectMock,
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -94,5 +105,58 @@ describe('ResponseDraftRepository', () => {
     await expect(repository.create(input)).rejects.toThrow(
       'Failed to create response draft: Supabase returned no data',
     );
+  });
+
+  it('finds a response draft using both business and draft filters', async () => {
+    maybeSingleMock.mockResolvedValue({ data: row, error: null });
+
+    await expect(
+      repository.findByIdForBusiness(input.businessId, row.id),
+    ).resolves.toEqual(row);
+
+    expect(fromMock).toHaveBeenCalledWith('response_drafts');
+    expect(findSelectMock).toHaveBeenCalledWith(
+      'id, business_id, lead_id, source_message_id, text, status, created_at, updated_at',
+    );
+    expect(businessEqMock).toHaveBeenCalledWith(
+      'business_id',
+      input.businessId,
+    );
+    expect(idEqMock).toHaveBeenCalledWith('id', row.id);
+    expect(maybeSingleMock).toHaveBeenCalledTimes(1);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null when no response draft matches both filters', async () => {
+    maybeSingleMock.mockResolvedValue({ data: null, error: null });
+
+    await expect(
+      repository.findByIdForBusiness(input.businessId, 'missing-draft'),
+    ).resolves.toBeNull();
+
+    expect(businessEqMock).toHaveBeenCalledWith(
+      'business_id',
+      input.businessId,
+    );
+    expect(idEqMock).toHaveBeenCalledWith('id', 'missing-draft');
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it('throws a descriptive error when the isolated lookup fails', async () => {
+    maybeSingleMock.mockResolvedValue({
+      data: null,
+      error: { message: 'permission denied' },
+    });
+
+    await expect(
+      repository.findByIdForBusiness(input.businessId, row.id),
+    ).rejects.toThrow('Failed to find response draft: permission denied');
+
+    expect(businessEqMock).toHaveBeenCalledWith(
+      'business_id',
+      input.businessId,
+    );
+    expect(idEqMock).toHaveBeenCalledWith('id', row.id);
+    expect(insertMock).not.toHaveBeenCalled();
   });
 });
