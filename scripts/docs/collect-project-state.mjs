@@ -71,10 +71,13 @@ function evaluateEvidence(evidence, sourceFiles, sourceTexts) {
   if (evidence.pathContentAllAny) {
     checks.push(evidence.pathContentAllAny.some((candidate) => {
       const source = sourceTexts.get(candidate.path);
+      const normalizedSource = source?.toLowerCase();
       return Boolean(
-        source
+        normalizedSource
         && candidate.contentAll?.length > 0
-        && candidate.contentAll.every((needle) => source.includes(needle)),
+        && candidate.contentAll.every((needle) => (
+          normalizedSource.includes(needle.toLowerCase())
+        )),
       );
     }));
   }

@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.4-B: Servicio de revisión humana**.
+- El primer checkpoint pendiente es **4.4-C: Interfaz administrativa autenticada**.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:
