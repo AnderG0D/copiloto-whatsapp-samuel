@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ResponseDraftReviewModule } from './admin/response-drafts/response-draft-review.module';
 import { EvolutionWebhookModule } from './webhooks/evolution/evolution-webhook.module';
 
 @Module({
@@ -10,6 +11,7 @@ import { EvolutionWebhookModule } from './webhooks/evolution/evolution-webhook.m
     }),
 
     EvolutionWebhookModule,
+    ResponseDraftReviewModule,
   ],
 })
 export class AppModule {}
