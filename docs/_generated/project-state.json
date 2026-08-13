@@ -1,16 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-12",
+  "observedDate": "2026-08-13",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
-    "branch": "feature/hito-4-4-human-review-api",
-    "sha": "9f251aa824a6e9613531193d3e7fe7c67cbb5aa4",
-    "shortSha": "9f251aa",
-    "subject": "feat: expose human review admin API",
-    "committedAt": "2026-08-12T19:35:13-06:00",
-    "pullRequest": null,
-    "ciUrl": null
+    "branch": "main",
+    "sha": "ef3f0442aa27ce2123b61bcc43b0604c2310d44f",
+    "shortSha": "ef3f044",
+    "subject": "feat: expose human review admin API (#32)",
+    "committedAt": "2026-08-13T00:37:21-06:00",
+    "pullRequest": {
+      "number": 32,
+      "title": "feat: expose human review admin API",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/32",
+      "state": "closed",
+      "mergedAt": "2026-08-13T06:37:21Z",
+      "source": "github-api"
+    },
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31674521235"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -26,11 +33,11 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "not_run",
-    "e2e": "not_run",
-    "build": "not_run",
+    "unit": "passed",
+    "e2e": "passed",
+    "build": "passed",
     "discoveredTests": {
-      "unit": 87,
+      "unit": 163,
       "e2e": 4
     }
   },
