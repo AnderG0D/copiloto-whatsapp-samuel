@@ -692,6 +692,36 @@ test('rejects a logical change in the frozen historical snapshot', async (t) => 
   );
 });
 
+test('accepts compatible historical evidence semantics but requires exact live evidence', async (t) => {
+  const fixture = await createFixture(t);
+  const useAllCandidates = (checkpoint) => {
+    checkpoint.evidence.pathContentAll = checkpoint.evidence.pathContentAllAny;
+    delete checkpoint.evidence.pathContentAllAny;
+  };
+
+  await mutateJson(fixture.root, milestonesPath, (milestones) => {
+    useAllCandidates(milestones.milestones[1].checkpoints[3]);
+  });
+  await mutateJson(fixture.root, statePath, (state) => {
+    useAllCandidates(state.milestone.checkpoints[3]);
+  });
+
+  await assert.doesNotReject(
+    generateMilestoneHandoff({ root: fixture.root }),
+  );
+
+  await mutateJson(fixture.root, statePath, (state) => {
+    const checkpoint = state.milestone.checkpoints[3];
+    checkpoint.evidence.pathContentAllAny = checkpoint.evidence.pathContentAll;
+    delete checkpoint.evidence.pathContentAll;
+  });
+
+  await assert.rejects(
+    generateMilestoneHandoff({ root: fixture.root }),
+    /checkpoint 4\.4-D differs between configuration and observed state \(live state\)/,
+  );
+});
+
 test('rejects milestones that are not an actual consecutive transition', async (t) => {
   const fixture = await createFixture(t);
   await mutateJson(fixture.root, milestonesPath, (milestones) => {

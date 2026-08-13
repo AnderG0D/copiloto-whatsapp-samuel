@@ -192,7 +192,7 @@
           "title": "Pruebas, idempotencia y ausencia de envío",
           "commitHint": "test: cover human review without sending",
           "evidence": {
-            "pathContentAllAny": [
+            "pathContentAll": [
               {
                 "path": "agent-core/test/app.e2e-spec.ts",
                 "contentAll": [

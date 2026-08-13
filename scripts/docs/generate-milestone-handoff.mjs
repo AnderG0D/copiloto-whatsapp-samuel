@@ -494,10 +494,46 @@ function readHistoricalState(root, frozenRevision) {
   }
 }
 
+function normalizedEvidenceCandidates(evidence) {
+  if (!evidence || typeof evidence !== 'object') return null;
+
+  const candidates = evidence.pathContentAll ?? evidence.pathContentAllAny;
+  const hasPathContentAll = Array.isArray(evidence.pathContentAll);
+  const hasPathContentAllAny = Array.isArray(evidence.pathContentAllAny);
+
+  if (
+    !Array.isArray(candidates)
+    || hasPathContentAll === hasPathContentAllAny
+  ) {
+    return null;
+  }
+
+  return candidates.map((candidate) => ({
+    path: candidate?.path,
+    contentAll: Array.isArray(candidate?.contentAll)
+      ? [...candidate.contentAll].sort()
+      : candidate?.contentAll,
+  })).sort((left, right) => (
+    JSON.stringify(left).localeCompare(JSON.stringify(right))
+  ));
+}
+
+function hasCompatibleHistoricalEvidence(observed, configured) {
+  const observedCandidates = normalizedEvidenceCandidates(observed);
+  const configuredCandidates = normalizedEvidenceCandidates(configured);
+
+  return Boolean(
+    observedCandidates
+    && configuredCandidates
+    && isDeepStrictEqual(observedCandidates, configuredCandidates),
+  );
+}
+
 function validateStateAgainstConfiguration({
   active,
   configuredProjection,
   contract,
+  evidenceComparison,
   label,
   lastClosed,
   state,
@@ -547,11 +583,14 @@ function validateStateAgainstConfiguration({
   for (let index = 0; index < active.checkpoints.length; index += 1) {
     const configured = active.checkpoints[index];
     const observed = state.milestone.checkpoints[index];
+    const evidenceMatches = evidenceComparison === 'historical-compatible'
+      ? hasCompatibleHistoricalEvidence(observed.evidence, configured.evidence)
+      : isDeepStrictEqual(observed.evidence, configured.evidence);
     ensure(
       observed.id === configured.id
         && observed.title === configured.title
         && observed.commitHint === configured.commitHint
-        && isDeepStrictEqual(observed.evidence, configured.evidence),
+        && evidenceMatches,
       `checkpoint ${configured.id} differs between configuration and observed state (${label})`,
     );
   }
@@ -695,6 +734,7 @@ async function validateAndBuild(root) {
     active,
     configuredProjection,
     contract,
+    evidenceComparison: 'historical-compatible',
     label: 'historical state',
     lastClosed,
     state: historicalState,
@@ -703,6 +743,7 @@ async function validateAndBuild(root) {
     active,
     configuredProjection,
     contract,
+    evidenceComparison: 'exact',
     label: 'live state',
     lastClosed,
     state: liveState,

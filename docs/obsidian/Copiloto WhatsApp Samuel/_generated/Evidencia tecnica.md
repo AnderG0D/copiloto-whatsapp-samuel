@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # Evidencia técnica
@@ -10,16 +10,15 @@ updated: 2026-08-11
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `7ae1d92`, asociado al [PR #30](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/30).
-- Commit completo: `7ae1d922af02bdd69fdc9f3933fcc3a0ac751bcb`.
-- Mensaje: docs: sync project state for ed11bd7 (#30).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31563679982).
+- Fuente: `feature/hito-4-4-human-review-api` en `9f251aa`.
+- Commit completo: `9f251aa824a6e9613531193d3e7fe7c67cbb5aa4`.
+- Mensaje: feat: expose human review admin API.
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 117 casos ejecutados.
-- **E2E:** `APROBADO` — 1 caso ejecutados.
-- **Build:** `APROBADO` — compilación del backend.
+- **Unitarias:** `NO EJECUTADO` — 87 casos ejecutados.
+- **E2E:** `NO EJECUTADO` — 4 casos ejecutados.
+- **Build:** `NO EJECUTADO` — compilación del backend.
 
 ## Backend
 
@@ -34,6 +33,7 @@ updated: 2026-08-11
 - `EvolutionWebhookModule` — `agent-core/src/webhooks/evolution/evolution-webhook.module.ts`.
 - `LeadsModule` — `agent-core/src/leads/leads.module.ts`.
 - `ResponseDraftModule` — `agent-core/src/ai/response-drafts/response-draft.module.ts`.
+- `ResponseDraftReviewModule` — `agent-core/src/admin/response-drafts/response-draft-review.module.ts`.
 - `SupabaseModule` — `agent-core/src/supabase/supabase.module.ts`.
 
 ## Migraciones detectadas

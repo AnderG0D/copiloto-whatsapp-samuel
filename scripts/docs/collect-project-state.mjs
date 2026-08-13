@@ -81,6 +81,19 @@ function evaluateEvidence(evidence, sourceFiles, sourceTexts) {
       );
     }));
   }
+  if (evidence.pathContentAll) {
+    checks.push(evidence.pathContentAll.length > 0 && evidence.pathContentAll.every((candidate) => {
+      const source = sourceTexts.get(candidate.path);
+      const normalizedSource = source?.toLowerCase();
+      return Boolean(
+        normalizedSource
+        && candidate.contentAll?.length > 0
+        && candidate.contentAll.every((needle) => (
+          normalizedSource.includes(needle.toLowerCase())
+        )),
+      );
+    }));
+  }
 
   return checks.length > 0 && checks.every(Boolean);
 }

@@ -1,23 +1,16 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-11",
+  "observedDate": "2026-08-12",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
-    "branch": "main",
-    "sha": "7ae1d922af02bdd69fdc9f3933fcc3a0ac751bcb",
-    "shortSha": "7ae1d92",
-    "subject": "docs: sync project state for ed11bd7 (#30)",
-    "committedAt": "2026-08-11T22:34:14-06:00",
-    "pullRequest": {
-      "number": 30,
-      "title": "docs: sync project state for ed11bd7",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/30",
-      "state": "closed",
-      "mergedAt": "2026-08-12T04:34:14Z",
-      "source": "github-api"
-    },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31563679982"
+    "branch": "feature/hito-4-4-human-review-api",
+    "sha": "9f251aa824a6e9613531193d3e7fe7c67cbb5aa4",
+    "shortSha": "9f251aa",
+    "subject": "feat: expose human review admin API",
+    "committedAt": "2026-08-12T19:35:13-06:00",
+    "pullRequest": null,
+    "ciUrl": null
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -33,12 +26,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "passed",
-    "e2e": "passed",
-    "build": "passed",
+    "unit": "not_run",
+    "e2e": "not_run",
+    "build": "not_run",
     "discoveredTests": {
-      "unit": 117,
-      "e2e": 1
+      "unit": 87,
+      "e2e": 4
     }
   },
   "architecture": {
@@ -58,6 +51,10 @@
       {
         "name": "ResponseDraftModule",
         "path": "agent-core/src/ai/response-drafts/response-draft.module.ts"
+      },
+      {
+        "name": "ResponseDraftReviewModule",
+        "path": "agent-core/src/admin/response-drafts/response-draft-review.module.ts"
       },
       {
         "name": "SupabaseModule",
@@ -244,14 +241,14 @@
             }
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.4-D",
         "title": "Pruebas, idempotencia y ausencia de envío",
         "commitHint": "test: cover human review without sending",
         "evidence": {
-          "pathContentAllAny": [
+          "pathContentAll": [
             {
               "path": "agent-core/test/app.e2e-spec.ts",
               "contentAll": [
@@ -290,9 +287,9 @@
   },
   "nextAction": {
     "kind": "implement-checkpoint",
-    "title": "4.4-C: Interfaz administrativa autenticada",
-    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-C: Interfaz administrativa autenticada** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: expose authenticated response draft review API",
+    "title": "4.4-D: Pruebas, idempotencia y ausencia de envío",
+    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-D: Pruebas, idempotencia y ausencia de envío** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "test: cover human review without sending",
     "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }

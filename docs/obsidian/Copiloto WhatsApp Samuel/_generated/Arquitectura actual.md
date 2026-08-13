@@ -2,7 +2,7 @@
 type: generated-architecture
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # Arquitectura actual observada
