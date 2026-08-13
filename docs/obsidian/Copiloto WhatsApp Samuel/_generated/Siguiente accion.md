@@ -2,7 +2,7 @@
 type: generated-next-action
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-12
+updated: 2026-08-13
 ---
 
 # Siguiente acción — Copiloto WhatsApp Samuel
