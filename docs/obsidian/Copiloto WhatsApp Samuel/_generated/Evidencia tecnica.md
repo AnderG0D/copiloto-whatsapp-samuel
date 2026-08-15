@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-13
+updated: 2026-08-14
 ---
 
 # Evidencia técnica
@@ -10,16 +10,15 @@ updated: 2026-08-13
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `ef3f044`, asociado al [PR #32](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/32).
-- Commit completo: `ef3f0442aa27ce2123b61bcc43b0604c2310d44f`.
-- Mensaje: feat: expose human review admin API (#32).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31674521235).
+- Fuente: `feature/hito-4-4-d-no-send` en `6f6dbad`.
+- Commit completo: `6f6dbad4683d535139b1efb5459623b469c709ce`.
+- Mensaje: test: cover 4.4-D idempotency and no-send behavior.
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 163 casos ejecutados.
-- **E2E:** `APROBADO` — 4 casos ejecutados.
-- **Build:** `APROBADO` — compilación del backend.
+- **Unitarias:** `NO EJECUTADO` — 84 casos ejecutados.
+- **E2E:** `NO EJECUTADO` — 3 casos ejecutados.
+- **Build:** `NO EJECUTADO` — compilación del backend.
 
 ## Backend
 

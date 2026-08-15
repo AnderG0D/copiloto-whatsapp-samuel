@@ -25,6 +25,28 @@ import {
 const execFileAsync = promisify(execFile);
 let currentProjectStatePromise;
 
+async function pathContentAllEvidenceMatches(evidence, sourceOverrides = new Map()) {
+  const matches = await Promise.all(evidence.pathContentAll.map(async (candidate) => {
+    const source = sourceOverrides.get(candidate.path)
+      ?? await readFile(path.join(repositoryRoot, candidate.path), 'utf8');
+    const normalizedSource = source.toLowerCase();
+    return candidate.contentAll.every((needle) => (
+      normalizedSource.includes(needle.toLowerCase())
+    ));
+  }));
+  return matches.every(Boolean);
+}
+
+async function checkpointEvidence(checkpointId) {
+  const milestones = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/milestones.json'), 'utf8',
+  ));
+  return milestones.milestones
+    .find((milestone) => milestone.id === milestones.activeMilestone)
+    .checkpoints.find((checkpoint) => checkpoint.id === checkpointId)
+    .evidence;
+}
+
 function fixtureNote(lineEnding, overrides = {}) {
   const values = {
     type: 'fixture-note',
@@ -188,12 +210,12 @@ test('first incomplete checkpoint becomes the next action', () => {
   assert.match(action.text, /4\.2-B/);
 });
 
-test('Hito 4.4 selects 4.4-D after 4.4-C evidence is complete', async () => {
+test('Hito 4.4 is ready to close after all checkpoint evidence is complete', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.id, '4.4');
-  assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.match(state.nextAction.text, /4\.4-D/);
+  assert.equal(state.nextAction.kind, 'close-milestone');
+  assert.match(state.nextAction.title, /Cerrar Hito 4\.4/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
@@ -211,7 +233,7 @@ test('the indirect webhook AI path is detected without claiming message sending'
   assert.equal(state.architecture.components.sender, false);
 });
 
-test('the current Hito 4.4 records 4.4-A through 4.4-C complete and 4.4-D pending', async () => {
+test('the current Hito 4.4 records all checkpoints complete without a sender', async () => {
   const state = await collectCurrentProjectState();
 
   assert.equal(state.milestone.checkpoints.length, 4);
@@ -221,12 +243,29 @@ test('the current Hito 4.4 records 4.4-A through 4.4-C complete and 4.4-D pendin
       { id: '4.4-A', complete: true },
       { id: '4.4-B', complete: true },
       { id: '4.4-C', complete: true },
-      { id: '4.4-D', complete: false },
+      { id: '4.4-D', complete: true },
     ],
   );
-  assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.match(state.nextAction.text, /4\.4-D/);
+  assert.equal(state.nextAction.kind, 'close-milestone');
+  assert.doesNotMatch(state.nextAction.text, /implementar.*4\.4-D/i);
   assert.equal(state.architecture.components.sender, false);
+});
+
+test('4.4-D remains incomplete when any required per-file assertion is truly absent', async () => {
+  const evidence = await checkpointEvidence('4.4-D');
+  const target = evidence.pathContentAll.find((candidate) => (
+    candidate.path === 'agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts'
+  ));
+  const source = await readFile(path.join(repositoryRoot, target.path), 'utf8');
+
+  assert.equal(await pathContentAllEvidenceMatches(evidence), true);
+  assert.equal(
+    await pathContentAllEvidenceMatches(
+      evidence,
+      new Map([[target.path, source.replace('outbox', 'out-box')]]),
+    ),
+    false,
+  );
 });
 
 test('complete LF frontmatter remains valid', async (t) => {

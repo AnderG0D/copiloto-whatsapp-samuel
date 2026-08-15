@@ -196,24 +196,29 @@
               {
                 "path": "agent-core/test/app.e2e-spec.ts",
                 "contentAll": [
-                  "approve",
-                  "send",
+                  "APPROVE",
+                  "EDIT_AND_APPROVE",
+                  "REJECT",
+                  "409",
                   "not.toHaveBeenCalled"
                 ]
               },
               {
                 "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
                 "contentAll": [
-                  "approve",
-                  "send",
-                  "not.toHaveBeenCalled"
+                  "duplicate incoming message",
+                  "not.toHaveBeenCalled",
+                  "outbox",
+                  "createDraftMock"
                 ]
               },
               {
                 "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
                 "contentAll": [
-                  "approve",
-                  "send",
+                  "APPROVE",
+                  "EDIT_AND_APPROVE",
+                  "REJECT",
+                  "duplicate",
                   "not.toHaveBeenCalled"
                 ]
               }

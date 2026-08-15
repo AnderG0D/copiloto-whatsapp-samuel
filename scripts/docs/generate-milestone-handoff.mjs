@@ -525,7 +525,22 @@ function hasCompatibleHistoricalEvidence(observed, configured) {
   return Boolean(
     observedCandidates
     && configuredCandidates
-    && isDeepStrictEqual(observedCandidates, configuredCandidates),
+    && observedCandidates.length === configuredCandidates.length
+    && observedCandidates.every((candidate, index) => (
+      typeof candidate.path === 'string'
+      && candidate.path.length > 0
+      && Array.isArray(candidate.contentAll)
+      && candidate.contentAll.length > 0
+      && candidate.contentAll.every((needle) => (
+        typeof needle === 'string' && needle.length > 0
+      ))
+      && candidate.path === configuredCandidates[index].path
+      && Array.isArray(configuredCandidates[index].contentAll)
+      && configuredCandidates[index].contentAll.length > 0
+      && configuredCandidates[index].contentAll.every((needle) => (
+        typeof needle === 'string' && needle.length > 0
+      ))
+    )),
   );
 }
 

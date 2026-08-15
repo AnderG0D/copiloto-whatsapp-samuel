@@ -722,6 +722,19 @@ test('accepts compatible historical evidence semantics but requires exact live e
   );
 });
 
+test('rejects historical evidence when its required file changes', async (t) => {
+  const fixture = await createFixture(t);
+  await mutateJson(fixture.root, milestonesPath, (milestones) => {
+    milestones.milestones[1].checkpoints[3].evidence.pathContentAllAny[0].path
+      = 'agent-core/other-example.spec.ts';
+  });
+
+  await assert.rejects(
+    generateMilestoneHandoff({ root: fixture.root }),
+    /checkpoint 4\.4-D differs between configuration and observed state \(historical state\)/,
+  );
+});
+
 test('rejects milestones that are not an actual consecutive transition', async (t) => {
   const fixture = await createFixture(t);
   await mutateJson(fixture.root, milestonesPath, (milestones) => {
