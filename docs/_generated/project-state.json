@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-13",
+  "observedDate": "2026-08-14",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "ef3f0442aa27ce2123b61bcc43b0604c2310d44f",
-    "shortSha": "ef3f044",
-    "subject": "feat: expose human review admin API (#32)",
-    "committedAt": "2026-08-13T00:37:21-06:00",
+    "sha": "a84206b483830bf84b5af055fe4f3a815143352f",
+    "shortSha": "a84206b",
+    "subject": "test: cover 4.4-D idempotency and no-send behavior (#34)",
+    "committedAt": "2026-08-14T19:03:35-06:00",
     "pullRequest": {
-      "number": 32,
-      "title": "feat: expose human review admin API",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/32",
+      "number": 34,
+      "title": "test: add 4.4-D idempotency and no-send coverage",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34",
       "state": "closed",
-      "mergedAt": "2026-08-13T06:37:21Z",
+      "mergedAt": "2026-08-15T01:03:35Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31674521235"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855459312"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -38,7 +38,7 @@
     "build": "passed",
     "discoveredTests": {
       "unit": 163,
-      "e2e": 4
+      "e2e": 6
     }
   },
   "architecture": {
