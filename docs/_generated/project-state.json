@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-13",
+  "observedDate": "2026-08-14",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "HEAD",
+    "ref": "origin/main",
     "branch": "main",
-    "sha": "ef3f0442aa27ce2123b61bcc43b0604c2310d44f",
-    "shortSha": "ef3f044",
-    "subject": "feat: expose human review admin API (#32)",
-    "committedAt": "2026-08-13T00:37:21-06:00",
+    "sha": "a84206b483830bf84b5af055fe4f3a815143352f",
+    "shortSha": "a84206b",
+    "subject": "test: cover 4.4-D idempotency and no-send behavior (#34)",
+    "committedAt": "2026-08-14T19:03:35-06:00",
     "pullRequest": {
-      "number": 32,
-      "title": "feat: expose human review admin API",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/32",
+      "number": 34,
+      "title": "test: cover 4.4-D idempotency and no-send behavior (#34)",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34",
       "state": "closed",
-      "mergedAt": "2026-08-13T06:37:21Z",
-      "source": "github-api"
+      "mergedAt": null,
+      "source": "commit-subject"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31674521235"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855354246"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -38,7 +38,7 @@
     "build": "passed",
     "discoveredTests": {
       "unit": 163,
-      "e2e": 4
+      "e2e": 6
     }
   },
   "architecture": {
@@ -259,30 +259,35 @@
             {
               "path": "agent-core/test/app.e2e-spec.ts",
               "contentAll": [
-                "approve",
-                "send",
+                "APPROVE",
+                "EDIT_AND_APPROVE",
+                "REJECT",
+                "409",
                 "not.toHaveBeenCalled"
               ]
             },
             {
               "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
               "contentAll": [
-                "approve",
-                "send",
-                "not.toHaveBeenCalled"
+                "duplicate incoming message",
+                "not.toHaveBeenCalled",
+                "outbox",
+                "createDraftMock"
               ]
             },
             {
               "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
               "contentAll": [
-                "approve",
-                "send",
+                "APPROVE",
+                "EDIT_AND_APPROVE",
+                "REJECT",
+                "duplicate",
                 "not.toHaveBeenCalled"
               ]
             }
           ]
         },
-        "complete": false
+        "complete": true
       }
     ],
     "completionRequires": [
@@ -293,10 +298,10 @@
     ]
   },
   "nextAction": {
-    "kind": "implement-checkpoint",
-    "title": "4.4-D: Pruebas, idempotencia y ausencia de envío",
-    "text": "En la rama `feature/hito-4-4-human-review`, implementar únicamente el checkpoint **4.4-D: Pruebas, idempotencia y ausencia de envío** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "test: cover human review without sending",
-    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
+    "kind": "close-milestone",
+    "title": "Cerrar Hito 4.4",
+    "text": "Comprobar el merge y los checks finales del Hito 4.4; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.",
+    "commitHint": null,
+    "doneWhen": "El hito está fusionado, la validación está verde y su estado documental coincide con GitHub."
   }
 }
