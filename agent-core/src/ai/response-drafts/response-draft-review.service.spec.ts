@@ -25,9 +25,13 @@ describe('ResponseDraftReviewService', () => {
   let createResponseDraftMock: jest.MockedFunction<
     ResponseDraftRepository['create']
   >;
+  let updateResponseDraftMock: jest.Mock;
+  let deleteResponseDraftMock: jest.Mock;
+  let upsertResponseDraftMock: jest.Mock;
   let createDecisionMock: jest.MockedFunction<
     ResponseDraftDecisionRepository['create']
   >;
+  let unexpectedCollaboratorAccessMock: jest.Mock;
 
   const baseCommand = {
     businessId: 'business-1',
@@ -62,15 +66,48 @@ describe('ResponseDraftReviewService', () => {
   beforeEach(() => {
     findByIdForBusinessMock = jest.fn().mockResolvedValue(responseDraft);
     createResponseDraftMock = jest.fn();
+    updateResponseDraftMock = jest.fn();
+    deleteResponseDraftMock = jest.fn();
+    upsertResponseDraftMock = jest.fn();
     createDecisionMock = jest.fn();
+    unexpectedCollaboratorAccessMock = jest.fn();
 
-    const responseDraftRepository = {
-      findByIdForBusiness: findByIdForBusinessMock,
-      create: createResponseDraftMock,
-    } as unknown as ResponseDraftRepository;
-    const responseDraftDecisionRepository = {
-      create: createDecisionMock,
-    } as unknown as ResponseDraftDecisionRepository;
+    const responseDraftRepository = new Proxy(
+      {
+        findByIdForBusiness: findByIdForBusinessMock,
+        create: createResponseDraftMock,
+        update: updateResponseDraftMock,
+        delete: deleteResponseDraftMock,
+        upsert: upsertResponseDraftMock,
+      },
+      {
+        get(target, property, receiver) {
+          if (!Reflect.has(target, property)) {
+            unexpectedCollaboratorAccessMock(property);
+            throw new Error(
+              `Unexpected response draft repository access: ${String(property)}`,
+            );
+          }
+
+          return Reflect.get(target, property, receiver);
+        },
+      },
+    ) as unknown as ResponseDraftRepository;
+    const responseDraftDecisionRepository = new Proxy(
+      { create: createDecisionMock },
+      {
+        get(target, property, receiver) {
+          if (!Reflect.has(target, property)) {
+            unexpectedCollaboratorAccessMock(property);
+            throw new Error(
+              `Unexpected response draft decision repository access: ${String(property)}`,
+            );
+          }
+
+          return Reflect.get(target, property, receiver);
+        },
+      },
+    ) as unknown as ResponseDraftDecisionRepository;
 
     service = new ResponseDraftReviewService(
       responseDraftRepository,
@@ -78,60 +115,57 @@ describe('ResponseDraftReviewService', () => {
     );
   });
 
-  it('reviews a PROPOSED draft with APPROVE', async () => {
-    const result = decisionRow('APPROVE');
-    createDecisionMock.mockResolvedValue(result);
-
-    await expect(
-      service.review({ ...baseCommand, decision: 'APPROVE' }),
-    ).resolves.toEqual(result);
-
-    expect(findByIdForBusinessMock).toHaveBeenCalledWith(
-      baseCommand.businessId,
-      baseCommand.responseDraftId,
-    );
-    expect(createDecisionMock).toHaveBeenCalledWith({
-      ...baseCommand,
-      decision: 'APPROVE',
-    });
+  function expectOnlyDecisionInsert(): void {
     expect(createResponseDraftMock).not.toHaveBeenCalled();
-  });
+    expect(updateResponseDraftMock).not.toHaveBeenCalled();
+    expect(deleteResponseDraftMock).not.toHaveBeenCalled();
+    expect(upsertResponseDraftMock).not.toHaveBeenCalled();
+    expect(unexpectedCollaboratorAccessMock).not.toHaveBeenCalled();
+  }
 
-  it('reviews a PROPOSED draft with REJECT', async () => {
-    const result = decisionRow('REJECT');
-    createDecisionMock.mockResolvedValue(result);
-
-    await expect(
-      service.review({ ...baseCommand, decision: 'REJECT' }),
-    ).resolves.toEqual(result);
-
-    expect(createDecisionMock).toHaveBeenCalledWith({
-      ...baseCommand,
-      decision: 'REJECT',
-    });
-    expect(createResponseDraftMock).not.toHaveBeenCalled();
-  });
-
-  it('normalizes final text for EDIT_AND_APPROVE', async () => {
-    const normalizedText = 'Texto final revisado.';
-    const result = decisionRow('EDIT_AND_APPROVE', normalizedText);
-    createDecisionMock.mockResolvedValue(result);
-
-    await expect(
-      service.review({
+  it.each([
+    {
+      command: { ...baseCommand, decision: 'APPROVE' as const },
+      expectedDecision: { ...baseCommand, decision: 'APPROVE' as const },
+      result: decisionRow('APPROVE'),
+    },
+    {
+      command: {
         ...baseCommand,
-        decision: 'EDIT_AND_APPROVE',
-        finalText: `  ${normalizedText}  `,
-      }),
-    ).resolves.toEqual(result);
+        decision: 'EDIT_AND_APPROVE' as const,
+        finalText: '  Texto final revisado.  ',
+      },
+      expectedDecision: {
+        ...baseCommand,
+        decision: 'EDIT_AND_APPROVE' as const,
+        finalText: 'Texto final revisado.',
+      },
+      result: decisionRow('EDIT_AND_APPROVE', 'Texto final revisado.'),
+    },
+    {
+      command: { ...baseCommand, decision: 'REJECT' as const },
+      expectedDecision: { ...baseCommand, decision: 'REJECT' as const },
+      result: decisionRow('REJECT'),
+    },
+  ])(
+    'for $command.decision, reads the proposed draft and inserts only its decision',
+    async ({ command, expectedDecision, result }) => {
+      createDecisionMock.mockResolvedValue(result);
+      const originalText = responseDraft.text;
 
-    expect(createDecisionMock).toHaveBeenCalledWith({
-      ...baseCommand,
-      decision: 'EDIT_AND_APPROVE',
-      finalText: normalizedText,
-    });
-    expect(createResponseDraftMock).not.toHaveBeenCalled();
-  });
+      await expect(service.review(command)).resolves.toEqual(result);
+
+      expect(findByIdForBusinessMock).toHaveBeenCalledTimes(1);
+      expect(findByIdForBusinessMock).toHaveBeenCalledWith(
+        baseCommand.businessId,
+        baseCommand.responseDraftId,
+      );
+      expect(createDecisionMock).toHaveBeenCalledTimes(1);
+      expect(createDecisionMock).toHaveBeenCalledWith(expectedDecision);
+      expect(responseDraft.text).toBe(originalText);
+      expectOnlyDecisionInsert();
+    },
+  );
 
   it('rejects EDIT_AND_APPROVE without final text', async () => {
     const command = {
@@ -265,16 +299,39 @@ describe('ResponseDraftReviewService', () => {
     expect(createResponseDraftMock).not.toHaveBeenCalled();
   });
 
-  it('preserves the exact duplicate domain error returned by the repository', async () => {
+  it('keeps the first decision and propagates the duplicate error on a second review', async () => {
+    const firstDecision = decisionRow('APPROVE');
     const duplicateError = new DuplicateResponseDraftDecisionError(
       baseCommand.responseDraftId,
     );
-    createDecisionMock.mockRejectedValue(duplicateError);
+    const persistedDecisions = [firstDecision];
+    createDecisionMock
+      .mockResolvedValueOnce(firstDecision)
+      .mockImplementationOnce(async () => {
+        throw duplicateError;
+      });
+    const originalText = responseDraft.text;
 
     await expect(
       service.review({ ...baseCommand, decision: 'APPROVE' }),
+    ).resolves.toEqual(firstDecision);
+    await expect(
+      service.review({ ...baseCommand, decision: 'REJECT' }),
     ).rejects.toBe(duplicateError);
-    expect(createDecisionMock).toHaveBeenCalledTimes(1);
+
+    expect(findByIdForBusinessMock).toHaveBeenCalledTimes(2);
+    expect(createDecisionMock).toHaveBeenCalledTimes(2);
+    expect(createDecisionMock).toHaveBeenNthCalledWith(1, {
+      ...baseCommand,
+      decision: 'APPROVE',
+    });
+    expect(createDecisionMock).toHaveBeenNthCalledWith(2, {
+      ...baseCommand,
+      decision: 'REJECT',
+    });
+    expect(persistedDecisions).toEqual([firstDecision]);
+    expect(responseDraft.text).toBe(originalText);
+    expectOnlyDecisionInsert();
   });
 
   it('does not reclassify a generic persistence error as a duplicate', async () => {
@@ -295,7 +352,7 @@ describe('ResponseDraftReviewService', () => {
 
     expect(findByIdForBusinessMock).toHaveBeenCalledTimes(1);
     expect(createDecisionMock).toHaveBeenCalledTimes(1);
-    expect(createResponseDraftMock).not.toHaveBeenCalled();
+    expectOnlyDecisionInsert();
   });
 
   it('depends only on the draft and decision repositories', () => {
@@ -305,5 +362,6 @@ describe('ResponseDraftReviewService', () => {
     expect(findByIdForBusinessMock).not.toHaveBeenCalled();
     expect(createResponseDraftMock).not.toHaveBeenCalled();
     expect(createDecisionMock).not.toHaveBeenCalled();
+    expect(unexpectedCollaboratorAccessMock).not.toHaveBeenCalled();
   });
 });

@@ -297,7 +297,7 @@ describe('EvolutionWebhookService', () => {
     });
   });
 
-  it('does not load history or create a draft for a duplicate message', async () => {
+  it('stops a duplicate incoming message before any AI, history, draft, or outgoing effect', async () => {
     const queries = configureSupabase({
       messageError: {
         code: '23505',
@@ -311,10 +311,23 @@ describe('EvolutionWebhookService', () => {
       saved: false,
       duplicated: true,
     });
+    expect(queries.messageInsertQuery.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        direction: 'IN',
+        role: 'customer',
+      }),
+    );
+    expect(fromMock).toHaveBeenCalledTimes(3);
+    expect(fromMock.mock.calls.map(([table]) => table)).toEqual([
+      'businesses',
+      'leads',
+      'messages',
+    ]);
     expect(queries.historyQuery.select).not.toHaveBeenCalled();
     expect(queries.leadUpdateQuery.update).not.toHaveBeenCalled();
     expect(generateDraftMock).not.toHaveBeenCalled();
     expect(createDraftMock).not.toHaveBeenCalled();
+    expect(fromMock).not.toHaveBeenCalledWith('outbox');
   });
 
   it('keeps the saved incoming message when draft generation fails', async () => {

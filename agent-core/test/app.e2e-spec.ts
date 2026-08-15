@@ -5,6 +5,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import type { AiProvider } from './../src/ai/ai-provider.interface';
 import { AI_PROVIDER } from './../src/ai/ai.constants';
+import { DuplicateResponseDraftDecisionError } from './../src/ai/response-drafts/response-draft-decision.repository';
 import { ResponseDraftReviewService } from './../src/ai/response-drafts/response-draft-review.service';
 import { AppModule } from './../src/app.module';
 import { SupabaseService } from './../src/supabase/supabase.service';
@@ -17,15 +18,35 @@ describe('EvolutionWebhookController (e2e)', () => {
   const responseDraftId = '323e4567-e89b-42d3-a456-426614174000';
   const generateTextMock: jest.MockedFunction<AiProvider['generateText']> =
     jest.fn();
+  let persistedDecision: {
+    id: string;
+    business_id: string;
+    response_draft_id: string;
+    operator_id: string;
+    decision: 'APPROVE' | 'EDIT_AND_APPROVE' | 'REJECT';
+    final_text: string | null;
+    decided_at: string;
+  } | null = null;
   const reviewMock: jest.MockedFunction<ResponseDraftReviewService['review']> =
-    jest.fn().mockResolvedValue({
-      id: '423e4567-e89b-42d3-a456-426614174000',
-      business_id: businessId,
-      response_draft_id: responseDraftId,
-      operator_id: operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-      decided_at: '2026-08-11T23:00:00.000Z',
+    jest.fn(async (command) => {
+      if (persistedDecision) {
+        throw new DuplicateResponseDraftDecisionError(command.responseDraftId);
+      }
+
+      persistedDecision = {
+        id: '423e4567-e89b-42d3-a456-426614174000',
+        business_id: command.businessId,
+        response_draft_id: command.responseDraftId,
+        operator_id: command.operatorId,
+        decision: command.decision,
+        final_text:
+          command.decision === 'EDIT_AND_APPROVE'
+            ? command.finalText
+            : null,
+        decided_at: '2026-08-11T23:00:00.000Z',
+      };
+
+      return persistedDecision;
     });
   const fakeAiProvider: AiProvider = {
     generateText: generateTextMock,
@@ -46,6 +67,7 @@ describe('EvolutionWebhookController (e2e)', () => {
             ADMIN_REVIEW_TOKEN: adminToken,
             ADMIN_REVIEW_OPERATOR_ID: operatorId,
             ADMIN_REVIEW_BUSINESS_IDS: businessId,
+            AUTO_SEND_MESSAGES: false,
           })[key],
       })
       .overrideProvider(ResponseDraftReviewService)
@@ -59,6 +81,7 @@ describe('EvolutionWebhookController (e2e)', () => {
   beforeEach(() => {
     generateTextMock.mockClear();
     reviewMock.mockClear();
+    persistedDecision = null;
   });
 
   it('POST /webhooks/evolution ignores unrelated events', async () => {
@@ -94,13 +117,16 @@ describe('EvolutionWebhookController (e2e)', () => {
       expect(generateTextMock).not.toHaveBeenCalled();
     });
 
-    it('creates an approve review with the operator derived from configuration', async () => {
-      await request(app.getHttpServer())
-        .post(endpoint)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ decision: 'APPROVE' })
-        .expect(201)
-        .expect({
+    it.each([
+      {
+        firstRequest: { decision: 'APPROVE' },
+        firstCommand: {
+          businessId,
+          responseDraftId,
+          operatorId,
+          decision: 'APPROVE' as const,
+        },
+        firstResponse: {
           id: '423e4567-e89b-42d3-a456-426614174000',
           businessId,
           responseDraftId,
@@ -108,16 +134,80 @@ describe('EvolutionWebhookController (e2e)', () => {
           decision: 'APPROVE',
           finalText: null,
           decidedAt: '2026-08-11T23:00:00.000Z',
-        });
+        },
+        secondRequest: { decision: 'REJECT' },
+      },
+      {
+        firstRequest: {
+          decision: 'EDIT_AND_APPROVE',
+          finalText: 'Texto final del operador.',
+        },
+        firstCommand: {
+          businessId,
+          responseDraftId,
+          operatorId,
+          decision: 'EDIT_AND_APPROVE' as const,
+          finalText: 'Texto final del operador.',
+        },
+        firstResponse: {
+          id: '423e4567-e89b-42d3-a456-426614174000',
+          businessId,
+          responseDraftId,
+          operatorId,
+          decision: 'EDIT_AND_APPROVE',
+          finalText: 'Texto final del operador.',
+          decidedAt: '2026-08-11T23:00:00.000Z',
+        },
+        secondRequest: { decision: 'REJECT' },
+      },
+      {
+        firstRequest: { decision: 'REJECT' },
+        firstCommand: {
+          businessId,
+          responseDraftId,
+          operatorId,
+          decision: 'REJECT' as const,
+        },
+        firstResponse: {
+          id: '423e4567-e89b-42d3-a456-426614174000',
+          businessId,
+          responseDraftId,
+          operatorId,
+          decision: 'REJECT',
+          finalText: null,
+          decidedAt: '2026-08-11T23:00:00.000Z',
+        },
+        secondRequest: { decision: 'APPROVE' },
+      },
+    ])(
+      'creates $firstRequest.decision once and rejects a later decision without changing it',
+      async ({ firstRequest, firstCommand, firstResponse, secondRequest }) => {
+        await request(app.getHttpServer())
+          .post(endpoint)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send(firstRequest)
+          .expect(201)
+          .expect(firstResponse);
 
-      expect(reviewMock).toHaveBeenCalledWith({
-        businessId,
-        responseDraftId,
-        operatorId,
-        decision: 'APPROVE',
-      });
-      expect(generateTextMock).not.toHaveBeenCalled();
-    });
+        const initialDecision = { ...persistedDecision };
+
+        await request(app.getHttpServer())
+          .post(endpoint)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send(secondRequest)
+          .expect(409)
+          .expect({
+            statusCode: 409,
+            error: 'Conflict',
+            message: 'Response draft has already been reviewed.',
+          });
+
+        expect(reviewMock).toHaveBeenNthCalledWith(1, firstCommand);
+        expect(reviewMock).toHaveBeenCalledTimes(2);
+        expect(persistedDecision).toEqual(initialDecision);
+        expect(generateTextMock).not.toHaveBeenCalled();
+      },
+    );
 
     it('rejects a client-supplied operatorId before calling the service', async () => {
       await request(app.getHttpServer())
