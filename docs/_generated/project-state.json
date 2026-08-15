@@ -3,14 +3,21 @@
   "observedDate": "2026-08-14",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "HEAD",
-    "branch": "feature/hito-4-4-d-no-send",
-    "sha": "6f6dbad4683d535139b1efb5459623b469c709ce",
-    "shortSha": "6f6dbad",
-    "subject": "test: cover 4.4-D idempotency and no-send behavior",
-    "committedAt": "2026-08-14T19:00:02-06:00",
-    "pullRequest": null,
-    "ciUrl": null
+    "ref": "origin/main",
+    "branch": "main",
+    "sha": "a84206b483830bf84b5af055fe4f3a815143352f",
+    "shortSha": "a84206b",
+    "subject": "test: cover 4.4-D idempotency and no-send behavior (#34)",
+    "committedAt": "2026-08-14T19:03:35-06:00",
+    "pullRequest": {
+      "number": 34,
+      "title": "test: cover 4.4-D idempotency and no-send behavior (#34)",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34",
+      "state": "closed",
+      "mergedAt": null,
+      "source": "commit-subject"
+    },
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855354246"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -26,12 +33,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "not_run",
-    "e2e": "not_run",
-    "build": "not_run",
+    "unit": "passed",
+    "e2e": "passed",
+    "build": "passed",
     "discoveredTests": {
-      "unit": 84,
-      "e2e": 3
+      "unit": 163,
+      "e2e": 6
     }
   },
   "architecture": {

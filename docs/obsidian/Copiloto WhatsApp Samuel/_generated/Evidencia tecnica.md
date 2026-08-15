@@ -10,15 +10,16 @@ updated: 2026-08-14
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `feature/hito-4-4-d-no-send` en `6f6dbad`.
-- Commit completo: `6f6dbad4683d535139b1efb5459623b469c709ce`.
-- Mensaje: test: cover 4.4-D idempotency and no-send behavior.
+- Fuente: `main` en `a84206b`, asociado al [PR #34](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34).
+- Commit completo: `a84206b483830bf84b5af055fe4f3a815143352f`.
+- Mensaje: test: cover 4.4-D idempotency and no-send behavior (#34).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855354246).
 
 ## Validación
 
-- **Unitarias:** `NO EJECUTADO` — 84 casos ejecutados.
-- **E2E:** `NO EJECUTADO` — 3 casos ejecutados.
-- **Build:** `NO EJECUTADO` — compilación del backend.
+- **Unitarias:** `APROBADO` — 163 casos ejecutados.
+- **E2E:** `APROBADO` — 6 casos ejecutados.
+- **Build:** `APROBADO` — compilación del backend.
 
 ## Backend
 
