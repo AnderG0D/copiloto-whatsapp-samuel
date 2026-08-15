@@ -10,10 +10,10 @@ updated: 2026-08-14
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `a84206b`, asociado al [PR #34](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34).
-- Commit completo: `a84206b483830bf84b5af055fe4f3a815143352f`.
-- Mensaje: test: cover 4.4-D idempotency and no-send behavior (#34).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855354246).
+- Fuente: `main` en `e856c39`, asociado al [PR #36](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/36).
+- Commit completo: `e856c39cfa6c2f699500bc4b4a6697d4bd8cd6fc`.
+- Mensaje: fix: correct 4.4-D documentation evidence detection (#36).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31859765772).
 
 ## Validación
 

@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.4-D: Pruebas, idempotencia y ausencia de envío**.
+- No hay checkpoints técnicos pendientes; falta comprobar el cierre del Hito 4.4.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:
