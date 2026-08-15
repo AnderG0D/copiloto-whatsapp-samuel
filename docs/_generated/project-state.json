@@ -3,21 +3,21 @@
   "observedDate": "2026-08-14",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "origin/main",
+    "ref": "HEAD",
     "branch": "main",
-    "sha": "a84206b483830bf84b5af055fe4f3a815143352f",
-    "shortSha": "a84206b",
-    "subject": "test: cover 4.4-D idempotency and no-send behavior (#34)",
-    "committedAt": "2026-08-14T19:03:35-06:00",
+    "sha": "e856c39cfa6c2f699500bc4b4a6697d4bd8cd6fc",
+    "shortSha": "e856c39",
+    "subject": "fix: correct 4.4-D documentation evidence detection (#36)",
+    "committedAt": "2026-08-14T20:39:32-06:00",
     "pullRequest": {
-      "number": 34,
-      "title": "test: cover 4.4-D idempotency and no-send behavior (#34)",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34",
+      "number": 36,
+      "title": "fix: correct 4.4-D documentation evidence detection",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/36",
       "state": "closed",
-      "mergedAt": null,
-      "source": "commit-subject"
+      "mergedAt": "2026-08-15T02:39:33Z",
+      "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31855354246"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31859765772"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
