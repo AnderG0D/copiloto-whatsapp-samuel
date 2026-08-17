@@ -42,7 +42,7 @@ async function checkpointEvidence(checkpointId) {
     path.join(repositoryRoot, 'docs/control/milestones.json'), 'utf8',
   ));
   return milestones.milestones
-    .find((milestone) => milestone.id === milestones.activeMilestone)
+    .find((milestone) => milestone.id === '4.4')
     .checkpoints.find((checkpoint) => checkpoint.id === checkpointId)
     .evidence;
 }
@@ -281,8 +281,17 @@ test('collects and dry-renders a v2 waiting lifecycle without a milestone object
   assert.match(stdout, /Would render/);
 });
 
-test('Hito 4.4 is ready to close after all checkpoint evidence is complete', async () => {
+test('the configured lifecycle is coherent after Hito 4.4 evidence is complete', async () => {
   const state = await collectCurrentProjectState();
+
+  if (state.milestone === null) {
+    assert.equal(state.schemaVersion, 2);
+    assert.equal(state.lifecycleState, 'awaiting-next-milestone-approval');
+    assert.equal(state.lastClosedMilestone, '4.4');
+    assert.equal(state.activeMilestone, null);
+    assert.equal(state.nextAction.kind, 'await-next-milestone-approval');
+    return;
+  }
 
   assert.equal(state.milestone.id, '4.4');
   assert.equal(state.nextAction.kind, 'close-milestone');
@@ -304,20 +313,41 @@ test('the indirect webhook AI path is detected without claiming message sending'
   assert.equal(state.architecture.components.sender, false);
 });
 
-test('the current Hito 4.4 records all checkpoints complete without a sender', async () => {
+test('Hito 4.4 records all checkpoints complete without a sender', async () => {
   const state = await collectCurrentProjectState();
+  const milestoneConfig = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/milestones.json'),
+    'utf8',
+  ));
+  const milestone = milestoneConfig.milestones.find((item) => item.id === '4.4');
 
-  assert.equal(state.milestone.checkpoints.length, 4);
+  assert.equal(milestone.checkpoints.length, 4);
   assert.deepEqual(
-    state.milestone.checkpoints.map(({ id, complete }) => ({ id, complete })),
+    milestone.checkpoints.map(({ id }) => id),
     [
-      { id: '4.4-A', complete: true },
-      { id: '4.4-B', complete: true },
-      { id: '4.4-C', complete: true },
-      { id: '4.4-D', complete: true },
+      '4.4-A',
+      '4.4-B',
+      '4.4-C',
+      '4.4-D',
     ],
   );
-  assert.equal(state.nextAction.kind, 'close-milestone');
+  if (state.milestone) {
+    assert.deepEqual(
+      state.milestone.checkpoints.map(({ id, complete }) => ({ id, complete })),
+      [
+        { id: '4.4-A', complete: true },
+        { id: '4.4-B', complete: true },
+        { id: '4.4-C', complete: true },
+        { id: '4.4-D', complete: true },
+      ],
+    );
+  } else {
+    assert.equal(milestone.status, 'done');
+  }
+  assert.ok([
+    'close-milestone',
+    'await-next-milestone-approval',
+  ].includes(state.nextAction.kind));
   assert.doesNotMatch(state.nextAction.text, /implementar.*4\.4-D/i);
   assert.equal(state.architecture.components.sender, false);
 });
