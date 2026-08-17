@@ -140,6 +140,37 @@ async function collectCurrentProjectState() {
   return currentProjectStatePromise;
 }
 
+async function collectWaitingProjectState(t) {
+  const temporaryDirectory = await mkdtemp(
+    path.join(repositoryRoot, '.docs-waiting-state-test-'),
+  );
+  t.after(async () => rm(temporaryDirectory, { recursive: true, force: true }));
+  const configPath = path.join(temporaryDirectory, 'milestones.json');
+  const outputPath = path.join(temporaryDirectory, 'project-state.json');
+  const milestones = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/milestones.json'), 'utf8',
+  ));
+  const active = milestones.milestones.find((milestone) => milestone.id === '4.4');
+  active.status = 'done';
+  milestones.activeMilestone = null;
+  milestones.lifecycleState = 'awaiting-next-milestone-approval';
+  milestones.lastClosedMilestone = '4.4';
+  await writeFile(configPath, `${JSON.stringify(milestones, null, 2)}\n`, 'utf8');
+
+  await execFileAsync(
+    process.execPath,
+    [
+      'scripts/docs/collect-project-state.mjs',
+      '--source-ref', 'HEAD',
+      '--output', path.relative(repositoryRoot, outputPath),
+      '--milestones-config', path.relative(repositoryRoot, configPath),
+    ],
+    { cwd: repositoryRoot, env: { ...process.env, GITHUB_TOKEN: '' } },
+  );
+
+  return { outputPath, state: JSON.parse(await readFile(outputPath, 'utf8')) };
+}
+
 test('glob matching keeps protected decisions out of the human fallback', () => {
   const policy = {
     classes: {
@@ -208,6 +239,46 @@ test('first incomplete checkpoint becomes the next action', () => {
 
   assert.equal(action.kind, 'implement-checkpoint');
   assert.match(action.text, /4\.2-B/);
+});
+
+test('waiting lifecycle has one human action without branch, checkpoint or commit', () => {
+  const action = deriveNextAction({
+    verification: { unit: 'failed', e2e: 'failed', build: 'failed' },
+    activeMilestone: null,
+    pullRequest: { state: 'open', number: 99 },
+  });
+
+  assert.deepEqual(action, {
+    kind: 'await-next-milestone-approval',
+    title: 'Esperar aprobación del siguiente hito',
+    text: 'Esperar aprobación humana explícita antes de definir o activar el siguiente hito.',
+    commitHint: null,
+    doneWhen: 'Una persona aprueba explícitamente el alcance y la activación de un próximo hito.',
+  });
+});
+
+test('collects and dry-renders a v2 waiting lifecycle without a milestone object', async (t) => {
+  const { outputPath, state } = await collectWaitingProjectState(t);
+
+  assert.equal(state.schemaVersion, 2);
+  assert.equal(state.lifecycleState, 'awaiting-next-milestone-approval');
+  assert.equal(state.lastClosedMilestone, '4.4');
+  assert.equal(state.activeMilestone, null);
+  assert.equal(state.milestone, null);
+  assert.equal(state.nextAction.kind, 'await-next-milestone-approval');
+  assert.equal(state.nextAction.commitHint, null);
+  assert.doesNotMatch(state.nextAction.text, /4\.5/);
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      'scripts/docs/render-documentation.mjs',
+      '--input', path.relative(repositoryRoot, outputPath),
+      '--dry-run',
+    ],
+    { cwd: repositoryRoot, env: { ...process.env, GITHUB_TOKEN: '' } },
+  );
+  assert.match(stdout, /Would render/);
 });
 
 test('Hito 4.4 is ready to close after all checkpoint evidence is complete', async () => {

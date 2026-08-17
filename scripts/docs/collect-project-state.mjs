@@ -167,6 +167,7 @@ const args = parseArguments(process.argv.slice(2));
 const sourceRef = args['source-ref'] || 'HEAD';
 const sourceBranch = args['source-branch'] || process.env.GITHUB_REF_NAME || git(['branch', '--show-current']);
 const outputPath = args.output || 'docs/_generated/project-state.json';
+const milestoneConfigPath = args['milestones-config'] || 'docs/control/milestones.json';
 const repository = args.repository || process.env.GITHUB_REPOSITORY || 'AnderG0D/copiloto-whatsapp-samuel';
 const [sha, shortSha, subject, committedAt] = git([
   'show', '-s', '--format=%H%x00%h%x00%s%x00%cI', sourceRef,
@@ -177,20 +178,41 @@ const sourceFiles = await listFiles('agent-core', (file) => (
 ));
 const sourceTexts = await readSourceFiles(sourceFiles.filter((file) => file.endsWith('.ts')));
 const packageJson = await readJson('agent-core/package.json');
-const milestoneConfig = await readJson('docs/control/milestones.json');
-const activeConfig = milestoneConfig.milestones.find(
-  (item) => item.id === milestoneConfig.activeMilestone,
+const milestoneConfig = await readJson(milestoneConfigPath);
+const configuredActive = milestoneConfig.milestones.filter(
+  (item) => item.status === 'active',
 );
+const waitingForApproval = milestoneConfig.activeMilestone === null;
 
-if (!activeConfig) {
-  throw new Error(`Active milestone ${milestoneConfig.activeMilestone} is not configured`);
+if (waitingForApproval) {
+  if (milestoneConfig.lifecycleState !== 'awaiting-next-milestone-approval') {
+    throw new Error('A null activeMilestone requires lifecycleState awaiting-next-milestone-approval');
+  }
+  if (configuredActive.length !== 0) {
+    throw new Error('A null activeMilestone cannot coexist with an active milestone');
+  }
+  const lastClosed = milestoneConfig.milestones.find(
+    (item) => item.id === milestoneConfig.lastClosedMilestone,
+  );
+  if (!lastClosed || lastClosed.status !== 'done') {
+    throw new Error('A waiting lifecycle requires lastClosedMilestone to be configured as done');
+  }
+} else if (
+  typeof milestoneConfig.activeMilestone !== 'string'
+  || configuredActive.length !== 1
+  || configuredActive[0].id !== milestoneConfig.activeMilestone
+) {
+  throw new Error('Active milestone configuration must identify exactly one active milestone');
 }
 
-const checkpoints = activeConfig.checkpoints.map((checkpoint) => ({
-  ...checkpoint,
-  complete: evaluateEvidence(checkpoint.evidence, sourceFiles, sourceTexts),
-}));
-const activeMilestone = { ...activeConfig, checkpoints };
+const activeConfig = waitingForApproval ? null : configuredActive[0];
+const activeMilestone = activeConfig && {
+  ...activeConfig,
+  checkpoints: activeConfig.checkpoints.map((checkpoint) => ({
+    ...checkpoint,
+    complete: evaluateEvidence(checkpoint.evidence, sourceFiles, sourceTexts),
+  })),
+};
 const verification = {
   unit: verificationValue(args['unit-status']),
   e2e: verificationValue(args['e2e-status']),
@@ -263,7 +285,7 @@ const components = {
 };
 
 const state = {
-  schemaVersion: 1,
+  schemaVersion: waitingForApproval ? 2 : 1,
   observedDate: committedAt.slice(0, 10),
   repository,
   source: {
@@ -309,6 +331,12 @@ const state = {
   })),
   milestone: activeMilestone,
 };
+
+if (waitingForApproval) {
+  state.lifecycleState = milestoneConfig.lifecycleState;
+  state.lastClosedMilestone = milestoneConfig.lastClosedMilestone;
+  state.activeMilestone = null;
+}
 
 state.nextAction = deriveNextAction({
   verification,
