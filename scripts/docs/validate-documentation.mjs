@@ -171,6 +171,9 @@ export async function validateDocumentation(args = {}) {
     const tracked = normalizeLineEndings(
       git(['diff', '--name-only', base, '--']),
     ).split('\n').filter(Boolean);
+    const deleted = new Set(normalizeLineEndings(
+      git(['diff', '--diff-filter=D', '--name-only', base, '--']),
+    ).split('\n').filter(Boolean));
     const untracked = normalizeLineEndings(
       git(['ls-files', '--others', '--exclude-standard']),
     ).split('\n').filter(Boolean);
@@ -179,6 +182,10 @@ export async function validateDocumentation(args = {}) {
     for (const file of changedFiles.filter((item) => item.startsWith(`${docsRoot}/`))) {
       const category = classifyPath(file, policy);
       if (category === 'generated') continue;
+      if (deleted.has(file)) {
+        issues.push(`${file}: automation deleted ${category ?? 'unclassified'} content`);
+        continue;
+      }
       if (category === 'protected' || category === 'human' || !category) {
         issues.push(`${file}: automation changed ${category ?? 'unclassified'} content`);
         continue;
