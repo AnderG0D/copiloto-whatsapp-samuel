@@ -397,6 +397,66 @@ Generar el relevo determinista antes de ${activeMilestoneId}-A.
   };
 }
 
+async function createWaitingFixture(t) {
+  const fixture = await createFixture(t);
+  await generateMilestoneHandoff({ root: fixture.root });
+  const historicalBytes = await readFile(
+    absolute(fixture.root, fixture.outputPaths.historicalHandoff),
+  );
+  const milestones = await readFixtureJson(fixture.root, milestonesPath);
+  milestones.milestones.find((milestone) => milestone.id === '4.4').status = 'done';
+  milestones.activeMilestone = null;
+  milestones.lifecycleState = 'awaiting-next-milestone-approval';
+  milestones.lastClosedMilestone = '4.4';
+  await writeFixtureJson(fixture.root, milestonesPath, milestones);
+
+  const state = await readFixtureJson(fixture.root, statePath);
+  state.schemaVersion = 2;
+  state.lifecycleState = 'awaiting-next-milestone-approval';
+  state.lastClosedMilestone = '4.4';
+  state.activeMilestone = null;
+  state.milestone = null;
+  state.milestones = milestones.milestones.map(({ id, title, status, document }) => ({
+    id,
+    title,
+    status,
+    document,
+  }));
+  state.nextAction = deriveNextAction({
+    verification: state.verification,
+    activeMilestone: null,
+    pullRequest: state.source.pullRequest,
+  });
+  await writeFixtureJson(fixture.root, statePath, state);
+  await writeFixtureFile(
+    fixture.root,
+    canonicalActionPath,
+    canonicalActionDocument(state),
+  );
+
+  const waitingOutputPaths = {
+    masterPrompt: fixture.outputPaths.masterPrompt,
+    portablePrompt: fixture.outputPaths.portablePrompt,
+  };
+  await writeFixtureJson(fixture.root, contractPath, {
+    schemaVersion: 2,
+    lifecycleState: 'awaiting-next-milestone-approval',
+    lastClosedMilestone: '4.4',
+    activeMilestone: null,
+    safetyInvariants: {
+      sender: false,
+      autoSendMessages: false,
+    },
+    outputs: waitingOutputPaths,
+    historicalHandoff: {
+      path: fixture.outputPaths.historicalHandoff,
+      sha256: createHash('sha256').update(historicalBytes).digest('hex'),
+    },
+  });
+
+  return { ...fixture, historicalBytes, waitingOutputPaths };
+}
+
 async function mutateJson(root, relativePath, mutate) {
   const value = await readFixtureJson(root, relativePath);
   mutate(value);
@@ -477,6 +537,88 @@ test('generates the valid 4.3 to 4.4 transition', async (t) => {
   assert.match(outputs.masterPrompt.toString('utf8'), /Prompt maestro — Hito 4\.4/);
   assert.match(outputs.historicalHandoff.toString('utf8'), /4\.3-to-4\.4/);
   assert.ok(Object.values(outputs).every((content) => !content.includes('\r')));
+});
+
+test('generates a v2 waiting lifecycle without writing the historical handoff', async (t) => {
+  const fixture = await createWaitingFixture(t);
+
+  await generateMilestoneHandoff({ root: fixture.root });
+  const outputs = await outputBytes(fixture.root, fixture.waitingOutputPaths);
+  const historicalAfter = await readFile(
+    absolute(fixture.root, fixture.outputPaths.historicalHandoff),
+  );
+
+  assert.ok(historicalAfter.equals(fixture.historicalBytes));
+  for (const content of Object.values(outputs)) {
+    const text = content.toString('utf8');
+    assert.match(text, /No hay hito activo/);
+    assert.match(text, /awaiting-next-milestone-approval/);
+    assert.match(text, /sender=false/);
+    assert.match(text, /AUTO_SEND_MESSAGES=false/);
+    assert.doesNotMatch(text, /4\.5/);
+    assert.doesNotMatch(text, /feature\/hito/i);
+  }
+});
+
+test('rejects an inconsistent v2 waiting lifecycle without writes', async (t) => {
+  const fixture = await createWaitingFixture(t);
+  await mutateJson(fixture.root, milestonesPath, (milestones) => {
+    milestones.milestones.find((milestone) => milestone.id === '4.4').status = 'active';
+  });
+
+  await assertFailureWithoutWrites(
+    fixture.root,
+    () => generateMilestoneHandoff({ root: fixture.root }),
+    /expected zero active milestones/,
+  );
+});
+
+test('rejects v2 sender or automatic-send violations without writes', async (t) => {
+  const senderFixture = await createWaitingFixture(t);
+  await mutateJson(senderFixture.root, statePath, (state) => {
+    state.architecture.components.sender = true;
+  });
+  await assertFailureWithoutWrites(
+    senderFixture.root,
+    () => generateMilestoneHandoff({ root: senderFixture.root }),
+    /sender=false \(waiting state\)/,
+  );
+
+  const autoSendFixture = await createWaitingFixture(t);
+  await mutateJson(autoSendFixture.root, contractPath, (contract) => {
+    contract.safetyInvariants.autoSendMessages = true;
+  });
+  await assertFailureWithoutWrites(
+    autoSendFixture.root,
+    () => generateMilestoneHandoff({ root: autoSendFixture.root }),
+    /AUTO_SEND_MESSAGES=false/,
+  );
+});
+
+test('rejects a changed v2 historical handoff without writes', async (t) => {
+  const fixture = await createWaitingFixture(t);
+  await writeFixtureFile(
+    fixture.root,
+    fixture.outputPaths.historicalHandoff,
+    'changed historical handoff\n',
+  );
+
+  await assertFailureWithoutWrites(
+    fixture.root,
+    () => generateMilestoneHandoff({ root: fixture.root }),
+    /historical handoff changed/,
+  );
+});
+
+test('v2 check mode does not write live prompts or the historical handoff', async (t) => {
+  const fixture = await createWaitingFixture(t);
+  await generateMilestoneHandoff({ root: fixture.root });
+  const before = await snapshotWorkingFiles(fixture.root);
+
+  await generateMilestoneHandoff({ root: fixture.root, check: true });
+
+  const after = await snapshotWorkingFiles(fixture.root);
+  assert.deepEqual(after, before);
 });
 
 test('rejects more than one active milestone', async (t) => {

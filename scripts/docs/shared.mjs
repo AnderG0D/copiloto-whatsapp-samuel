@@ -164,6 +164,16 @@ export function markdownStatus(value) {
 }
 
 export function deriveNextAction({ verification, activeMilestone, pullRequest }) {
+  if (activeMilestone === null) {
+    return {
+      kind: 'await-next-milestone-approval',
+      title: 'Esperar aprobación del siguiente hito',
+      text: 'Esperar aprobación humana explícita antes de definir o activar el siguiente hito.',
+      commitHint: null,
+      doneWhen: 'Una persona aprueba explícitamente el alcance y la activación de un próximo hito.',
+    };
+  }
+
   const failedChecks = Object.entries(verification)
     .filter(([, value]) => value === 'failed')
     .map(([name]) => name);

@@ -9,6 +9,7 @@ import {
 
 const args = parseArguments(process.argv.slice(2));
 const inputPath = args.input || 'docs/_generated/project-state.json';
+const dryRun = args['dry-run'] === true;
 const state = await readJson(inputPath);
 const projectRoot = 'docs/obsidian/Copiloto WhatsApp Samuel';
 
@@ -41,7 +42,7 @@ function renderMilestones() {
     let status = milestone.status.toUpperCase();
     let evidence = milestone.status === 'done' ? 'Configurado como cerrado' : 'En ejecución';
 
-    if (milestone.id === state.milestone.id) {
+    if (state.milestone && milestone.id === state.milestone.id) {
       const complete = state.milestone.checkpoints.filter((item) => item.complete).length;
       status = state.milestone.checkpoints.every((item) => item.complete)
         ? 'READY_TO_CLOSE'
@@ -127,9 +128,11 @@ function architectureDiagram() {
   return lines.join('\n');
 }
 
-const progress = state.milestone.checkpoints.map((checkpoint) => (
-  `- [${checkpoint.complete ? 'x' : ' '}] ${checkpoint.id} — ${checkpoint.title}.`
-)).join('\n');
+const progress = state.milestone
+  ? state.milestone.checkpoints.map((checkpoint) => (
+    `- [${checkpoint.complete ? 'x' : ' '}] ${checkpoint.id} — ${checkpoint.title}.`
+  )).join('\n')
+  : '';
 const blockers = Object.entries({
   unit: state.verification.unit,
   e2e: state.verification.e2e,
@@ -138,7 +141,11 @@ const blockers = Object.entries({
   .filter(([, value]) => value === 'failed')
   .map(([name]) => `- Falló la validación \`${name}\`; atenderla antes del siguiente checkpoint.`);
 
-if (blockers.length === 0) {
+if (blockers.length === 0 && state.milestone === null) {
+  blockers.push(
+    'No hay hito activo; esperar aprobación humana explícita antes de definir o activar el siguiente hito.',
+  );
+} else if (blockers.length === 0) {
   const pending = state.milestone.checkpoints.find((item) => !item.complete);
   blockers.push(pending
     ? `- El primer checkpoint pendiente es **${pending.id}: ${pending.title}**.`
@@ -150,7 +157,11 @@ const currentStateBody = `> [!info] Fuente
 
 ## Hito actual
 
-**Hito ${state.milestone.id} — ${state.milestone.title}**.
+${state.milestone
+    ? `**Hito ${state.milestone.id} — ${state.milestone.title}**.`
+    : '**No hay hito activo.** El último hito cerrado es '
+      + `**${state.lastClosedMilestone}**; el proyecto espera aprobación humana explícita `
+      + 'antes de definir o activar el siguiente hito.'}
 
 ## Hitos confirmados
 
@@ -226,8 +237,10 @@ const generatedFiles = {
   ),
 };
 
-for (const [relativePath, content] of Object.entries(generatedFiles)) {
-  await writeFile(fromRoot(relativePath), content, 'utf8');
+if (!dryRun) {
+  for (const [relativePath, content] of Object.entries(generatedFiles)) {
+    await writeFile(fromRoot(relativePath), content, 'utf8');
+  }
 }
 
 const mixedBlocks = [
@@ -246,11 +259,11 @@ const mixedBlocks = [
     name: 'blockers',
     body: blockers.join('\n'),
   },
-  {
+  ...(state.milestone ? [{
     path: state.milestone.document,
     name: 'milestone-progress',
     body: progress,
-  },
+  }] : []),
   {
     path: `${projectRoot}/04 Docs/Arquitectura y Flujo Principal.md`,
     name: 'architecture-state',
@@ -280,12 +293,14 @@ for (const block of mixedBlocks) {
   grouped.set(block.path, entries);
 }
 
-for (const [relativePath, blocks] of grouped) {
-  let text = await readFile(fromRoot(relativePath), 'utf8');
-  for (const block of blocks) {
-    text = replaceAutoBlock(text, block.name, block.body);
+if (!dryRun) {
+  for (const [relativePath, blocks] of grouped) {
+    let text = await readFile(fromRoot(relativePath), 'utf8');
+    for (const block of blocks) {
+      text = replaceAutoBlock(text, block.name, block.body);
+    }
+    await writeFile(fromRoot(relativePath), text, 'utf8');
   }
-  await writeFile(fromRoot(relativePath), text, 'utf8');
 }
 
-console.log(`Rendered ${Object.keys(generatedFiles).length} generated notes and ${mixedBlocks.length} AUTO blocks`);
+console.log(`${dryRun ? 'Would render' : 'Rendered'} ${Object.keys(generatedFiles).length} generated notes and ${mixedBlocks.length} AUTO blocks`);
