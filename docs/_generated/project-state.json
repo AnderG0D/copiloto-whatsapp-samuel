@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-14",
+  "observedDate": "2026-08-17",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "e856c39cfa6c2f699500bc4b4a6697d4bd8cd6fc",
-    "shortSha": "e856c39",
-    "subject": "fix: correct 4.4-D documentation evidence detection (#36)",
-    "committedAt": "2026-08-14T20:39:32-06:00",
+    "sha": "d381e9c6dd4d7a60729d43c5afbd376de8815603",
+    "shortSha": "d381e9c",
+    "subject": "fix(docs): support zero-active milestone lifecycle (#38)",
+    "committedAt": "2026-08-17T15:30:50-06:00",
     "pullRequest": {
-      "number": 36,
-      "title": "fix: correct 4.4-D documentation evidence detection",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/36",
+      "number": 38,
+      "title": "fix(docs): support zero-active milestone lifecycle",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/38",
       "state": "closed",
-      "mergedAt": "2026-08-15T02:39:33Z",
+      "mergedAt": "2026-08-17T21:30:50Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31859765772"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32071495223"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",

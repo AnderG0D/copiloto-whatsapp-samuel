@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-14
+updated: 2026-08-17
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-08-14
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `e856c39`, asociado al [PR #36](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/36).
-- Commit completo: `e856c39cfa6c2f699500bc4b4a6697d4bd8cd6fc`.
-- Mensaje: fix: correct 4.4-D documentation evidence detection (#36).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/31859765772).
+- Fuente: `main` en `d381e9c`, asociado al [PR #38](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/38).
+- Commit completo: `d381e9c6dd4d7a60729d43c5afbd376de8815603`.
+- Mensaje: fix(docs): support zero-active milestone lifecycle (#38).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32071495223).
 
 ## Validación
 
