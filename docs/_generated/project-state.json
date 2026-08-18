@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "observedDate": "2026-08-17",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "HEAD",
+    "ref": "f728c219c58e47b0008323e2a125c61df36776be",
     "branch": "main",
     "sha": "f728c219c58e47b0008323e2a125c61df36776be",
     "shortSha": "f728c21",
@@ -137,171 +137,19 @@
     {
       "id": "4.4",
       "title": "Revisión y aprobación humana",
-      "status": "active",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana ACTIVE.md"
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana DONE.md"
     }
   ],
-  "milestone": {
-    "id": "4.4",
-    "title": "Revisión y aprobación humana",
-    "status": "active",
-    "workingBranch": "feature/hito-4-4-human-review",
-    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana ACTIVE.md",
-    "checkpoints": [
-      {
-        "id": "4.4-A",
-        "title": "Persistencia auditable de decisiones humanas",
-        "commitHint": "feat: persist auditable response draft decisions",
-        "evidence": {
-          "pathContentAllAny": [
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft.repository.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "operator"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft-review.repository.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "operator"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft-decision.repository.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "operator"
-              ]
-            }
-          ]
-        },
-        "complete": true
-      },
-      {
-        "id": "4.4-B",
-        "title": "Servicio de revisión humana",
-        "commitHint": "feat: add human response draft review service",
-        "evidence": {
-          "pathContentAllAny": [
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft.service.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "PROPOSED"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "PROPOSED"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/human-review.service.spec.ts",
-              "contentAll": [
-                "approve",
-                "reject",
-                "PROPOSED"
-              ]
-            }
-          ]
-        },
-        "complete": true
-      },
-      {
-        "id": "4.4-C",
-        "title": "Interfaz administrativa autenticada",
-        "commitHint": "feat: expose authenticated response draft review API",
-        "evidence": {
-          "pathContentAllAny": [
-            {
-              "path": "agent-core/test/app.e2e-spec.ts",
-              "contentAll": [
-                "unauthorized",
-                "operator",
-                "approve"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft-review.controller.spec.ts",
-              "contentAll": [
-                "unauthorized",
-                "operator",
-                "approve"
-              ]
-            },
-            {
-              "path": "agent-core/src/admin/response-drafts/response-draft-review.controller.spec.ts",
-              "contentAll": [
-                "unauthorized",
-                "operator",
-                "approve"
-              ]
-            }
-          ]
-        },
-        "complete": true
-      },
-      {
-        "id": "4.4-D",
-        "title": "Pruebas, idempotencia y ausencia de envío",
-        "commitHint": "test: cover human review without sending",
-        "evidence": {
-          "pathContentAll": [
-            {
-              "path": "agent-core/test/app.e2e-spec.ts",
-              "contentAll": [
-                "APPROVE",
-                "EDIT_AND_APPROVE",
-                "REJECT",
-                "409",
-                "not.toHaveBeenCalled"
-              ]
-            },
-            {
-              "path": "agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts",
-              "contentAll": [
-                "duplicate incoming message",
-                "not.toHaveBeenCalled",
-                "outbox",
-                "createDraftMock"
-              ]
-            },
-            {
-              "path": "agent-core/src/ai/response-drafts/response-draft-review.service.spec.ts",
-              "contentAll": [
-                "APPROVE",
-                "EDIT_AND_APPROVE",
-                "REJECT",
-                "duplicate",
-                "not.toHaveBeenCalled"
-              ]
-            }
-          ]
-        },
-        "complete": true
-      }
-    ],
-    "completionRequires": [
-      "unit",
-      "e2e",
-      "build",
-      "mergedPullRequest"
-    ]
-  },
+  "milestone": null,
+  "lifecycleState": "awaiting-next-milestone-approval",
+  "lastClosedMilestone": "4.4",
+  "activeMilestone": null,
   "nextAction": {
-    "kind": "close-milestone",
-    "title": "Cerrar Hito 4.4",
-    "text": "Comprobar el merge y los checks finales del Hito 4.4; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.",
+    "kind": "await-next-milestone-approval",
+    "title": "Esperar aprobación del siguiente hito",
+    "text": "Esperar aprobación humana explícita antes de definir o activar el siguiente hito.",
     "commitHint": null,
-    "doneWhen": "El hito está fusionado, la validación está verde y su estado documental coincide con GitHub."
+    "doneWhen": "Una persona aprueba explícitamente el alcance y la activación de un próximo hito."
   }
 }

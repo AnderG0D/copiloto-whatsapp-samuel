@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "activeMilestone": "4.4",
+  "activeMilestone": null,
+  "lifecycleState": "awaiting-next-milestone-approval",
+  "lastClosedMilestone": "4.4",
   "milestones": [
     {
       "id": "2",
@@ -84,9 +86,9 @@
     {
       "id": "4.4",
       "title": "Revisión y aprobación humana",
-      "status": "active",
+      "status": "done",
       "workingBranch": "feature/hito-4-4-human-review",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana ACTIVE.md",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana DONE.md",
       "checkpoints": [
         {
           "id": "4.4-A",

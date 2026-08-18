@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- No hay checkpoints técnicos pendientes; falta comprobar el cierre del Hito 4.4.
+No hay hito activo; esperar aprobación humana explícita antes de definir o activar el siguiente hito.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

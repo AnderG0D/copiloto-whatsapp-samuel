@@ -147,7 +147,7 @@ Esto permitirá reconstruir qué ocurrió y evitar que el bot se reactive accide
 
 Relaciones:
 
-- [[Hito 04.4 - Revision y aprobacion humana ACTIVE]]
+- [[Hito 04.4 - Revision y aprobacion humana DONE]]
 - [[Vision y Roadmap del Producto]]
 - [[Arquitectura y Flujo Principal]]
 - [[Copiloto WhatsApp IA Multimodal e Inventario]]

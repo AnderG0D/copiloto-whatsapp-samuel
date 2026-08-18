@@ -37,7 +37,7 @@ aliases:
 
 ### Actual
 
-- [[Hito 04.4 - Revision y aprobacion humana ACTIVE]]
+- [[Hito 04.4 - Revision y aprobacion humana DONE]]
 
 ## Decisiones
 
