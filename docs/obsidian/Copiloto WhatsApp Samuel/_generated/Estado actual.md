@@ -13,7 +13,7 @@ updated: 2026-08-17
 
 ## Hito actual
 
-**Hito 4.4 — Revisión y aprobación humana**.
+**No hay hito activo.** El último hito cerrado es **4.4**; el proyecto espera aprobación humana explícita antes de definir o activar el siguiente hito.
 
 ## Hitos confirmados
 
@@ -26,7 +26,7 @@ updated: 2026-08-17
 | 4.1 | Abstracción IA y Gemini | `DONE` | Configurado como cerrado |
 | 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
 | 4.3 | Persistencia e integración de borradores sin envío | `DONE` | Configurado como cerrado |
-| 4.4 | Revisión y aprobación humana | `READY_TO_CLOSE` | 4/4 checkpoints observados |
+| 4.4 | Revisión y aprobación humana | `DONE` | Configurado como cerrado |
 
 ## Componentes confirmados
 

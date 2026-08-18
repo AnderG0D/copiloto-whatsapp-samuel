@@ -8,7 +8,7 @@ updated: 2026-08-17
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] Comprobar el merge y los checks finales del Hito 4.4; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.
+- [ ] Esperar aprobación humana explícita antes de definir o activar el siguiente hito.
 
-**Termina cuando:** El hito está fusionado, la validación está verde y su estado documental coincide con GitHub.
+**Termina cuando:** Una persona aprueba explícitamente el alcance y la activación de un próximo hito.
 <!-- AUTO:END next-action -->

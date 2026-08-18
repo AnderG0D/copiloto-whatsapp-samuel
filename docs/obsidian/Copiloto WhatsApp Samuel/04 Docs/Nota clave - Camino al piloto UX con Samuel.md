@@ -511,7 +511,7 @@ Copiar la pregunta correspondiente junto con el estado vivo y la evidencia del r
 
 ## 🔗 Notas relacionadas
 
-- [[Hito 04.4 - Revision y aprobacion humana ACTIVE]]
+- [[Hito 04.4 - Revision y aprobacion humana DONE]]
 - [[Modelo operativo hibrido - Automatizacion y relevo humano]]
 - [[Plan Desarrollo Piloto y Produccion Copiloto WhatsApp]]
 - [[Copiloto WhatsApp IA Multimodal e Inventario]]
