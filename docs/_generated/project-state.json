@@ -1,23 +1,23 @@
 {
   "schemaVersion": 2,
-  "observedDate": "2026-08-17",
+  "observedDate": "2026-08-18",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "f728c219c58e47b0008323e2a125c61df36776be",
+    "ref": "HEAD",
     "branch": "main",
-    "sha": "f728c219c58e47b0008323e2a125c61df36776be",
-    "shortSha": "f728c21",
-    "subject": "fix(docs): support closed milestone validation (#40)",
-    "committedAt": "2026-08-17T16:10:08-06:00",
+    "sha": "b1de122d2eac244314554c25791dc484d7b51941",
+    "shortSha": "b1de122",
+    "subject": "fix(ci): generate milestone handoff before verification (#43)",
+    "committedAt": "2026-08-18T08:58:06-06:00",
     "pullRequest": {
-      "number": 40,
-      "title": "fix(docs): support closed milestone validation",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/40",
+      "number": 43,
+      "title": "fix(ci): generate milestone handoff before verification",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/43",
       "state": "closed",
-      "mergedAt": "2026-08-17T22:10:08Z",
+      "mergedAt": "2026-08-18T14:58:07Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32074751409"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32151589628"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
