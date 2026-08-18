@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-17
+updated: 2026-08-18
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-08-17
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `f728c21`, asociado al [PR #40](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/40).
-- Commit completo: `f728c219c58e47b0008323e2a125c61df36776be`.
-- Mensaje: fix(docs): support closed milestone validation (#40).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32074751409).
+- Fuente: `main` en `b1de122`, asociado al [PR #43](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/43).
+- Commit completo: `b1de122d2eac244314554c25791dc484d7b51941`.
+- Mensaje: fix(ci): generate milestone handoff before verification (#43).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32151589628).
 
 ## Validación
 
