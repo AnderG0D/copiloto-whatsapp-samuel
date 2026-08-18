@@ -83,6 +83,9 @@ jobs:
       - name: Render managed documentation
         run: npm run docs:render
 
+      - name: Generate milestone handoff
+        run: npm run docs:handoff
+
       - name: Validate protected zones
         run: node scripts/docs/validate-documentation.mjs --automation-base HEAD
 
