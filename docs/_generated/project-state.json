@@ -1,23 +1,16 @@
 {
-  "schemaVersion": 2,
-  "observedDate": "2026-08-18",
+  "schemaVersion": 1,
+  "observedDate": "2026-08-20",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
-    "branch": "main",
-    "sha": "b1de122d2eac244314554c25791dc484d7b51941",
-    "shortSha": "b1de122",
-    "subject": "fix(ci): generate milestone handoff before verification (#43)",
-    "committedAt": "2026-08-18T08:58:06-06:00",
-    "pullRequest": {
-      "number": 43,
-      "title": "fix(ci): generate milestone handoff before verification",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/43",
-      "state": "closed",
-      "mergedAt": "2026-08-18T14:58:07Z",
-      "source": "github-api"
-    },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32151589628"
+    "branch": "docs/activate-hito-4-5",
+    "sha": "ebedea024af1dba3cb9220fc50ce9d5b7ddde75e",
+    "shortSha": "ebedea0",
+    "subject": "docs: activate Hito 4.5 shadow pilot",
+    "committedAt": "2026-08-20T05:42:39-06:00",
+    "pullRequest": null,
+    "ciUrl": null
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,8 +30,8 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 163,
-      "e2e": 6
+      "unit": 84,
+      "e2e": 3
     }
   },
   "architecture": {
@@ -139,17 +132,69 @@
       "title": "Revisión y aprobación humana",
       "status": "done",
       "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana DONE.md"
+    },
+    {
+      "id": "4.5",
+      "title": "Piloto UX en sombra WhatsApp-first",
+      "status": "active",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md"
     }
   ],
-  "milestone": null,
-  "lifecycleState": "awaiting-next-milestone-approval",
-  "lastClosedMilestone": "4.4",
-  "activeMilestone": null,
+  "milestone": {
+    "id": "4.5",
+    "title": "Piloto UX en sombra WhatsApp-first",
+    "status": "active",
+    "workingBranch": "feature/hito-4-5-shadow-whatsapp-first",
+    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md",
+    "checkpoints": [
+      {
+        "id": "4.5-A",
+        "title": "Preparar el piloto local aislado",
+        "commitHint": "feat: configure isolated shadow pilot allowlists",
+        "evidence": {
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/pilot/shadow-pilot.config.ts",
+              "contentAll": [
+                "shadow-hiram",
+                "shadow-samuel",
+                "allowlist"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.5-B",
+        "title": "Habilitar el canal restringido de operadores",
+        "commitHint": "feat: restrict WhatsApp operator channel",
+        "evidence": {
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/pilot/shadow-operator-channel.service.ts",
+              "contentAll": [
+                "allowlist",
+                "lead"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      }
+    ],
+    "completionRequires": [
+      "unit",
+      "e2e",
+      "build",
+      "mergedPullRequest"
+    ]
+  },
   "nextAction": {
-    "kind": "await-next-milestone-approval",
-    "title": "Esperar aprobación del siguiente hito",
-    "text": "Esperar aprobación humana explícita antes de definir o activar el siguiente hito.",
-    "commitHint": null,
-    "doneWhen": "Una persona aprueba explícitamente el alcance y la activación de un próximo hito."
+    "kind": "implement-checkpoint",
+    "title": "4.5-A: Preparar el piloto local aislado",
+    "text": "En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-A: Preparar el piloto local aislado** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: configure isolated shadow pilot allowlists",
+    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }

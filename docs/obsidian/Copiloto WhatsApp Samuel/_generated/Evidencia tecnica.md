@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-18
+updated: 2026-08-20
 ---
 
 # Evidencia técnica
@@ -10,15 +10,14 @@ updated: 2026-08-18
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `b1de122`, asociado al [PR #43](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/43).
-- Commit completo: `b1de122d2eac244314554c25791dc484d7b51941`.
-- Mensaje: fix(ci): generate milestone handoff before verification (#43).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32151589628).
+- Fuente: `docs/activate-hito-4-5` en `ebedea0`.
+- Commit completo: `ebedea024af1dba3cb9220fc50ce9d5b7ddde75e`.
+- Mensaje: docs: activate Hito 4.5 shadow pilot.
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 163 casos ejecutados.
-- **E2E:** `APROBADO` — 6 casos ejecutados.
+- **Unitarias:** `APROBADO` — 84 casos ejecutados.
+- **E2E:** `APROBADO` — 3 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
 ## Backend
