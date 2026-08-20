@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "activeMilestone": null,
-  "lifecycleState": "awaiting-next-milestone-approval",
+  "activeMilestone": "4.5",
+  "lifecycleState": "active",
   "lastClosedMilestone": "4.4",
   "milestones": [
     {
@@ -222,6 +222,54 @@
                   "REJECT",
                   "duplicate",
                   "not.toHaveBeenCalled"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "completionRequires": [
+        "unit",
+        "e2e",
+        "build",
+        "mergedPullRequest"
+      ]
+    },
+    {
+      "id": "4.5",
+      "title": "Piloto UX en sombra WhatsApp-first",
+      "status": "active",
+      "workingBranch": "feature/hito-4-5-shadow-whatsapp-first",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md",
+      "checkpoints": [
+        {
+          "id": "4.5-A",
+          "title": "Preparar el piloto local aislado",
+          "commitHint": "feat: configure isolated shadow pilot allowlists",
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/pilot/shadow-pilot.config.ts",
+                "contentAll": [
+                  "shadow-hiram",
+                  "shadow-samuel",
+                  "allowlist"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.5-B",
+          "title": "Habilitar el canal restringido de operadores",
+          "commitHint": "feat: restrict WhatsApp operator channel",
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/pilot/shadow-operator-channel.service.ts",
+                "contentAll": [
+                  "allowlist",
+                  "lead"
                 ]
               }
             ]
