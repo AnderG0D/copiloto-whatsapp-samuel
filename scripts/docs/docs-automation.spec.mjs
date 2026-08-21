@@ -152,6 +152,7 @@ async function collectWaitingProjectState(t) {
   ));
   const active = milestones.milestones.find((milestone) => milestone.id === '4.4');
   active.status = 'done';
+  milestones.milestones = milestones.milestones.filter((milestone) => milestone.id !== '4.5');
   milestones.activeMilestone = null;
   milestones.lifecycleState = 'awaiting-next-milestone-approval';
   milestones.lastClosedMilestone = '4.4';
@@ -188,6 +189,20 @@ test('glob matching keeps protected decisions out of the human fallback', () => 
   assert.equal(classifyPath('docs/project/01 Panel.md', policy), 'mixed');
   assert.equal(classifyPath('docs/project/04 Docs/Vision.md', policy), 'human');
   assert.ok(globToRegExp('docs/project/**').test('docs/project/a/b.md'));
+});
+
+test('the 4.4 to 4.5 handoff is generated without reclassifying 4.3 to 4.4', async () => {
+  const policy = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/documentation-policy.json'), 'utf8',
+  ));
+  assert.equal(
+    classifyPath('docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.3 a 04.4.md', policy),
+    'generated',
+  );
+  assert.equal(
+    classifyPath('docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md', policy),
+    'generated',
+  );
 });
 
 test('AUTO block replacement leaves human content unchanged', () => {
@@ -281,21 +296,12 @@ test('collects and dry-renders a v2 waiting lifecycle without a milestone object
   assert.match(stdout, /Would render/);
 });
 
-test('the configured lifecycle is coherent after Hito 4.4 evidence is complete', async () => {
+test('the configured lifecycle activates Hito 4.5 after Hito 4.4 closes', async () => {
   const state = await collectCurrentProjectState();
 
-  if (state.milestone === null) {
-    assert.equal(state.schemaVersion, 2);
-    assert.equal(state.lifecycleState, 'awaiting-next-milestone-approval');
-    assert.equal(state.lastClosedMilestone, '4.4');
-    assert.equal(state.activeMilestone, null);
-    assert.equal(state.nextAction.kind, 'await-next-milestone-approval');
-    return;
-  }
-
-  assert.equal(state.milestone.id, '4.4');
-  assert.equal(state.nextAction.kind, 'close-milestone');
-  assert.match(state.nextAction.title, /Cerrar Hito 4\.4/);
+  assert.equal(state.milestone.id, '4.5');
+  assert.equal(state.nextAction.kind, 'implement-checkpoint');
+  assert.match(state.nextAction.title, /4\.5-A/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
@@ -331,7 +337,7 @@ test('Hito 4.4 records all checkpoints complete without a sender', async () => {
       '4.4-D',
     ],
   );
-  if (state.milestone) {
+  if (state.milestone?.id === '4.4') {
     assert.deepEqual(
       state.milestone.checkpoints.map(({ id, complete }) => ({ id, complete })),
       [
@@ -347,6 +353,7 @@ test('Hito 4.4 records all checkpoints complete without a sender', async () => {
   assert.ok([
     'close-milestone',
     'await-next-milestone-approval',
+    'implement-checkpoint',
   ].includes(state.nextAction.kind));
   assert.doesNotMatch(state.nextAction.text, /implementar.*4\.4-D/i);
   assert.equal(state.architecture.components.sender, false);

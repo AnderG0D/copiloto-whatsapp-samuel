@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   backend:
@@ -65,8 +66,42 @@ jobs:
       - name: Test documentation automation
         run: npm run test:docs
 
-      - name: Verify milestone handoff
-        run: npm run docs:handoff:check
+      - name: Collect transient observed state for pull requests
+        if: github.event_name == 'pull_request'
+        run: >-
+          node scripts/docs/collect-project-state.mjs
+          --source-ref HEAD
+          --output .docs-activation-pending-state.json
+
+      - name: Verify milestone handoff contract for pull requests
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          node scripts/docs/verify-activation-promotion.mjs --verify-pull-request
+          if node -e "process.exit(require('./docs/control/handoff-state.json').schemaVersion === 3 ? 0 : 1)"; then
+            node scripts/docs/generate-milestone-handoff.mjs --check --allow-activation-pending --observed-state .docs-activation-pending-state.json
+          else
+            npm run docs:handoff:check
+          fi
+
+      - name: Verify activation state on main
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          schema_version="$(node -p "require('./docs/control/handoff-state.json').schemaVersion")"
+          if [ "$schema_version" = "3" ]; then
+            node scripts/docs/verify-activation-promotion.mjs --await-promotion --source-sha "$GITHUB_SHA" --timeout-seconds 900
+          elif [ "$schema_version" = "1" ]; then
+            npm run docs:handoff:check
+            node scripts/docs/promote-activation-pending.mjs --verify-final --main-ref HEAD --require-github-api
+          else
+            npm run docs:handoff:check
+          fi
 
       - name: Validate documentation
         run: npm run docs:check

@@ -1,10 +1,11 @@
 ---
 type: milestone
 project: Copiloto WhatsApp Samuel
-status: active
+status: done
 fase: Fase 2 — IA de texto segura
 hito: 4.4
-updated: 2026-08-04
+completed: 2026-08-18
+updated: 2026-08-19
 aliases:
   - Hito 4.4 - Revision y aprobacion humana
   - Hito 4.4 - Human review
@@ -12,11 +13,11 @@ aliases:
 
 # Hito 4.4 — Revisión y aprobación humana
 
-## Objetivo
+## Objetivo alcanzado
 
 Permitir que un operador autenticado revise un borrador `PROPOSED`, lo apruebe sin cambios, lo edite y apruebe, o lo rechace; registrar la decisión de manera auditable y mantener completamente desactivado el envío a WhatsApp.
 
-## Resultado esperado
+## Resultado alcanzado
 
 ```text
 borrador PROPOSED
@@ -29,18 +30,18 @@ borrador PROPOSED
 
 Aprobar un borrador no significa enviarlo. El envío a WhatsApp permanece fuera del alcance de este hito.
 
-## Gate técnico previo
+## Gate técnico completado
 
-Antes de comenzar técnicamente 4.4-A se implementará, en un PR independiente, el sistema determinista de relevo automático entre hitos.
+Antes de comenzar técnicamente 4.4-A se implementó, en un PR independiente, el sistema determinista de relevo automático entre hitos.
 
 Este gate:
 
 - no forma parte de los checkpoints funcionales 4.4-A a 4.4-D;
 - no modifica `agent-core/`;
 - no implementa revisión humana;
-- debe quedar fusionado y demostrar idempotencia antes de iniciar 4.4-A.
+- quedó fusionado y demostró idempotencia antes de iniciar 4.4-A.
 
-## Alcance aprobado
+## Alcance completado
 
 - Persistencia auditable de decisiones humanas.
 - Consulta y revisión de borradores pendientes.
@@ -63,7 +64,7 @@ El diseño exacto de persistencia para 4.4-A todavía no está fijado. Primero s
 - [x] 4.4-D — Pruebas, idempotencia y ausencia de envío.
 <!-- AUTO:END milestone-progress -->
 
-## Checkpoints
+## Checkpoints completados
 
 ### 4.4-A — Persistencia auditable de decisiones humanas
 
@@ -129,6 +130,24 @@ El texto original se conserva y el texto final editado queda registrado por sepa
 
 La decisión y el operador quedan auditados sin convertir el borrador en mensaje enviado.
 
+## Evidencia GitHub
+
+- [PR #26 — Persistencia auditable de decisiones](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/26), merge `de4247d`.
+- [PR #29 — Servicio de revisión humana](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/29), merge `ed11bd7`.
+- [PR #32 — API administrativa autenticada](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/32), merge `ef3f044`.
+- [PR #34 — Idempotencia y ausencia de envío](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/34), merge `a84206b`.
+
+La evidencia de cierre usa el merge `a84206b` como último cambio funcional del hito. El estado sincronizado posterior registra las validaciones y mantiene el emisor desactivado.
+
+## Validación final
+
+- **Unitarias:** 163 casos aprobados.
+- **E2E:** 6 casos aprobados.
+- **Build:** aprobado.
+- **`AUTO_SEND_MESSAGES`:** `false`.
+- **`sender`:** `false`.
+- No se realizaron envíos reales ni llamadas externas reales desde las pruebas.
+
 ## Reglas de seguridad
 
 - La IA propone; NestJS controla; el humano decide.
@@ -156,21 +175,19 @@ La decisión y el operador quedan auditados sin convertir el borrador en mensaje
 
 ## DONE cuando
 
-- [ ] Existe persistencia auditable de decisiones humanas.
-- [ ] Se conserva el texto original.
-- [ ] Aprobar, editar y aprobar, o rechazar están soportados.
-- [ ] Las transiciones inválidas y la idempotencia están cubiertas.
-- [ ] El operador proviene de autenticación confiable.
-- [ ] Existe una API administrativa segura dentro del alcance aprobado.
-- [ ] Unitarias, e2e y build están aprobados.
-- [ ] Las pruebas demuestran ausencia de envío y llamadas externas reales.
-- [ ] `AUTO_SEND_MESSAGES=false` permanece.
-- [ ] El PR funcional está fusionado y la documentación coincide con GitHub.
+- [x] Existe persistencia auditable de decisiones humanas.
+- [x] Se conserva el texto original.
+- [x] Aprobar, editar y aprobar, o rechazar están soportados.
+- [x] Las transiciones inválidas y la idempotencia están cubiertas.
+- [x] El operador proviene de autenticación confiable.
+- [x] Existe una API administrativa segura dentro del alcance aprobado.
+- [x] Unitarias, e2e y build están aprobados.
+- [x] Las pruebas demuestran ausencia de envío y llamadas externas reales.
+- [x] `AUTO_SEND_MESSAGES=false` permanece.
+- [x] El PR funcional está fusionado y la documentación coincide con GitHub.
 
-## Primera acción funcional
+## Lo que sigue
 
-Después de completar el gate técnico de automatización de relevos:
-
-**4.4-A — Inspeccionar el esquema y proponer el diseño mínimo de persistencia auditable.**
+**Hito 4.5 — Piloto UX en sombra WhatsApp-first.**
 
 > La IA propone. NestJS controla. El humano decide. Aprobar todavía no envía.

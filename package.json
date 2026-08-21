@@ -6,7 +6,7 @@
     "docs:handoff:check": "node scripts/docs/generate-milestone-handoff.mjs --check",
     "docs:check": "node scripts/docs/validate-documentation.mjs",
     "docs:sync": "npm run docs:collect && npm run docs:render && npm run docs:check",
-    "test:docs": "node --test scripts/docs/docs-automation.spec.mjs scripts/docs/generate-milestone-handoff.spec.mjs"
+    "test:docs": "node --test scripts/docs/docs-automation.spec.mjs scripts/docs/generate-milestone-handoff.spec.mjs scripts/docs/activation-promotion.spec.mjs"
   },
   "engines": {
     "node": ">=20"

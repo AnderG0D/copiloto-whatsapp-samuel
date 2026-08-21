@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "activeMilestone": null,
-  "lifecycleState": "awaiting-next-milestone-approval",
+  "activeMilestone": "4.5",
+  "lifecycleState": "active",
   "lastClosedMilestone": "4.4",
   "milestones": [
     {
@@ -89,6 +89,15 @@
       "status": "done",
       "workingBranch": "feature/hito-4-4-human-review",
       "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana DONE.md",
+      "evidence": {
+        "pullRequests": [26, 29, 32, 34],
+        "mergeCommit": "a84206b483830bf84b5af055fe4f3a815143352f",
+        "requiredPaths": [
+          "agent-core/src/ai/response-drafts/response-draft-review.service.ts",
+          "agent-core/src/admin/response-drafts/response-draft-review.controller.ts",
+          "agent-core/test/app.e2e-spec.ts"
+        ]
+      },
       "checkpoints": [
         {
           "id": "4.4-A",
@@ -222,6 +231,54 @@
                   "REJECT",
                   "duplicate",
                   "not.toHaveBeenCalled"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "completionRequires": [
+        "unit",
+        "e2e",
+        "build",
+        "mergedPullRequest"
+      ]
+    },
+    {
+      "id": "4.5",
+      "title": "Piloto UX en sombra WhatsApp-first",
+      "status": "active",
+      "workingBranch": "feature/hito-4-5-shadow-whatsapp-first",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md",
+      "checkpoints": [
+        {
+          "id": "4.5-A",
+          "title": "Preparar el piloto local aislado",
+          "commitHint": "feat: configure isolated shadow pilot allowlists",
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/pilot/shadow-pilot.config.ts",
+                "contentAll": [
+                  "shadow-hiram",
+                  "shadow-samuel",
+                  "allowlist"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.5-B",
+          "title": "Habilitar el canal restringido de operadores",
+          "commitHint": "feat: restrict WhatsApp operator channel",
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/pilot/shadow-operator-channel.service.ts",
+                "contentAll": [
+                  "allowlist",
+                  "lead"
                 ]
               }
             ]

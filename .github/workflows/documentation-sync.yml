@@ -8,6 +8,7 @@ on:
       - '**'
       - '!docs/**'
       - 'docs/control/milestones.json'
+      - 'docs/control/handoff-state.json'
 
 permissions:
   contents: write
@@ -80,11 +81,69 @@ jobs:
           --e2e-results /tmp/docs-e2e-results.json
           --ci-url "$DOCS_CI_URL"
 
+      - name: Detect activation promotion
+        id: activation
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./docs/control/handoff-state.json').schemaVersion === 3 ? 0 : 1)"; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require GitHub-confirmed merged activation pull request
+        if: steps.activation.outputs.pending == 'true'
+        env:
+          UNIT_STATUS: ${{ steps.unit.outcome == 'success' && 'passed' || 'failed' }}
+          E2E_STATUS: ${{ steps.e2e.outcome == 'success' && 'passed' || 'failed' }}
+          BUILD_STATUS: ${{ steps.build.outcome == 'success' && 'passed' || 'failed' }}
+          DOCS_CI_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          node scripts/docs/collect-project-state.mjs
+          --source-ref HEAD
+          --source-branch main
+          --unit-status "$UNIT_STATUS"
+          --e2e-status "$E2E_STATUS"
+          --build-status "$BUILD_STATUS"
+          --unit-results /tmp/docs-unit-results.json
+          --e2e-results /tmp/docs-e2e-results.json
+          --ci-url "$DOCS_CI_URL"
+          --require-merged-pull-request
+
       - name: Render managed documentation
         run: npm run docs:render
 
       - name: Generate milestone handoff
+        if: steps.activation.outputs.pending != 'true'
         run: npm run docs:handoff
+
+      - name: Create two-commit activation promotion
+        if: steps.activation.outputs.pending == 'true'
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          branch="docs/auto-sync-${RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          node scripts/docs/validate-documentation.mjs --automation-base HEAD
+          git add docs
+          git commit -m "docs: snapshot activation state for ${SOURCE_SHA:0:7}"
+          frozen_revision="$(git rev-parse HEAD)"
+          observed_revision="$(git rev-parse HEAD^)"
+          node scripts/docs/promote-activation-pending.mjs \
+            --observed-revision "$observed_revision" \
+            --frozen-revision "$frozen_revision"
+          npm run docs:handoff
+          node scripts/docs/validate-documentation.mjs --automation-base "$frozen_revision"
+          npm run test:docs
+          npm run docs:handoff:check
+          git add docs
+          git commit -m "docs: promote Hito 4.5 activation handoff"
+          git push --set-upstream origin "$branch"
 
       - name: Validate protected zones
         run: node scripts/docs/validate-documentation.mjs --automation-base HEAD
@@ -139,7 +198,7 @@ jobs:
           printf '%s\n' "$CODEX_AUDIT" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open documentation pull request
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' && steps.activation.outputs.pending != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_SHA: ${{ github.sha }}
@@ -158,6 +217,20 @@ jobs:
             --head "$branch" \
             --title "docs: sync project state for ${SOURCE_SHA:0:7}" \
             --body "Generated from code, GitHub and executed verification. Decisions, ADRs, roadmap and archive remain human-controlled. Review the generated state, diagram and canonical next action before merging."
+
+      - name: Open activation promotion pull request
+        if: steps.activation.outputs.pending == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          gh pr create \
+            --base main \
+            --head "docs/auto-sync-${RUN_ID}" \
+            --title "docs: promote Hito 4.5 activation for ${SOURCE_SHA:0:7}" \
+            --body "Generated post-merge activation promotion. The first commit freezes the GitHub-confirmed snapshot; the second commit promotes schema 3 to schema 1 and generates the 4.4 to 4.5 handoff. Merge with **Create a merge commit** only; squash and rebase are rejected by CI. Review both commits before merging."
 
       - name: Preserve failing verification signal
         if: always() && (steps.unit.outcome != 'success' || steps.e2e.outcome != 'success' || steps.build.outcome != 'success')
