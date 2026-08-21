@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArguments } from './shared.mjs';
@@ -6,6 +7,11 @@ import { parseArguments } from './shared.mjs';
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = path.resolve(scriptDirectory, '../..');
 const contractPath = 'docs/control/handoff-state.json';
+const maintenanceRepairPaths = new Set([
+  'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
+  'scripts/docs/verify-activation-promotion.mjs',
+  'scripts/docs/activation-promotion.spec.mjs',
+]);
 
 function ensure(condition, message) {
   if (!condition) throw new Error(`Activation promotion verification failed: ${message}`);
@@ -80,7 +86,40 @@ export async function awaitActivationPromotion({
   throw new Error('Activation promotion verification failed: no valid two-commit automatic promotion PR was associated with the current main revision before timeout');
 }
 
-export function validatePullRequestContract({ contract, pullRequest }) {
+function verifySafetyInvariants(contract) {
+  ensure(contract.safetyInvariants?.sender === false, 'schema 3 must preserve sender=false');
+  ensure(contract.safetyInvariants?.autoSendMessages === false,
+    'schema 3 must preserve AUTO_SEND_MESSAGES=false');
+  ensure(contract.safetyInvariants?.noLeadSend === true,
+    'schema 3 must preserve noLeadSend=true');
+}
+
+function verifyMaintenanceRepair({ pullRequest, changedPaths }) {
+  ensure(/^fix\/docs-[a-z0-9][a-z0-9-]*$/.test(pullRequest.head?.ref ?? ''),
+    'schema 3 maintenance must use an explicit fix/docs-* repair branch');
+  ensure(Array.isArray(changedPaths) && changedPaths.length > 0,
+    'schema 3 maintenance must provide a non-empty pull request diff');
+  const unauthorizedPath = changedPaths.find((changedPath) => (
+    !maintenanceRepairPaths.has(changedPath)
+  ));
+  ensure(!unauthorizedPath,
+    `schema 3 maintenance repair cannot modify ${unauthorizedPath}`);
+}
+
+export function changedPathsForPullRequest({ pullRequest, root = defaultRepositoryRoot }) {
+  const baseSha = pullRequest?.base?.sha;
+  const headSha = pullRequest?.head?.sha;
+  ensure(/^[0-9a-f]{40}$/.test(baseSha ?? ''), 'pull request base SHA must be a full Git SHA');
+  ensure(/^[0-9a-f]{40}$/.test(headSha ?? ''), 'pull request head SHA must be a full Git SHA');
+  const output = execFileSync(
+    'git',
+    ['diff', '--name-only', '--no-renames', `${baseSha}...${headSha}`],
+    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+  );
+  return output.split(/\r?\n/).filter(Boolean);
+}
+
+export function validatePullRequestContract({ contract, pullRequest, changedPaths }) {
   ensure(pullRequest?.base?.ref === 'main', 'pull request base must be main');
   ensure(pullRequest?.state === 'open', 'pull request must be open');
   if (contract.schemaVersion === 3) {
@@ -88,16 +127,19 @@ export function validatePullRequestContract({ contract, pullRequest }) {
     ensure(contract.lifecycleState === 'activation-pending-sync', 'schema 3 must be activation-pending-sync');
     ensure(Number.isInteger(expected?.number) && typeof expected.headRef === 'string',
       'pending contract must declare its activation pull request');
-    ensure(pullRequest.number === expected.number && pullRequest.head?.ref === expected.headRef,
-      'schema 3 is only valid for its declared activation pull request');
-    return;
+    verifySafetyInvariants(contract);
+    if (pullRequest.number === expected.number && pullRequest.head?.ref === expected.headRef) {
+      return 'activation';
+    }
+    verifyMaintenanceRepair({ pullRequest, changedPaths });
+    return 'maintenance-repair';
   }
   if (contract.schemaVersion === 1) {
     ensure(/^docs\/auto-sync-\d+$/.test(pullRequest.head?.ref ?? ''),
       'schema 1 is only valid for an automatic documentation promotion pull request');
     ensure(pullRequest.user?.login === 'github-actions[bot]',
       'schema 1 promotion pull request must be created by github-actions[bot]');
-    return;
+    return 'promotion';
   }
   throw new Error('Activation promotion verification failed: pull request handoff contract must use schemaVersion 1 or 3');
 }
@@ -112,7 +154,8 @@ async function main() {
       readFile(path.join(root, ...contractPath.split('/')), 'utf8').then(JSON.parse),
       readFile(eventPath, 'utf8').then(JSON.parse),
     ]);
-    validatePullRequestContract({ contract, pullRequest: event.pull_request });
+    const changedPaths = changedPathsForPullRequest({ root, pullRequest: event.pull_request });
+    validatePullRequestContract({ contract, pullRequest: event.pull_request, changedPaths });
     console.log('Pull request handoff contract verified');
     return;
   }
