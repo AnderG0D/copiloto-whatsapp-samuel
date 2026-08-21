@@ -119,9 +119,11 @@ const documentationRepairPaths = [
   'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
   'scripts/docs/verify-activation-promotion.mjs',
   'scripts/docs/activation-promotion.spec.mjs',
+  'scripts/docs/generate-milestone-handoff.spec.mjs',
+  'scripts/docs/promote-activation-pending.mjs',
 ];
 
-test('pull request validation accepts PR #47 as a constrained documentation repair', () => {
+test('pull request validation accepts a constrained documentation repair including the handoff generator test', () => {
   const pendingContract = {
     schemaVersion: 3,
     lifecycleState: 'activation-pending-sync',
@@ -135,10 +137,78 @@ test('pull request validation accepts PR #47 as a constrained documentation repa
   }), 'maintenance-repair');
 });
 
+test('pull request validation accepts a chain of constrained documentation repairs after PR #46', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  for (const number of [47, 48, 49]) {
+    assert.equal(validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest({
+        number,
+        head: { ref: `fix/docs-handoff-4-5-gate-v${number}`, sha: promotionSha },
+      }),
+      changedPaths: documentationRepairPaths,
+    }), 'maintenance-repair');
+  }
+});
+
+test('pull request validation accepts the four repair scripts without requiring an active-note change', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  assert.equal(validatePullRequestContract({
+    contract: pendingContract,
+    pullRequest: documentationRepairPullRequest(),
+    changedPaths: documentationRepairPaths.slice(1),
+  }), 'maintenance-repair');
+});
+
+for (const repairPath of documentationRepairPaths.slice(1)) {
+  test(`pull request validation accepts ${repairPath} as an individual safe repair path`, () => {
+    const pendingContract = {
+      schemaVersion: 3,
+      lifecycleState: 'activation-pending-sync',
+      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+    };
+    assert.equal(validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest(),
+      changedPaths: [repairPath],
+    }), 'maintenance-repair');
+  });
+}
+
+test('pull request validation rejects any fifth repair path', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  assert.throws(
+    () => validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest(),
+      changedPaths: [...documentationRepairPaths, 'scripts/docs/collect-project-state.mjs'],
+    }),
+    /cannot modify scripts\/docs\/collect-project-state\.mjs/,
+  );
+});
+
 for (const changedPath of [
   'docs/control/handoff-state.json',
   'docs/control/milestones.json',
+  'docs/control/documentation-policy.json',
   'docs/_generated/project-state.json',
+  'docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Maestro - Hito actual.md',
   'docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md',
   'agent-core/src/main.ts',
 ]) {

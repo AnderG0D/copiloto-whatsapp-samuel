@@ -9,6 +9,13 @@ const defaultRepositoryRoot = path.resolve(scriptDirectory, '../..');
 const contractPath = 'docs/control/handoff-state.json';
 const milestonesPath = 'docs/control/milestones.json';
 const statePath = 'docs/_generated/project-state.json';
+const maintenanceRepairPaths = new Set([
+  'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
+  'scripts/docs/verify-activation-promotion.mjs',
+  'scripts/docs/activation-promotion.spec.mjs',
+  'scripts/docs/generate-milestone-handoff.spec.mjs',
+  'scripts/docs/promote-activation-pending.mjs',
+]);
 
 function ensure(condition, message) {
   if (!condition) throw new Error(`Activation promotion failed: ${message}`);
@@ -84,6 +91,70 @@ async function verifyObservedPullRequest({ repository, observedRevision, pullReq
     'post-merge snapshot mergedAt does not match GitHub');
 }
 
+async function requestGitHubJson({ fetchImpl, token, url }) {
+  const response = await fetchImpl(url, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  });
+  ensure(response.ok, `GitHub API request failed (${response.status})`);
+  return response.json();
+}
+
+async function verifySnapshotPullRequest({
+  activationPullRequest,
+  observedRevision,
+  pullRequest,
+  repository,
+  token,
+  root,
+  fetchImpl = fetch,
+}) {
+  ensure(repository && token, 'GitHub repository and token are required for final promotion verification');
+  const baseUrl = `https://api.github.com/repos/${repository}`;
+  const [activation, source] = await Promise.all([
+    requestGitHubJson({
+      fetchImpl,
+      token,
+      url: `${baseUrl}/pulls/${activationPullRequest.number}`,
+    }),
+    requestGitHubJson({
+      fetchImpl,
+      token,
+      url: `${baseUrl}/pulls/${pullRequest.number}`,
+    }),
+  ]);
+
+  ensure(activation.state === 'closed' && typeof activation.merged_at === 'string'
+    && activation.merged_at.length > 0,
+  'activation pull request must be closed and merged');
+  requireSha('activation pull request merge_commit_sha', activation.merge_commit_sha);
+  ensure(isAncestor(root, activation.merge_commit_sha, observedRevision),
+    'activation pull request merge commit is not an ancestor of observedRevision');
+
+  ensure(source.number === pullRequest.number
+    && source.state === 'closed'
+    && source.merged_at === pullRequest.mergedAt,
+  'post-merge snapshot pull request does not match GitHub');
+  if (source.number === activationPullRequest.number) return;
+
+  ensure(/^fix\/docs-[a-z0-9][a-z0-9-]*$/.test(source.head?.ref ?? ''),
+    'post-merge snapshot repair must use an explicit fix/docs-* branch');
+  const files = await requestGitHubJson({
+    fetchImpl,
+    token,
+    url: `${baseUrl}/pulls/${source.number}/files?per_page=100`,
+  });
+  ensure(Array.isArray(files) && files.length > 0,
+    'post-merge snapshot repair must provide a non-empty pull request diff');
+  const unauthorized = files.find(({ filename }) => !maintenanceRepairPaths.has(filename));
+  if (unauthorized) {
+    ensure(false, `post-merge snapshot repair cannot modify ${unauthorized.filename}`);
+  }
+}
+
 function handoffOutputs(lastClosedMilestone, activeMilestone) {
   const format = (id) => {
     const [major, ...rest] = id.split('.');
@@ -141,8 +212,6 @@ export async function promoteActivationPending({
     'post-merge snapshot pull request must come from the GitHub API');
   ensure(frozenState.source.pullRequest.state === 'closed',
     'post-merge snapshot pull request is not closed');
-  ensure(frozenState.source.pullRequest.number === contract.activationPullRequest.number,
-    'post-merge snapshot pull request does not match the activation contract');
   ensure(typeof frozenState.source.pullRequest.mergedAt === 'string'
     && frozenState.source.pullRequest.mergedAt.length > 0,
   'post-merge snapshot pull request has no mergedAt');
@@ -155,6 +224,7 @@ export async function promoteActivationPending({
     handoffId: `${contract.lastClosedMilestone}-to-${contract.activeMilestone}`,
     lastClosedMilestone: contract.lastClosedMilestone,
     activeMilestone: contract.activeMilestone,
+    activationPullRequest: contract.activationPullRequest,
     transitionGate: {
       description: `validar y fusionar el relevo documental ${contract.lastClosedMilestone} → ${contract.activeMilestone}`,
       conditionedCheckpoint: firstCheckpoint.id,
@@ -181,6 +251,9 @@ export async function verifyFinalPromotionMerge({
 } = {}) {
   const contract = await readJson(root, contractPath);
   ensure(contract.schemaVersion === 1, 'final merge verification requires schemaVersion 1');
+  ensure(Number.isInteger(contract.activationPullRequest?.number)
+    && typeof contract.activationPullRequest.headRef === 'string',
+  'final merge verification requires the activation pull request anchor');
   requireSha('observedRevision', contract.observedRevision);
   requireSha('frozenRevision', contract.frozenRevision);
   ensure(git(root, ['rev-parse', `${contract.observedRevision}^{commit}`]) === contract.observedRevision,
@@ -220,6 +293,15 @@ export async function verifyFinalPromotionMerge({
     observedRevision: contract.observedRevision,
     pullRequest: frozenState.source.pullRequest,
     token: githubToken,
+    fetchImpl,
+  });
+  await verifySnapshotPullRequest({
+    activationPullRequest: contract.activationPullRequest,
+    observedRevision: contract.observedRevision,
+    pullRequest: frozenState.source.pullRequest,
+    repository: frozenState.repository,
+    token: githubToken,
+    root,
     fetchImpl,
   });
 }
