@@ -191,6 +191,20 @@ test('glob matching keeps protected decisions out of the human fallback', () => 
   assert.ok(globToRegExp('docs/project/**').test('docs/project/a/b.md'));
 });
 
+test('the 4.4 to 4.5 handoff is generated without reclassifying 4.3 to 4.4', async () => {
+  const policy = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/documentation-policy.json'), 'utf8',
+  ));
+  assert.equal(
+    classifyPath('docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.3 a 04.4.md', policy),
+    'generated',
+  );
+  assert.equal(
+    classifyPath('docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md', policy),
+    'generated',
+  );
+});
+
 test('AUTO block replacement leaves human content unchanged', () => {
   const original = `# Title
 

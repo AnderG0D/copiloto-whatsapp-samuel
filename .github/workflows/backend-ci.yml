@@ -82,7 +82,18 @@ jobs:
 
       - name: Verify final milestone handoff on main
         if: github.event_name == 'push'
-        run: npm run docs:handoff:check
+        run: >-
+          node scripts/docs/generate-milestone-handoff.mjs
+          --check
+          --allow-activation-pending
+
+      - name: Verify preserved merge commit for final activation handoff
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          if node -e "process.exit(require('./docs/control/handoff-state.json').schemaVersion === 1 ? 0 : 1)"; then
+            node scripts/docs/promote-activation-pending.mjs --verify-final --main-ref HEAD
+          fi
 
       - name: Validate documentation
         run: npm run docs:check

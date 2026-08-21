@@ -337,6 +337,7 @@ Mientras este gate siga abierto, la acción actual es ${contract.transitionGate.
 function safetyInvariantText(context) {
   return `- \`sender=${context.contract.safetyInvariants.sender}\`.
 - \`AUTO_SEND_MESSAGES=${context.contract.safetyInvariants.autoSendMessages}\`.
+- \`noLeadSend=${context.contract.safetyInvariants.noLeadSend}\`.
 - Aprobar un borrador no envía mensajes.
 - No existe envío automático dentro de este alcance.`;
 }
@@ -939,6 +940,10 @@ async function validateAndBuild(root, statePath = observedStatePath) {
   ensure(
     contract.safetyInvariants?.autoSendMessages === false,
     'handoff contract must require AUTO_SEND_MESSAGES=false',
+  );
+  ensure(
+    contract.safetyInvariants?.noLeadSend === true,
+    'handoff contract must require noLeadSend=true',
   );
   const safetyAndPrivacy = markdownSection(agentsPath, agents, 'Safety and privacy');
   ensure(

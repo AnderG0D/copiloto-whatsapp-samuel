@@ -219,6 +219,18 @@ const verification = {
   build: verificationValue(args['build-status']),
 };
 const pullRequest = await associatedPullRequest(repository, sha, subject);
+if (args['require-merged-pull-request'] === true) {
+  if (
+    pullRequest?.source !== 'github-api'
+    || pullRequest.state !== 'closed'
+    || typeof pullRequest.mergedAt !== 'string'
+    || pullRequest.mergedAt.length === 0
+  ) {
+    throw new Error(
+      'A GitHub API-confirmed merged pull request with mergedAt is required for activation promotion',
+    );
+  }
+}
 const staticUnitCount = countTestCases(sourceTexts, (file) => file.endsWith('.spec.ts'));
 const staticE2eCount = countTestCases(
   sourceTexts,

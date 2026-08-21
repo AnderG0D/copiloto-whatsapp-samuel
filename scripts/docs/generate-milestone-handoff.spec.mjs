@@ -14,6 +14,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { generateMilestoneHandoff } from './generate-milestone-handoff.mjs';
+import {
+  promoteActivationPending,
+  verifyFinalPromotionMerge,
+} from './promote-activation-pending.mjs';
 import { deriveNextAction } from './shared.mjs';
 
 const docsRoot = 'docs/obsidian/Copiloto WhatsApp Samuel';
@@ -192,6 +196,7 @@ async function createFixture(t, {
   };
   const milestones = {
     version: 1,
+    lastClosedMilestone,
     activeMilestone: activeMilestoneId,
     milestones: [previousMilestone, activeMilestone],
   };
@@ -309,7 +314,7 @@ Generar el relevo determinista antes de ${activeMilestoneId}-A.
         url: 'https://example.invalid/pull/20',
         state: 'closed',
         mergedAt: '2026-08-05T01:24:30Z',
-        source: 'fixture',
+        source: 'github-api',
       },
       ciUrl: 'https://example.invalid/actions/1',
     },
@@ -380,6 +385,7 @@ Generar el relevo determinista antes de ${activeMilestoneId}-A.
     safetyInvariants: {
       sender: false,
       autoSendMessages: false,
+      noLeadSend: true,
     },
     frozenRevision,
     observedRevision,
@@ -458,13 +464,13 @@ async function createWaitingFixture(t) {
   return { ...fixture, historicalBytes, waitingOutputPaths };
 }
 
-async function createActivationPendingFixture(t) {
-  const fixture = await createFixture(t);
+async function createActivationPendingFixture(t, options = {}) {
+  const fixture = await createFixture(t, options);
   await writeFixtureJson(fixture.root, contractPath, {
     schemaVersion: 3,
     lifecycleState: 'activation-pending-sync',
-    lastClosedMilestone: '4.3',
-    activeMilestone: '4.4',
+    lastClosedMilestone: options.lastClosedMilestone ?? '4.3',
+    activeMilestone: options.activeMilestoneId ?? '4.4',
     safetyInvariants: {
       sender: false,
       autoSendMessages: false,
@@ -626,6 +632,119 @@ test('validates activation-pending-sync without writing final handoff outputs', 
   assert.deepEqual(await snapshotWorkingFiles(fixture.root), before);
 });
 
+test('promotes a GitHub-confirmed post-merge snapshot to a final 4.4 to 4.5 handoff', async (t) => {
+  const fixture = await createActivationPendingFixture(t, {
+    lastClosedMilestone: '4.4',
+    activeMilestoneId: '4.5',
+  });
+  const contract = await promoteActivationPending({
+    root: fixture.root,
+    observedRevision: fixture.observedRevision,
+    frozenRevision: fixture.frozenRevision,
+  });
+
+  assert.equal(contract.schemaVersion, 1);
+  assert.equal(contract.handoffId, '4.4-to-4.5');
+  assert.equal(contract.observedRevision, fixture.observedRevision);
+  assert.equal(contract.frozenRevision, fixture.frozenRevision);
+  assert.equal(contract.safetyInvariants.noLeadSend, true);
+  await generateMilestoneHandoff({ root: fixture.root });
+  await generateMilestoneHandoff({ root: fixture.root, check: true });
+});
+
+test('accepts a merge commit and rejects squash or rebase-style final promotion history', async (t) => {
+  const fixture = await createActivationPendingFixture(t, {
+    lastClosedMilestone: '4.4',
+    activeMilestoneId: '4.5',
+  });
+  git(fixture.root, ['switch', '-c', 'promotion']);
+  await promoteActivationPending({
+    root: fixture.root,
+    observedRevision: fixture.observedRevision,
+    frozenRevision: fixture.frozenRevision,
+  });
+  await generateMilestoneHandoff({ root: fixture.root });
+  git(fixture.root, ['add', '.']);
+  git(fixture.root, ['commit', '-m', 'docs: final promotion']);
+  git(fixture.root, ['switch', '-c', 'main', fixture.observedRevision]);
+  git(fixture.root, ['merge', '--no-ff', 'promotion', '-m', 'docs: merge promotion']);
+  await assert.doesNotReject(verifyFinalPromotionMerge({ root: fixture.root }));
+
+  const squashFixture = await createActivationPendingFixture(t);
+  git(squashFixture.root, ['switch', '-c', 'promotion']);
+  await promoteActivationPending({
+    root: squashFixture.root,
+    observedRevision: squashFixture.observedRevision,
+    frozenRevision: squashFixture.frozenRevision,
+  });
+  await generateMilestoneHandoff({ root: squashFixture.root });
+  git(squashFixture.root, ['add', '.']);
+  git(squashFixture.root, ['commit', '-m', 'docs: final promotion']);
+  git(squashFixture.root, ['switch', '-c', 'main', squashFixture.observedRevision]);
+  git(squashFixture.root, ['merge', '--squash', 'promotion']);
+  git(squashFixture.root, ['commit', '-m', 'docs: squash promotion']);
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: squashFixture.root }),
+    /frozenRevision is not an ancestor of main/,
+  );
+});
+
+async function rewriteFrozenPromotionState(fixture, mutate) {
+  git(fixture.root, ['reset', '--soft', fixture.observedRevision]);
+  await mutateJson(fixture.root, statePath, mutate);
+  return commitAll(fixture.root, 'docs: rewrite activation snapshot fixture');
+}
+
+test('promotion rejects an absent merged pull request, empty mergedAt, and invalid revisions', async (t) => {
+  const nullFixture = await createActivationPendingFixture(t);
+  const nullFrozen = await rewriteFrozenPromotionState(nullFixture, (state) => {
+    state.source.pullRequest = null;
+  });
+  await assert.rejects(
+    promoteActivationPending({
+      root: nullFixture.root,
+      observedRevision: nullFixture.observedRevision,
+      frozenRevision: nullFrozen,
+    }),
+    /pull request must come from the GitHub API/,
+  );
+
+  const emptyFixture = await createActivationPendingFixture(t);
+  const emptyFrozen = await rewriteFrozenPromotionState(emptyFixture, (state) => {
+    state.source.pullRequest = {
+      number: 20,
+      state: 'closed',
+      mergedAt: '',
+      source: 'github-api',
+    };
+  });
+  await assert.rejects(
+    promoteActivationPending({
+      root: emptyFixture.root,
+      observedRevision: emptyFixture.observedRevision,
+      frozenRevision: emptyFrozen,
+    }),
+    /pull request has no mergedAt/,
+  );
+  const revisionFixture = await createActivationPendingFixture(t);
+  await assert.rejects(
+    promoteActivationPending({
+      root: revisionFixture.root,
+      observedRevision: '0000000000000000000000000000000000000000',
+      frozenRevision: revisionFixture.frozenRevision,
+    }),
+    /git rev-parse/,
+  );
+  await assert.rejects(
+    promoteActivationPending({
+      root: revisionFixture.root,
+      observedRevision: revisionFixture.observedRevision,
+      frozenRevision: revisionFixture.observedRevision,
+    }),
+    /frozenRevision is not a direct child/,
+  );
+});
+
 test('rejects activation-pending-sync sender or automatic-send violations without writes', async (t) => {
   const senderFixture = await createActivationPendingFixture(t);
   await mutateJson(senderFixture.root, statePath, (state) => {
@@ -653,6 +772,20 @@ test('rejects activation-pending-sync sender or automatic-send violations withou
       allowActivationPending: true,
     }),
     /AUTO_SEND_MESSAGES=false/,
+  );
+
+  const noLeadFixture = await createActivationPendingFixture(t);
+  await mutateJson(noLeadFixture.root, contractPath, (contract) => {
+    contract.safetyInvariants.noLeadSend = false;
+  });
+  await assertFailureWithoutWrites(
+    noLeadFixture.root,
+    () => generateMilestoneHandoff({
+      root: noLeadFixture.root,
+      check: true,
+      allowActivationPending: true,
+    }),
+    /zero lead sends/,
   );
 });
 
