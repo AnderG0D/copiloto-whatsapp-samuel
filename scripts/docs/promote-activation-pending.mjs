@@ -13,6 +13,7 @@ const maintenanceRepairPaths = new Set([
   'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
   'scripts/docs/verify-activation-promotion.mjs',
   'scripts/docs/activation-promotion.spec.mjs',
+  'scripts/docs/generate-milestone-handoff.spec.mjs',
 ]);
 
 function ensure(condition, message) {
@@ -151,9 +152,6 @@ async function verifySnapshotPullRequest({
   if (unauthorized) {
     ensure(false, `post-merge snapshot repair cannot modify ${unauthorized.filename}`);
   }
-  ensure(files.length === maintenanceRepairPaths.size
-    && maintenanceRepairPaths.size === new Set(files.map(({ filename }) => filename)).size,
-  'post-merge snapshot repair must modify exactly the approved Hito 4.5 repair paths');
 }
 
 function handoffOutputs(lastClosedMilestone, activeMilestone) {

@@ -709,9 +709,9 @@ function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeComm
         ok: true,
         status: 200,
         json: async () => [
-          { filename: 'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md' },
           { filename: 'scripts/docs/verify-activation-promotion.mjs' },
           { filename: 'scripts/docs/activation-promotion.spec.mjs' },
+          { filename: 'scripts/docs/generate-milestone-handoff.spec.mjs' },
         ],
       };
     }
