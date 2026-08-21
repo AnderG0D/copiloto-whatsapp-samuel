@@ -103,10 +103,15 @@ test('pull request validation accepts only the declared activation pending PR', 
 });
 
 test('workflow filters include isolated handoff-state changes and main waits for a promotion', async () => {
-  const [syncWorkflow, backendWorkflow] = await Promise.all([
+  const [activeMilestone, syncWorkflow, backendWorkflow] = await Promise.all([
+    readFile(
+      'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
+      'utf8',
+    ),
     readFile('.github/workflows/documentation-sync.yml', 'utf8'),
     readFile('.github/workflows/backend-ci.yml', 'utf8'),
   ]);
+  assert.match(activeMilestone, /^## Gate técnico previo$/m);
   assert.match(syncWorkflow, /'docs\/control\/handoff-state\.json'/);
   assert.match(backendWorkflow, /--await-promotion --source-sha/);
   assert.match(backendWorkflow, /--require-github-api/);

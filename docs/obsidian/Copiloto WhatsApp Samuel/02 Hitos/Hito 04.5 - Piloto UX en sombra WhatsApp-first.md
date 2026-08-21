@@ -29,6 +29,16 @@ operador allowlisted
 
 La IA puede seguir generando candidatos y NestJS conserva todas las decisiones y efectos de negocio. Este hito no autoriza el envío a leads.
 
+<!-- AUTO:BEGIN technical-gate -->
+## Gate técnico previo
+
+Antes de iniciar 4.5-A debe completarse y fusionarse la promoción documental 4.4 → 4.5. La promoción debe conservar `observedRevision` y `frozenRevision`, y fusionarse mediante **Create a merge commit**.
+
+- `sender=false` y `AUTO_SEND_MESSAGES=false` deben conservarse.
+- No se permite ningún envío a leads.
+- Este gate no implementa todavía el piloto funcional ni modifica `agent-core`.
+<!-- AUTO:END technical-gate -->
+
 ## Alcance aprobado
 
 ### 4.5-A — Configuración local del piloto
