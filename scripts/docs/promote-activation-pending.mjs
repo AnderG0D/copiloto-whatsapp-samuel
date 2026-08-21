@@ -14,6 +14,7 @@ const maintenanceRepairPaths = new Set([
   'scripts/docs/verify-activation-promotion.mjs',
   'scripts/docs/activation-promotion.spec.mjs',
   'scripts/docs/generate-milestone-handoff.spec.mjs',
+  'scripts/docs/promote-activation-pending.mjs',
 ]);
 
 function ensure(condition, message) {

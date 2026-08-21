@@ -712,6 +712,7 @@ function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeComm
           { filename: 'scripts/docs/verify-activation-promotion.mjs' },
           { filename: 'scripts/docs/activation-promotion.spec.mjs' },
           { filename: 'scripts/docs/generate-milestone-handoff.spec.mjs' },
+          { filename: 'scripts/docs/promote-activation-pending.mjs' },
         ],
       };
     }

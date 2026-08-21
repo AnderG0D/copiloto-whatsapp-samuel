@@ -120,6 +120,7 @@ const documentationRepairPaths = [
   'scripts/docs/verify-activation-promotion.mjs',
   'scripts/docs/activation-promotion.spec.mjs',
   'scripts/docs/generate-milestone-handoff.spec.mjs',
+  'scripts/docs/promote-activation-pending.mjs',
 ];
 
 test('pull request validation accepts a constrained documentation repair including the handoff generator test', () => {
@@ -168,6 +169,22 @@ test('pull request validation accepts the four repair scripts without requiring 
     changedPaths: documentationRepairPaths.slice(1),
   }), 'maintenance-repair');
 });
+
+for (const repairPath of documentationRepairPaths.slice(1)) {
+  test(`pull request validation accepts ${repairPath} as an individual safe repair path`, () => {
+    const pendingContract = {
+      schemaVersion: 3,
+      lifecycleState: 'activation-pending-sync',
+      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+    };
+    assert.equal(validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest(),
+      changedPaths: [repairPath],
+    }), 'maintenance-repair');
+  });
+}
 
 test('pull request validation rejects any fifth repair path', () => {
   const pendingContract = {
