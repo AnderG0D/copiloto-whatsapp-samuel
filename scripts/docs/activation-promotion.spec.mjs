@@ -83,30 +83,116 @@ test('pull request validation rejects an arbitrary schema 1 PR and accepts the a
   }));
 });
 
-test('pull request validation accepts only the declared activation pending PR', () => {
+test('pull request validation accepts the declared activation pending PR #46', () => {
   const pendingContract = {
     schemaVersion: 3,
     lifecycleState: 'activation-pending-sync',
     activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
   };
+  const activationPullRequest = promotionPullRequest({
+    number: 46,
+    head: { ref: 'docs/activate-hito-4-5', sha: promotionSha },
+  });
   assert.throws(
     () => validatePullRequestContract({
       contract: pendingContract,
       pullRequest: promotionPullRequest({ number: 45, head: { ref: 'docs/activate-hito-4-5', sha: promotionSha } }),
     }),
-    /declared activation pull request/,
+    /explicit fix\/docs-\* repair branch/,
   );
-  assert.doesNotThrow(() => validatePullRequestContract({
+  assert.equal(validatePullRequestContract({
     contract: pendingContract,
-    pullRequest: promotionPullRequest({ number: 46, head: { ref: 'docs/activate-hito-4-5', sha: promotionSha } }),
-  }));
+    pullRequest: activationPullRequest,
+  }), 'activation');
 });
 
+function documentationRepairPullRequest(overrides = {}) {
+  return promotionPullRequest({
+    number: 47,
+    head: { ref: 'fix/docs-handoff-4-5-gate-v2', sha: promotionSha },
+    ...overrides,
+  });
+}
+
+const documentationRepairPaths = [
+  'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
+  'scripts/docs/verify-activation-promotion.mjs',
+  'scripts/docs/activation-promotion.spec.mjs',
+];
+
+test('pull request validation accepts PR #47 as a constrained documentation repair', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  assert.equal(validatePullRequestContract({
+    contract: pendingContract,
+    pullRequest: documentationRepairPullRequest(),
+    changedPaths: documentationRepairPaths,
+  }), 'maintenance-repair');
+});
+
+for (const changedPath of [
+  'docs/control/handoff-state.json',
+  'docs/control/milestones.json',
+  'docs/_generated/project-state.json',
+  'docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md',
+  'agent-core/src/main.ts',
+]) {
+  test(`pull request validation rejects a schema 3 maintenance repair changing ${changedPath}`, () => {
+    const pendingContract = {
+      schemaVersion: 3,
+      lifecycleState: 'activation-pending-sync',
+      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+    };
+    assert.throws(
+      () => validatePullRequestContract({
+        contract: pendingContract,
+        pullRequest: documentationRepairPullRequest(),
+        changedPaths: [...documentationRepairPaths, changedPath],
+      }),
+      new RegExp(`cannot modify ${changedPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+    );
+  });
+}
+
+for (const [safetyInvariants, error] of [
+  [{ sender: true, autoSendMessages: false, noLeadSend: true }, /sender=false/],
+  [{ sender: false, autoSendMessages: true, noLeadSend: true }, /AUTO_SEND_MESSAGES=false/],
+  [{ sender: false, autoSendMessages: false, noLeadSend: false }, /noLeadSend=true/],
+]) {
+  test('pull request validation rejects a schema 3 repair that weakens a safety invariant', () => {
+    const pendingContract = {
+      schemaVersion: 3,
+      lifecycleState: 'activation-pending-sync',
+      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+      safetyInvariants,
+    };
+    assert.throws(
+      () => validatePullRequestContract({
+        contract: pendingContract,
+        pullRequest: documentationRepairPullRequest(),
+        changedPaths: documentationRepairPaths,
+      }),
+      error,
+    );
+  });
+}
+
 test('workflow filters include isolated handoff-state changes and main waits for a promotion', async () => {
-  const [syncWorkflow, backendWorkflow] = await Promise.all([
+  const [activeMilestone, syncWorkflow, backendWorkflow] = await Promise.all([
+    readFile(
+      'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
+      'utf8',
+    ),
     readFile('.github/workflows/documentation-sync.yml', 'utf8'),
     readFile('.github/workflows/backend-ci.yml', 'utf8'),
   ]);
+  assert.match(activeMilestone, /^## Gate técnico previo$/m);
   assert.match(syncWorkflow, /'docs\/control\/handoff-state\.json'/);
   assert.match(backendWorkflow, /--await-promotion --source-sha/);
   assert.match(backendWorkflow, /--require-github-api/);
