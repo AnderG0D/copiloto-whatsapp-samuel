@@ -104,6 +104,9 @@ function verifyMaintenanceRepair({ pullRequest, changedPaths }) {
   ));
   ensure(!unauthorizedPath,
     `schema 3 maintenance repair cannot modify ${unauthorizedPath}`);
+  ensure(changedPaths.length === maintenanceRepairPaths.size
+    && maintenanceRepairPaths.size === new Set(changedPaths).size,
+  'schema 3 maintenance repair must modify exactly the approved Hito 4.5 repair paths');
 }
 
 export function changedPathsForPullRequest({ pullRequest, root = defaultRepositoryRoot }) {

@@ -135,6 +135,42 @@ test('pull request validation accepts PR #47 as a constrained documentation repa
   }), 'maintenance-repair');
 });
 
+test('pull request validation accepts a chain of constrained documentation repairs after PR #46', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  for (const number of [47, 48, 49]) {
+    assert.equal(validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest({
+        number,
+        head: { ref: `fix/docs-handoff-4-5-gate-v${number}`, sha: promotionSha },
+      }),
+      changedPaths: documentationRepairPaths,
+    }), 'maintenance-repair');
+  }
+});
+
+test('pull request validation rejects a repair that omits an approved path', () => {
+  const pendingContract = {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+  };
+  assert.throws(
+    () => validatePullRequestContract({
+      contract: pendingContract,
+      pullRequest: documentationRepairPullRequest(),
+      changedPaths: documentationRepairPaths.slice(0, -1),
+    }),
+    /must modify exactly the approved Hito 4\.5 repair paths/,
+  );
+});
+
 for (const changedPath of [
   'docs/control/handoff-state.json',
   'docs/control/milestones.json',

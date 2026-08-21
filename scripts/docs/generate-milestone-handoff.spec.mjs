@@ -377,6 +377,10 @@ Generar el relevo determinista antes de ${activeMilestoneId}-A.
     handoffId: `${lastClosedMilestone}-to-${activeMilestoneId}`,
     lastClosedMilestone,
     activeMilestone: activeMilestoneId,
+    activationPullRequest: {
+      number: 20,
+      headRef: 'docs/activation-fixture',
+    },
     transitionGate: {
       description: 'integrar y validar el generador determinista',
       conditionedCheckpoint: `${activeMilestoneId}-A`,
@@ -656,6 +660,119 @@ test('promotes a GitHub-confirmed post-merge snapshot to a final 4.4 to 4.5 hand
   await generateMilestoneHandoff({ root: fixture.root, check: true });
 });
 
+async function prepareSafeRepairPromotion(t) {
+  const fixture = await createActivationPendingFixture(t, {
+    lastClosedMilestone: '4.4',
+    activeMilestoneId: '4.5',
+  });
+  await mutateJson(fixture.root, contractPath, (contract) => {
+    contract.activationPullRequest = { number: 46, headRef: 'docs/activate-hito-4-5' };
+  });
+  fixture.frozenRevision = await rewriteFrozenPromotionState(fixture, (state) => {
+    state.source.pullRequest = {
+      number: 47,
+      title: 'Safe documentation repair',
+      url: 'https://example.invalid/pull/47',
+      state: 'closed',
+      mergedAt: '2026-08-06T01:24:30Z',
+      source: 'github-api',
+    };
+  });
+  const contract = await promoteActivationPending({
+    root: fixture.root,
+    observedRevision: fixture.observedRevision,
+    frozenRevision: fixture.frozenRevision,
+  });
+  await generateMilestoneHandoff({ root: fixture.root });
+  git(fixture.root, ['add', '.']);
+  git(fixture.root, ['commit', '-m', 'docs: final promotion']);
+  git(fixture.root, ['switch', '-c', 'main', fixture.observedRevision]);
+  git(fixture.root, ['merge', '--no-ff', 'master', '-m', 'docs: merge promotion']);
+  return { contract, fixture };
+}
+
+function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeCommit, associated = true }) {
+  return async (url) => {
+    if (url.includes(`/commits/${fixture.observedRevision}/pulls`)) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => (associated ? [{
+          number: 47,
+          state: 'closed',
+          merged_at: '2026-08-06T01:24:30Z',
+        }] : []),
+      };
+    }
+    if (url.includes('/pulls/47/files?')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => [
+          { filename: 'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md' },
+          { filename: 'scripts/docs/verify-activation-promotion.mjs' },
+          { filename: 'scripts/docs/activation-promotion.spec.mjs' },
+        ],
+      };
+    }
+    if (url.endsWith('/pulls/46')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          number: 46,
+          state: 'closed',
+          merged_at: '2026-08-05T01:24:30Z',
+          merge_commit_sha: activationMergeSha,
+        }),
+      };
+    }
+    if (url.endsWith('/pulls/47')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          number: 47,
+          state: 'closed',
+          merged_at: '2026-08-06T01:24:30Z',
+          head: { ref: 'fix/docs-handoff-4-5-gate-v2' },
+        }),
+      };
+    }
+    throw new Error(`Unexpected GitHub URL: ${url}`);
+  };
+}
+
+test('keeps PR #46 as the activation anchor while accepting PR #47 as the observed snapshot source', async (t) => {
+  const { contract, fixture } = await prepareSafeRepairPromotion(t);
+
+  assert.deepEqual(contract.activationPullRequest, {
+    number: 46,
+    headRef: 'docs/activate-hito-4-5',
+  });
+  assert.equal(contract.observedRevision, fixture.observedRevision);
+  assert.equal(contract.frozenRevision, fixture.frozenRevision);
+  assert.equal(git(fixture.root, ['rev-parse', `${fixture.frozenRevision}^`]), fixture.observedRevision);
+  await assert.doesNotReject(verifyFinalPromotionMerge({
+    root: fixture.root,
+    githubToken: 'test-token',
+    fetchImpl: safeRepairGitHubFetch({ fixture }),
+  }));
+});
+
+test('final verifier rejects a repair snapshot when PR #46 is not an ancestor of observedRevision', async (t) => {
+  const { fixture } = await prepareSafeRepairPromotion(t);
+
+  await assert.rejects(
+    verifyFinalPromotionMerge({
+      root: fixture.root,
+      githubToken: 'test-token',
+      fetchImpl: safeRepairGitHubFetch({ fixture, activationMergeSha: 'f'.repeat(40) }),
+    }),
+    /activation pull request merge commit is not an ancestor of observedRevision/,
+  );
+});
+
 test('accepts a merge commit and rejects squash or rebase-style final promotion history', async (t) => {
   const fixture = await createActivationPendingFixture(t, {
     lastClosedMilestone: '4.4',
@@ -675,15 +792,21 @@ test('accepts a merge commit and rejects squash or rebase-style final promotion 
   await assert.doesNotReject(verifyFinalPromotionMerge({
     root: fixture.root,
     githubToken: 'test-token',
-    fetchImpl: async () => ({
-      ok: true,
-      status: 200,
-      json: async () => [{
+    fetchImpl: async (url) => {
+      if (url.includes(`/commits/${fixture.observedRevision}/pulls`)) {
+        return { ok: true, status: 200, json: async () => [{
+          number: 20,
+          state: 'closed',
+          merged_at: '2026-08-05T01:24:30Z',
+        }] };
+      }
+      return { ok: true, status: 200, json: async () => ({
         number: 20,
         state: 'closed',
         merged_at: '2026-08-05T01:24:30Z',
-      }],
-    }),
+        merge_commit_sha: fixture.mergeCommit,
+      }) };
+    },
   }));
 
   const squashFixture = await createActivationPendingFixture(t);
