@@ -65,7 +65,23 @@ jobs:
       - name: Test documentation automation
         run: npm run test:docs
 
-      - name: Verify milestone handoff
+      - name: Collect transient observed state for pull requests
+        if: github.event_name == 'pull_request'
+        run: >-
+          node scripts/docs/collect-project-state.mjs
+          --source-ref HEAD
+          --output .docs-activation-pending-state.json
+
+      - name: Verify milestone handoff for pull requests
+        if: github.event_name == 'pull_request'
+        run: >-
+          node scripts/docs/generate-milestone-handoff.mjs
+          --check
+          --allow-activation-pending
+          --observed-state .docs-activation-pending-state.json
+
+      - name: Verify final milestone handoff on main
+        if: github.event_name == 'push'
         run: npm run docs:handoff:check
 
       - name: Validate documentation

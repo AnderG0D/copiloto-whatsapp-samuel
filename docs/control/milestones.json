@@ -89,6 +89,15 @@
       "status": "done",
       "workingBranch": "feature/hito-4-4-human-review",
       "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.4 - Revision y aprobacion humana DONE.md",
+      "evidence": {
+        "pullRequests": [26, 29, 32, 34],
+        "mergeCommit": "a84206b483830bf84b5af055fe4f3a815143352f",
+        "requiredPaths": [
+          "agent-core/src/ai/response-drafts/response-draft-review.service.ts",
+          "agent-core/src/admin/response-drafts/response-draft-review.controller.ts",
+          "agent-core/test/app.e2e-spec.ts"
+        ]
+      },
       "checkpoints": [
         {
           "id": "4.4-A",

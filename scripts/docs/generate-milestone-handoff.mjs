@@ -814,17 +814,111 @@ async function validateWaitingContract({
   };
 }
 
-async function validateAndBuild(root) {
+async function validateActivationPendingContract({
+  agents,
+  contract,
+  liveState,
+  milestones,
+  root,
+}) {
+  ensure(contract.schemaVersion === 3, 'activation-pending-sync handoff schemaVersion must be 3');
+  ensure(
+    contract.lifecycleState === 'activation-pending-sync',
+    'pending contract must declare lifecycleState activation-pending-sync',
+  );
+  ensure(
+    typeof contract.lastClosedMilestone === 'string'
+      && typeof contract.activeMilestone === 'string',
+    'pending contract must declare both milestone ids',
+  );
+  ensure(contract.safetyInvariants?.sender === false, 'pending contract must require sender=false');
+  ensure(
+    contract.safetyInvariants?.autoSendMessages === false,
+    'pending contract must require AUTO_SEND_MESSAGES=false',
+  );
+  ensure(contract.safetyInvariants?.noLeadSend === true, 'pending contract must require zero lead sends');
+  const safetyAndPrivacy = markdownSection(agentsPath, agents, 'Safety and privacy');
+  ensure(
+    /(?:^|[^A-Z0-9_])AUTO_SEND_MESSAGES=false(?:[^A-Z0-9_]|$)/.test(safetyAndPrivacy),
+    `${agentsPath} must authoritatively require AUTO_SEND_MESSAGES=false`,
+  );
+  ensure(
+    !Object.hasOwn(contract, 'observedRevision') && !Object.hasOwn(contract, 'frozenRevision'),
+    'pending contract must not declare final revisions',
+  );
+  ensure(
+    !Object.hasOwn(contract, 'outputs') && !Object.hasOwn(contract, 'historicalHandoff'),
+    'pending contract must not declare final handoff outputs',
+  );
+
+  const configuredActive = milestones.milestones.filter((milestone) => milestone.status === 'active');
+  ensure(configuredActive.length === 1, `expected exactly one active milestone in ${milestonesPath}; found ${configuredActive.length}`);
+  const lastClosed = milestones.milestones.find((milestone) => (
+    milestone.id === contract.lastClosedMilestone
+  ));
+  const active = configuredActive[0];
+  ensure(lastClosed?.status === 'done', `Hito ${contract.lastClosedMilestone} is not closed`);
+  ensure(milestones.activeMilestone === active.id, `${milestonesPath} activeMilestone does not identify its only active milestone`);
+  ensure(active.id === contract.activeMilestone, 'pending contract and milestone configuration disagree about the active milestone');
+  ensure(liveState.schemaVersion === 1, `${observedStatePath} must declare an active observed state`);
+  ensure(liveState.architecture?.components?.sender === false, `${observedStatePath} must declare sender=false (pending state)`);
+  const configuredProjection = milestones.milestones.map(({ id, title, status, document }) => ({
+    id, title, status, document,
+  }));
+  validateStateAgainstConfiguration({
+    active,
+    configuredProjection,
+    contract,
+    evidenceComparison: 'exact',
+    label: 'pending state',
+    lastClosed,
+    state: liveState,
+  });
+
+  const activeNote = await readText(root, active.document);
+  const activeFrontmatter = parseFrontmatter(active.document, activeNote);
+  ensure(
+    activeFrontmatter.status === 'active' && activeFrontmatter.hito === active.id,
+    `${active.document} must declare Hito ${active.id} as ACTIVE`,
+  );
+  ensure(
+    /No se permite ningún envío a leads\./.test(activeNote),
+    `${active.document} must prohibit sends to leads`,
+  );
+  const firstIncomplete = liveState.milestone.checkpoints.find((checkpoint) => !checkpoint.complete);
+  ensure(firstIncomplete, `Hito ${active.id} has no incomplete checkpoint`);
+  ensure(firstIncomplete.id === `${active.id}-A`, 'pending next action must be the A checkpoint');
+  ensure(active.checkpoints[1]?.id === `${active.id}-B`, 'pending B checkpoint must follow the A checkpoint');
+  const expectedAction = deriveNextAction({
+    verification: liveState.verification,
+    activeMilestone: liveState.milestone,
+    pullRequest: liveState.source?.pullRequest,
+  });
+  ensure(
+    expectedAction.kind === 'implement-checkpoint'
+      && expectedAction.title === `${firstIncomplete.id}: ${firstIncomplete.title}`
+      && isDeepStrictEqual(liveState.nextAction, expectedAction),
+    'pending nextAction does not match the canonical first incomplete checkpoint',
+  );
+
+  return { outputs: {}, contents: {} };
+}
+
+async function validateAndBuild(root, statePath = observedStatePath) {
   const [contract, milestones, policy, liveState, agents] = await Promise.all([
     readJson(root, contractPath),
     readJson(root, milestonesPath),
     readJson(root, policyPath),
-    readJson(root, observedStatePath),
+    readJson(root, statePath),
     readText(root, agentsPath),
   ]);
 
   if (contract.schemaVersion === 2) {
     return validateWaitingContract({ agents, contract, liveState, milestones, policy, root });
+  }
+
+  if (contract.schemaVersion === 3) {
+    return validateActivationPendingContract({ agents, contract, liveState, milestones, root });
   }
 
   ensure(contract.schemaVersion === 1, 'handoff schemaVersion must be 1');
@@ -1159,9 +1253,19 @@ async function validateAndBuild(root) {
 export async function generateMilestoneHandoff({
   root = defaultRepositoryRoot,
   check = false,
+  allowActivationPending = false,
+  observedState = observedStatePath,
 } = {}) {
   const repositoryRoot = path.resolve(root);
-  const result = await validateAndBuild(repositoryRoot);
+  const result = await validateAndBuild(repositoryRoot, observedState);
+
+  if (Object.keys(result.outputs).length === 0) {
+    ensure(
+      allowActivationPending,
+      'activation-pending-sync is valid only with explicit --allow-activation-pending validation',
+    );
+    return result.outputs;
+  }
 
   for (const [name, outputPath] of Object.entries(result.outputs)) {
     const expected = Buffer.from(result.contents[name], 'utf8');
@@ -1199,7 +1303,12 @@ async function main() {
   const args = parseArguments(process.argv.slice(2));
   const root = args.root ? path.resolve(args.root) : defaultRepositoryRoot;
   const check = args.check === true;
-  const outputs = await generateMilestoneHandoff({ root, check });
+  const outputs = await generateMilestoneHandoff({
+    root,
+    check,
+    allowActivationPending: args['allow-activation-pending'] === true,
+    observedState: args['observed-state'] ?? observedStatePath,
+  });
   const action = check ? 'verified' : 'generated';
   console.log(`Milestone handoff ${action}: ${Object.values(outputs).join(', ')}`);
 }

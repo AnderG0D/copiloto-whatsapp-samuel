@@ -289,6 +289,7 @@ Generar el relevo determinista antes de ${activeMilestoneId}-A.
 
 - Aprobar no envía.
 - Mantener AUTO_SEND_MESSAGES=false.
+- No se permite ningún envío a leads.
 `);
 
   const placeholderState = {
@@ -457,6 +458,22 @@ async function createWaitingFixture(t) {
   return { ...fixture, historicalBytes, waitingOutputPaths };
 }
 
+async function createActivationPendingFixture(t) {
+  const fixture = await createFixture(t);
+  await writeFixtureJson(fixture.root, contractPath, {
+    schemaVersion: 3,
+    lifecycleState: 'activation-pending-sync',
+    lastClosedMilestone: '4.3',
+    activeMilestone: '4.4',
+    safetyInvariants: {
+      sender: false,
+      autoSendMessages: false,
+      noLeadSend: true,
+    },
+  });
+  return fixture;
+}
+
 async function mutateJson(root, relativePath, mutate) {
   const value = await readFixtureJson(root, relativePath);
   mutate(value);
@@ -592,6 +609,104 @@ test('rejects v2 sender or automatic-send violations without writes', async (t) 
     autoSendFixture.root,
     () => generateMilestoneHandoff({ root: autoSendFixture.root }),
     /AUTO_SEND_MESSAGES=false/,
+  );
+});
+
+test('validates activation-pending-sync without writing final handoff outputs', async (t) => {
+  const fixture = await createActivationPendingFixture(t);
+  const before = await snapshotWorkingFiles(fixture.root);
+
+  const outputs = await generateMilestoneHandoff({
+    root: fixture.root,
+    check: true,
+    allowActivationPending: true,
+  });
+
+  assert.deepEqual(outputs, {});
+  assert.deepEqual(await snapshotWorkingFiles(fixture.root), before);
+});
+
+test('rejects activation-pending-sync sender or automatic-send violations without writes', async (t) => {
+  const senderFixture = await createActivationPendingFixture(t);
+  await mutateJson(senderFixture.root, statePath, (state) => {
+    state.architecture.components.sender = true;
+  });
+  await assertFailureWithoutWrites(
+    senderFixture.root,
+    () => generateMilestoneHandoff({
+      root: senderFixture.root,
+      check: true,
+      allowActivationPending: true,
+    }),
+    /sender=false \(pending state\)/,
+  );
+
+  const autoSendFixture = await createActivationPendingFixture(t);
+  await mutateJson(autoSendFixture.root, contractPath, (contract) => {
+    contract.safetyInvariants.autoSendMessages = true;
+  });
+  await assertFailureWithoutWrites(
+    autoSendFixture.root,
+    () => generateMilestoneHandoff({
+      root: autoSendFixture.root,
+      check: true,
+      allowActivationPending: true,
+    }),
+    /AUTO_SEND_MESSAGES=false/,
+  );
+});
+
+test('rejects activation-pending-sync when B precedes A', async (t) => {
+  const fixture = await createActivationPendingFixture(t);
+  const milestones = await readFixtureJson(fixture.root, milestonesPath);
+  const active = milestones.milestones.find((milestone) => milestone.id === '4.4');
+  active.checkpoints = [active.checkpoints[1], active.checkpoints[0], ...active.checkpoints.slice(2)];
+  await writeFixtureJson(fixture.root, milestonesPath, milestones);
+
+  const state = await readFixtureJson(fixture.root, statePath);
+  state.milestone.checkpoints = [
+    state.milestone.checkpoints[1],
+    state.milestone.checkpoints[0],
+    ...state.milestone.checkpoints.slice(2),
+  ];
+  state.nextAction = deriveNextAction({
+    verification: state.verification,
+    activeMilestone: state.milestone,
+    pullRequest: state.source.pullRequest,
+  });
+  await writeFixtureJson(fixture.root, statePath, state);
+
+  await assertFailureWithoutWrites(
+    fixture.root,
+    () => generateMilestoneHandoff({
+      root: fixture.root,
+      check: true,
+      allowActivationPending: true,
+    }),
+    /pending next action must be the A checkpoint/,
+  );
+});
+
+test('rejects a final active handoff without a merged pull request', async (t) => {
+  const fixture = await createFixture(t);
+  git(fixture.root, ['reset', '--soft', fixture.observedRevision]);
+  await mutateJson(fixture.root, statePath, (state) => {
+    state.source.pullRequest = null;
+    state.nextAction = deriveNextAction({
+      verification: state.verification,
+      activeMilestone: state.milestone,
+      pullRequest: null,
+    });
+  });
+  const frozenRevision = commitAll(fixture.root, 'docs: freeze state without merged PR');
+  await mutateJson(fixture.root, contractPath, (contract) => {
+    contract.frozenRevision = frozenRevision;
+  });
+
+  await assertFailureWithoutWrites(
+    fixture.root,
+    () => generateMilestoneHandoff({ root: fixture.root, check: true }),
+    /historical closing pull request is not confirmed as merged/,
   );
 });
 
