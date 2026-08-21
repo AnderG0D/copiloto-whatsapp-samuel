@@ -838,6 +838,9 @@ async function validateActivationPendingContract({
     'pending contract must require AUTO_SEND_MESSAGES=false',
   );
   ensure(contract.safetyInvariants?.noLeadSend === true, 'pending contract must require zero lead sends');
+  ensure(Number.isInteger(contract.activationPullRequest?.number)
+    && typeof contract.activationPullRequest.headRef === 'string',
+  'pending contract must declare its activation pull request');
   const safetyAndPrivacy = markdownSection(agentsPath, agents, 'Safety and privacy');
   ensure(
     /(?:^|[^A-Z0-9_])AUTO_SEND_MESSAGES=false(?:[^A-Z0-9_]|$)/.test(safetyAndPrivacy),
@@ -1130,7 +1133,8 @@ async function validateAndBuild(root, statePath = observedStatePath) {
     );
   }
   ensure(
-    historicalState.source?.pullRequest?.state === 'closed'
+    historicalState.source?.pullRequest?.source === 'github-api'
+      && historicalState.source.pullRequest.state === 'closed'
       && typeof historicalState.source.pullRequest.mergedAt === 'string'
       && historicalState.source.pullRequest.mergedAt.length > 0,
     'historical closing pull request is not confirmed as merged',

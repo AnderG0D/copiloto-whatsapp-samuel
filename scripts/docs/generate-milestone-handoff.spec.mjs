@@ -471,6 +471,10 @@ async function createActivationPendingFixture(t, options = {}) {
     lifecycleState: 'activation-pending-sync',
     lastClosedMilestone: options.lastClosedMilestone ?? '4.3',
     activeMilestone: options.activeMilestoneId ?? '4.4',
+    activationPullRequest: {
+      number: 20,
+      headRef: 'docs/activation-fixture',
+    },
     safetyInvariants: {
       sender: false,
       autoSendMessages: false,
@@ -668,7 +672,19 @@ test('accepts a merge commit and rejects squash or rebase-style final promotion 
   git(fixture.root, ['commit', '-m', 'docs: final promotion']);
   git(fixture.root, ['switch', '-c', 'main', fixture.observedRevision]);
   git(fixture.root, ['merge', '--no-ff', 'promotion', '-m', 'docs: merge promotion']);
-  await assert.doesNotReject(verifyFinalPromotionMerge({ root: fixture.root }));
+  await assert.doesNotReject(verifyFinalPromotionMerge({
+    root: fixture.root,
+    githubToken: 'test-token',
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      json: async () => [{
+        number: 20,
+        state: 'closed',
+        merged_at: '2026-08-05T01:24:30Z',
+      }],
+    }),
+  }));
 
   const squashFixture = await createActivationPendingFixture(t);
   git(squashFixture.root, ['switch', '-c', 'promotion']);
@@ -686,6 +702,91 @@ test('accepts a merge commit and rejects squash or rebase-style final promotion 
   await assert.rejects(
     verifyFinalPromotionMerge({ root: squashFixture.root }),
     /frozenRevision is not an ancestor of main/,
+  );
+
+  const rebaseFixture = await createActivationPendingFixture(t);
+  git(rebaseFixture.root, ['switch', '-c', 'promotion']);
+  await promoteActivationPending({
+    root: rebaseFixture.root,
+    observedRevision: rebaseFixture.observedRevision,
+    frozenRevision: rebaseFixture.frozenRevision,
+  });
+  await generateMilestoneHandoff({ root: rebaseFixture.root });
+  git(rebaseFixture.root, ['add', '.']);
+  git(rebaseFixture.root, ['commit', '-m', 'docs: final promotion']);
+  git(rebaseFixture.root, ['switch', '-c', 'main', rebaseFixture.observedRevision]);
+  git(rebaseFixture.root, ['cherry-pick', 'promotion']);
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: rebaseFixture.root }),
+    /frozenRevision is not an ancestor of main/,
+  );
+});
+
+async function createForgedFinalMerge(t, mutateFrozenState) {
+  const fixture = await createFixture(t);
+  git(fixture.root, ['reset', '--soft', fixture.observedRevision]);
+  await mutateJson(fixture.root, statePath, mutateFrozenState);
+  const frozenRevision = commitAll(fixture.root, 'docs: forged frozen snapshot');
+  await mutateJson(fixture.root, contractPath, (contract) => {
+    contract.frozenRevision = frozenRevision;
+  });
+  git(fixture.root, ['add', contractPath]);
+  git(fixture.root, ['commit', '-m', 'docs: forged final promotion']);
+  git(fixture.root, ['switch', '-c', 'main', fixture.observedRevision]);
+  git(fixture.root, ['merge', '--no-ff', 'master', '-m', 'docs: merge forged promotion']);
+  return fixture;
+}
+
+test('final verifier rejects unverified, null, and empty-mergedAt pull request evidence', async (t) => {
+  const unverified = await createForgedFinalMerge(t, (state) => {
+    state.source.pullRequest.source = 'commit-subject';
+  });
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: unverified.root }),
+    /must come from the GitHub API/,
+  );
+
+  const nullPullRequest = await createForgedFinalMerge(t, (state) => {
+    state.source.pullRequest = null;
+  });
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: nullPullRequest.root }),
+    /pull request is missing/,
+  );
+
+  const emptyMergedAt = await createForgedFinalMerge(t, (state) => {
+    state.source.pullRequest.mergedAt = '';
+  });
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: emptyMergedAt.root }),
+    /has no mergedAt/,
+  );
+});
+
+test('final verifier requires GitHub to confirm the pull request association', async (t) => {
+  const fixture = await createActivationPendingFixture(t);
+  git(fixture.root, ['switch', '-c', 'promotion']);
+  await promoteActivationPending({
+    root: fixture.root,
+    observedRevision: fixture.observedRevision,
+    frozenRevision: fixture.frozenRevision,
+  });
+  await generateMilestoneHandoff({ root: fixture.root });
+  git(fixture.root, ['add', '.']);
+  git(fixture.root, ['commit', '-m', 'docs: final promotion']);
+  git(fixture.root, ['switch', '-c', 'main', fixture.observedRevision]);
+  git(fixture.root, ['merge', '--no-ff', 'promotion', '-m', 'docs: merge promotion']);
+  await assert.rejects(
+    verifyFinalPromotionMerge({ root: fixture.root }),
+    /GitHub repository and token are required/,
+  );
+  await assert.rejects(
+    verifyFinalPromotionMerge({
+      root: fixture.root,
+      githubToken: 'test-token',
+      fetchImpl: async () => ({ ok: true, status: 200, json: async () => [] }),
+    }),
+    /not associated with observedRevision/,
   );
 });
 

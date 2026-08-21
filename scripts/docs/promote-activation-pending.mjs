@@ -54,6 +54,36 @@ function isAncestor(root, ancestor, descendant) {
   }
 }
 
+async function verifyObservedPullRequest({ repository, observedRevision, pullRequest, token, fetchImpl = fetch }) {
+  ensure(repository && token, 'GitHub repository and token are required for final promotion verification');
+  ensure(pullRequest && typeof pullRequest === 'object', 'post-merge snapshot pull request is missing');
+  ensure(pullRequest.source === 'github-api', 'post-merge snapshot pull request must come from the GitHub API');
+  ensure(pullRequest.state === 'closed', 'post-merge snapshot pull request is not closed');
+  ensure(typeof pullRequest.mergedAt === 'string' && pullRequest.mergedAt.length > 0,
+    'post-merge snapshot pull request has no mergedAt');
+  const response = await fetchImpl(
+    `https://api.github.com/repos/${repository}/commits/${observedRevision}/pulls`,
+    {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    },
+  );
+  ensure(response.ok, `GitHub API pull request association lookup failed (${response.status})`);
+  const associated = await response.json();
+  const verified = associated.find((item) => (
+    item.number === pullRequest.number
+    && item.state === 'closed'
+    && typeof item.merged_at === 'string'
+    && item.merged_at.length > 0
+  ));
+  ensure(verified, 'post-merge snapshot pull request is not associated with observedRevision in GitHub');
+  ensure(verified.merged_at === pullRequest.mergedAt,
+    'post-merge snapshot mergedAt does not match GitHub');
+}
+
 function handoffOutputs(lastClosedMilestone, activeMilestone) {
   const format = (id) => {
     const [major, ...rest] = id.split('.');
@@ -94,6 +124,9 @@ export async function promoteActivationPending({
     'activation contract must require AUTO_SEND_MESSAGES=false');
   ensure(contract.safetyInvariants?.noLeadSend === true,
     'activation contract must require noLeadSend=true');
+  ensure(Number.isInteger(contract.activationPullRequest?.number)
+    && typeof contract.activationPullRequest.headRef === 'string',
+  'activation contract must declare its activation pull request');
   ensure(milestones.activeMilestone === contract.activeMilestone,
     'activation contract and milestone configuration disagree about the active milestone');
   ensure(milestones.lastClosedMilestone === contract.lastClosedMilestone,
@@ -108,6 +141,8 @@ export async function promoteActivationPending({
     'post-merge snapshot pull request must come from the GitHub API');
   ensure(frozenState.source.pullRequest.state === 'closed',
     'post-merge snapshot pull request is not closed');
+  ensure(frozenState.source.pullRequest.number === contract.activationPullRequest.number,
+    'post-merge snapshot pull request does not match the activation contract');
   ensure(typeof frozenState.source.pullRequest.mergedAt === 'string'
     && frozenState.source.pullRequest.mergedAt.length > 0,
   'post-merge snapshot pull request has no mergedAt');
@@ -141,6 +176,8 @@ export async function promoteActivationPending({
 export async function verifyFinalPromotionMerge({
   root = defaultRepositoryRoot,
   mainRef = 'HEAD',
+  githubToken = process.env.GITHUB_TOKEN,
+  fetchImpl = fetch,
 } = {}) {
   const contract = await readJson(root, contractPath);
   ensure(contract.schemaVersion === 1, 'final merge verification requires schemaVersion 1');
@@ -167,13 +204,34 @@ export async function verifyFinalPromotionMerge({
   });
   ensure(preservedByMergeCommit,
     'promotion was not preserved by a merge commit; squash and rebase merges are not accepted');
+  const frozenState = JSON.parse(git(root, ['show', `${contract.frozenRevision}:${statePath}`]));
+  ensure(frozenState.source?.sha === contract.observedRevision,
+    'post-merge snapshot source.sha does not match observedRevision');
+  ensure(frozenState.source?.pullRequest, 'post-merge snapshot pull request is missing');
+  ensure(frozenState.source.pullRequest.source === 'github-api',
+    'post-merge snapshot pull request must come from the GitHub API');
+  ensure(frozenState.source.pullRequest.state === 'closed',
+    'post-merge snapshot pull request is not closed');
+  ensure(typeof frozenState.source.pullRequest.mergedAt === 'string'
+    && frozenState.source.pullRequest.mergedAt.length > 0,
+  'post-merge snapshot pull request has no mergedAt');
+  await verifyObservedPullRequest({
+    repository: frozenState.repository,
+    observedRevision: contract.observedRevision,
+    pullRequest: frozenState.source.pullRequest,
+    token: githubToken,
+    fetchImpl,
+  });
 }
 
 async function main() {
   const args = parseArguments(process.argv.slice(2));
   const root = args.root ? path.resolve(args.root) : defaultRepositoryRoot;
   if (args['verify-final'] === true) {
-    await verifyFinalPromotionMerge({ root, mainRef: args['main-ref'] ?? 'HEAD' });
+    await verifyFinalPromotionMerge({
+      root,
+      mainRef: args['main-ref'] ?? 'HEAD',
+    });
     console.log('Activation promotion merge verified');
   } else {
     const contract = await promoteActivationPending({

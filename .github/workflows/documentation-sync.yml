@@ -8,6 +8,7 @@ on:
       - '**'
       - '!docs/**'
       - 'docs/control/milestones.json'
+      - 'docs/control/handoff-state.json'
 
 permissions:
   contents: write

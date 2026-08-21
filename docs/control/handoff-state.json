@@ -3,6 +3,10 @@
   "lifecycleState": "activation-pending-sync",
   "lastClosedMilestone": "4.4",
   "activeMilestone": "4.5",
+  "activationPullRequest": {
+    "number": 46,
+    "headRef": "docs/activate-hito-4-5"
+  },
   "safetyInvariants": {
     "sender": false,
     "autoSendMessages": false,
