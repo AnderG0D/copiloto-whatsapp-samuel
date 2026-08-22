@@ -16,6 +16,7 @@ import test from 'node:test';
 import { generateMilestoneHandoff } from './generate-milestone-handoff.mjs';
 import {
   promoteActivationPending,
+  verifyHistoricalRepairPullRequest49,
   verifyFinalPromotionMerge,
 } from './promote-activation-pending.mjs';
 import { deriveNextAction } from './shared.mjs';
@@ -691,7 +692,12 @@ async function prepareSafeRepairPromotion(t) {
   return { contract, fixture };
 }
 
-function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeCommit, associated = true }) {
+function safeRepairGitHubFetch({
+  fixture,
+  activationMergeSha = fixture.mergeCommit,
+  associated = true,
+  generatorPath = false,
+}) {
   return async (url) => {
     if (url.includes(`/commits/${fixture.observedRevision}/pulls`)) {
       return {
@@ -713,6 +719,7 @@ function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeComm
           { filename: 'scripts/docs/activation-promotion.spec.mjs' },
           { filename: 'scripts/docs/generate-milestone-handoff.spec.mjs' },
           { filename: 'scripts/docs/promote-activation-pending.mjs' },
+          ...(generatorPath ? [{ filename: 'scripts/docs/generate-milestone-handoff.mjs' }] : []),
         ],
       };
     }
@@ -743,6 +750,116 @@ function safeRepairGitHubFetch({ fixture, activationMergeSha = fixture.mergeComm
     throw new Error(`Unexpected GitHub URL: ${url}`);
   };
 }
+
+const historicalRepair49 = {
+  number: 49,
+  state: 'closed',
+  merged: true,
+  merged_at: '2026-08-21T18:34:00Z',
+  base: { ref: 'main' },
+  head: {
+    ref: 'fix/docs-auto-marker-escaping',
+    sha: '4654041e02746dad0b85c7bc4ef35c071429362a',
+  },
+};
+const historicalRepair49Parent = '2b3e90123306e0b54ab066ddea13528d613a2976';
+const historicalRepair49Paths = [
+  'scripts/docs/generate-milestone-handoff.mjs',
+  'scripts/docs/generate-milestone-handoff.spec.mjs',
+];
+
+function historicalRepair49Files() {
+  return historicalRepair49Paths.map((filename) => ({ filename, status: 'modified' }));
+}
+
+function historicalRepair49Git({ parent = historicalRepair49Parent, mergeBase = historicalRepair49Parent, rawDiff } = {}) {
+  const head = historicalRepair49.head.sha;
+  const expectedRawDiff = rawDiff ?? historicalRepair49Paths.map((filename) => (
+    `:100644 100644 ${'a'.repeat(40)} ${'b'.repeat(40)} M\t${filename}`
+  )).join('\n');
+  return (_root, args) => {
+    if (args[0] === 'rev-parse') return head;
+    if (args[0] === 'rev-list') return `${head} ${parent}`;
+    if (args[0] === 'merge-base') return mergeBase;
+    if (args[0] === 'diff-tree') return expectedRawDiff;
+    throw new Error(`Unexpected git arguments: ${args.join(' ')}`);
+  };
+}
+
+async function verifyHistoricalRepair49({ source = historicalRepair49, files = historicalRepair49Files(), gitFn, gitBytesFn } = {}) {
+  await verifyHistoricalRepairPullRequest49({
+    root: process.cwd(),
+    source,
+    files,
+    ...(gitFn ? { gitFn } : {}),
+    ...(gitBytesFn ? { gitBytesFn } : {}),
+  });
+}
+
+test('accepts only the historical PR #49 repair with its immutable Git identity', async () => {
+  await assert.doesNotReject(verifyHistoricalRepair49());
+
+  const rejectedSources = [
+    { ...historicalRepair49, number: 50 },
+    { ...historicalRepair49, state: 'open' },
+    { ...historicalRepair49, merged: false },
+    { ...historicalRepair49, base: { ref: 'develop' } },
+    { ...historicalRepair49, head: { ...historicalRepair49.head, ref: 'fix/docs-other' } },
+    { ...historicalRepair49, head: { ...historicalRepair49.head, sha: 'f'.repeat(40) } },
+  ];
+  for (const source of rejectedSources) {
+    await assert.rejects(verifyHistoricalRepair49({ source }), /historical post-merge snapshot repair/);
+  }
+  await assert.rejects(verifyHistoricalRepair49({
+    gitFn: historicalRepair49Git({ parent: 'f'.repeat(40) }),
+  }), /unexpected direct parent/);
+  await assert.rejects(verifyHistoricalRepair49({
+    gitFn: historicalRepair49Git({ mergeBase: 'f'.repeat(40) }),
+  }), /unexpected merge-base/);
+  await assert.rejects(
+    verifyHistoricalRepair49({ gitBytesFn: () => Buffer.from('corrupted canonical patch bytes') }),
+    /unexpected patch hash/,
+  );
+});
+
+test('rejects any PR #49 repair path, rename, mode, or deletion variance', async () => {
+  await assert.doesNotReject(verifyHistoricalRepair49({
+    files: historicalRepair49Files().reverse(),
+  }));
+  await assert.rejects(verifyHistoricalRepair49({
+    files: [...historicalRepair49Files(), { filename: 'scripts/docs/other.mjs', status: 'modified' }],
+  }), /exactly the authorized paths/);
+  await assert.rejects(verifyHistoricalRepair49({
+    files: [{ ...historicalRepair49Files()[0], status: 'renamed', previous_filename: 'scripts/docs/old.mjs' }, historicalRepair49Files()[1]],
+  }), /ordinary modifications/);
+  await assert.rejects(verifyHistoricalRepair49({
+    gitFn: historicalRepair49Git({
+      rawDiff: `:100755 100644 ${'a'.repeat(40)} ${'b'.repeat(40)} M\t${historicalRepair49Paths[0]}\n:100644 100644 ${'a'.repeat(40)} ${'b'.repeat(40)} M\t${historicalRepair49Paths[1]}`,
+    }),
+  }), /mode 100644 without renames or deletions/);
+  await assert.rejects(verifyHistoricalRepair49({
+    gitFn: historicalRepair49Git({
+      rawDiff: `:100644 100644 ${'a'.repeat(40)} ${'b'.repeat(40)} M\t${historicalRepair49Paths[0]}\n:100644 000000 ${'a'.repeat(40)} ${'0'.repeat(40)} D\t${historicalRepair49Paths[1]}`,
+    }),
+  }), /mode 100644 without renames or deletions/);
+  await assert.rejects(verifyHistoricalRepair49({
+    gitFn: historicalRepair49Git({
+      rawDiff: `:100644 100644 ${'a'.repeat(7)} ${'b'.repeat(7)} M\t${historicalRepair49Paths[0]}\n:100644 100644 ${'a'.repeat(40)} ${'b'.repeat(40)} M\t${historicalRepair49Paths[1]}`,
+    }),
+  }), /mode 100644 without renames or deletions/);
+});
+
+test('generic repairs still reject changes to the handoff generator', async (t) => {
+  const { fixture } = await prepareSafeRepairPromotion(t);
+  await assert.rejects(
+    verifyFinalPromotionMerge({
+      root: fixture.root,
+      githubToken: 'test-token',
+      fetchImpl: safeRepairGitHubFetch({ fixture, generatorPath: true }),
+    }),
+    /cannot modify scripts\/docs\/generate-milestone-handoff\.mjs/,
+  );
+});
 
 test('keeps PR #46 as the activation anchor while accepting PR #47 as the observed snapshot source', async (t) => {
   const { contract, fixture } = await prepareSafeRepairPromotion(t);

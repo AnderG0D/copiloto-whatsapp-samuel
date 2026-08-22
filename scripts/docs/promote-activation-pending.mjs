@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,6 +17,19 @@ const maintenanceRepairPaths = new Set([
   'scripts/docs/generate-milestone-handoff.spec.mjs',
   'scripts/docs/promote-activation-pending.mjs',
 ]);
+const historicalRepairPullRequest49 = Object.freeze({
+  number: 49,
+  baseRef: 'main',
+  headRef: 'fix/docs-auto-marker-escaping',
+  headSha: '4654041e02746dad0b85c7bc4ef35c071429362a',
+  directParentSha: '2b3e90123306e0b54ab066ddea13528d613a2976',
+  repairBaseSha: '2b3e90123306e0b54ab066ddea13528d613a2976',
+  paths: [
+    'scripts/docs/generate-milestone-handoff.mjs',
+    'scripts/docs/generate-milestone-handoff.spec.mjs',
+  ],
+  patchSha256: 'd81e0b3615e05924537d06d2447d3a5e2c2b4e195063a46beda31f7b3be54a3e',
+});
 
 function ensure(condition, message) {
   if (!condition) throw new Error(`Activation promotion failed: ${message}`);
@@ -31,6 +45,21 @@ function git(root, args) {
   } catch (error) {
     throw new Error(`Activation promotion failed: git ${args.join(' ')} failed: ${String(error.stderr ?? '').trim()}`);
   }
+}
+
+function gitBytes(root, args) {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    throw new Error(`Activation promotion failed: git ${args.join(' ')} failed: ${String(error.stderr ?? '').trim()}`);
+  }
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex');
 }
 
 async function readJson(root, relativePath) {
@@ -103,6 +132,59 @@ async function requestGitHubJson({ fetchImpl, token, url }) {
   return response.json();
 }
 
+export async function verifyHistoricalRepairPullRequest49({
+  source,
+  files,
+  root,
+  gitFn = git,
+  gitBytesFn = gitBytes,
+}) {
+  const repair = historicalRepairPullRequest49;
+  ensure(source.number === repair.number
+    && source.state === 'closed'
+    && source.merged === true
+    && typeof source.merged_at === 'string'
+    && source.merged_at.length > 0,
+  'historical post-merge snapshot repair must be merged PR #49');
+  ensure(source.base?.ref === repair.baseRef,
+    'historical post-merge snapshot repair has an unexpected base branch');
+  ensure(source.head?.ref === repair.headRef && source.head?.sha === repair.headSha,
+    'historical post-merge snapshot repair has an unexpected head');
+  ensure(Array.isArray(files) && files.length === repair.paths.length,
+    'historical post-merge snapshot repair must modify exactly the authorized paths');
+  const filePaths = new Set(files.map(({ filename }) => filename));
+  ensure(filePaths.size === repair.paths.length
+    && repair.paths.every((file) => filePaths.has(file))
+    && files.every((file) => file.status === 'modified' && file.previous_filename === undefined),
+  'historical post-merge snapshot repair must contain only ordinary modifications');
+
+  ensure(gitFn(root, ['rev-parse', `${repair.headSha}^{commit}`]) === repair.headSha,
+    'historical post-merge snapshot repair head does not resolve to the authorized commit');
+  const parents = gitFn(root, ['rev-list', '--parents', '-n', '1', repair.headSha])
+    .split(/\s+/).slice(1);
+  ensure(parents.length === 1 && parents[0] === repair.directParentSha,
+    'historical post-merge snapshot repair has an unexpected direct parent');
+  ensure(gitFn(root, ['merge-base', repair.directParentSha, repair.headSha]) === repair.repairBaseSha,
+    'historical post-merge snapshot repair has an unexpected merge-base');
+
+  const rawDiff = gitFn(root, [
+    'diff-tree', '--no-commit-id', '--raw', '--abbrev=40', '--no-renames', '-r', repair.headSha,
+  ]);
+  const expectedRawDiff = repair.paths.map((file) => `:100644 100644 [0-9a-f]{40} [0-9a-f]{40} M\\t${file}`);
+  const rawLines = rawDiff.split('\n').filter(Boolean);
+  ensure(rawLines.length === expectedRawDiff.length
+    && rawLines.every((line, index) => new RegExp(`^${expectedRawDiff[index]}$`).test(line)),
+  'historical post-merge snapshot repair must use mode 100644 without renames or deletions');
+
+  const patch = gitBytesFn(root, [
+    'diff', '--binary', '--full-index', '--no-color', '--no-ext-diff', '--no-textconv',
+    '--no-renames', '--diff-algorithm=myers', '--src-prefix=a/', '--dst-prefix=b/',
+    repair.directParentSha, repair.headSha, '--', ...repair.paths,
+  ]);
+  ensure(sha256(patch) === repair.patchSha256,
+    'historical post-merge snapshot repair has an unexpected patch hash');
+}
+
 async function verifySnapshotPullRequest({
   activationPullRequest,
   observedRevision,
@@ -140,13 +222,18 @@ async function verifySnapshotPullRequest({
   'post-merge snapshot pull request does not match GitHub');
   if (source.number === activationPullRequest.number) return;
 
-  ensure(/^fix\/docs-[a-z0-9][a-z0-9-]*$/.test(source.head?.ref ?? ''),
-    'post-merge snapshot repair must use an explicit fix/docs-* branch');
   const files = await requestGitHubJson({
     fetchImpl,
     token,
     url: `${baseUrl}/pulls/${source.number}/files?per_page=100`,
   });
+  if (source.number === historicalRepairPullRequest49.number) {
+    await verifyHistoricalRepairPullRequest49({ source, files, root });
+    return;
+  }
+
+  ensure(/^fix\/docs-[a-z0-9][a-z0-9-]*$/.test(source.head?.ref ?? ''),
+    'post-merge snapshot repair must use an explicit fix/docs-* branch');
   ensure(Array.isArray(files) && files.length > 0,
     'post-merge snapshot repair must provide a non-empty pull request diff');
   const unauthorized = files.find(({ filename }) => !maintenanceRepairPaths.has(filename));
