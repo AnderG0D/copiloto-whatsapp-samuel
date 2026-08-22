@@ -149,7 +149,8 @@ function markdownSection(relativePath, text, title) {
 }
 
 function quoteMarkdown(text) {
-  return text.split('\n').map((line) => (line ? `> ${line}` : '>')).join('\n');
+  return text.replaceAll('<!--', '&lt;!--')
+    .split('\n').map((line) => (line ? `> ${line}` : '>')).join('\n');
 }
 
 function escapeTable(value) {

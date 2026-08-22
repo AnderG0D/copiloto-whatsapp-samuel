@@ -1386,6 +1386,50 @@ test('generates a coherent future 4.4 to 4.5 transition without generator change
   );
 });
 
+test('escapes AUTO markers quoted from a 4.5 technical gate without changing handoff output', async (t) => {
+  const fixture = await createFixture(t, {
+    lastClosedMilestone: '4.4',
+    activeMilestoneId: '4.5',
+  });
+  const activeNote = await readFile(absolute(fixture.root, fixture.activeNotePath), 'utf8');
+  await writeFixtureFile(
+    fixture.root,
+    fixture.activeNotePath,
+    activeNote.replace(
+      '## Gate técnico previo\n\nGenerar el relevo determinista antes de 4.5-A.',
+      `<!-- AUTO:BEGIN technical-gate -->
+## Gate técnico previo
+
+contenido del gate
+<!-- AUTO:END technical-gate -->`,
+    ),
+  );
+
+  await generateMilestoneHandoff({ root: fixture.root });
+  const outputs = await outputBytes(fixture.root, fixture.outputPaths);
+  const masterPrompt = outputs.masterPrompt.toString('utf8');
+  const begins = [...masterPrompt.matchAll(/<!-- AUTO:BEGIN ([a-z0-9-]+) -->/gi)];
+  const ends = [...masterPrompt.matchAll(/<!-- AUTO:END ([a-z0-9-]+) -->/gi)];
+
+  assert.match(masterPrompt, /> contenido del gate/);
+  assert.match(masterPrompt, /> &lt;!-- AUTO:END technical-gate -->/);
+  assert.doesNotMatch(masterPrompt, /<!-- AUTO:(?:BEGIN|END) technical-gate -->/);
+  assert.deepEqual(
+    begins.map((match) => match[1]),
+    ends.map((match) => match[1]),
+  );
+  assert.match(outputs.historicalHandoff.toString('utf8'), /4\.4-to-4\.5/);
+
+  const historicalFixture = await createFixture(t);
+  await generateMilestoneHandoff({ root: historicalFixture.root });
+  const historicalHandoff = await readFile(
+    absolute(historicalFixture.root, historicalFixture.outputPaths.historicalHandoff),
+    'utf8',
+  );
+  assert.match(historicalHandoff, /4\.3-to-4\.4/);
+  assert.doesNotMatch(historicalHandoff, /&lt;!-- AUTO:/);
+});
+
 test('rejects an output path outside the repository root without writes', async (t) => {
   const fixture = await createFixture(t);
   await mutateJson(fixture.root, contractPath, (contract) => {
