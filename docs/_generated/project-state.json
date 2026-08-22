@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "87551063e42888a71e29f57f568806da6719f562",
-    "shortSha": "8755106",
-    "subject": "Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping",
-    "committedAt": "2026-08-22T00:10:25-06:00",
+    "sha": "9f4c8c71b14ace7ad28c32b46beaebc06facb242",
+    "shortSha": "9f4c8c7",
+    "subject": "Merge pull request #54 from AnderG0D/fix/docs-final-verifier-bootstrap",
+    "committedAt": "2026-08-22T13:44:10-06:00",
     "pullRequest": {
-      "number": 49,
-      "title": "fix(docs): escape AUTO markers in quoted sections",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49",
+      "number": 54,
+      "title": "fix(docs): verify historical bootstrap repair in final promotion",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/54",
       "state": "closed",
-      "mergedAt": "2026-08-22T06:10:25Z",
+      "mergedAt": "2026-08-22T19:44:11Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32594596054"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
