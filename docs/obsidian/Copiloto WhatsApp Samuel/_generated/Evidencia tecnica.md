@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-20
+updated: 2026-08-22
 ---
 
 # Evidencia técnica
@@ -10,14 +10,15 @@ updated: 2026-08-20
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `docs/activate-hito-4-5` en `ebedea0`.
-- Commit completo: `ebedea024af1dba3cb9220fc50ce9d5b7ddde75e`.
-- Mensaje: docs: activate Hito 4.5 shadow pilot.
+- Fuente: `main` en `8755106`, asociado al [PR #49](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49).
+- Commit completo: `87551063e42888a71e29f57f568806da6719f562`.
+- Mensaje: Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 84 casos ejecutados.
-- **E2E:** `APROBADO` — 3 casos ejecutados.
+- **Unitarias:** `APROBADO` — 163 casos ejecutados.
+- **E2E:** `APROBADO` — 6 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
 ## Backend
