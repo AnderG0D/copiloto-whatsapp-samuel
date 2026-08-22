@@ -10,10 +10,10 @@ updated: 2026-08-22
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `8755106`, asociado al [PR #49](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49).
-- Commit completo: `87551063e42888a71e29f57f568806da6719f562`.
-- Mensaje: Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302).
+- Fuente: `main` en `d69226e`, asociado al [PR #57](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/57).
+- Commit completo: `d69226e8fd112006cc9438961b11e1a4fb5a7be6`.
+- Mensaje: Merge pull request #57 from AnderG0D/fix/docs-normal-pr-routing.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32600762282).
 
 ## Validación
 

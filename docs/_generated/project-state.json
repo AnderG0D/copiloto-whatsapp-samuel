@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "87551063e42888a71e29f57f568806da6719f562",
-    "shortSha": "8755106",
-    "subject": "Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping",
-    "committedAt": "2026-08-22T00:10:25-06:00",
+    "sha": "d69226e8fd112006cc9438961b11e1a4fb5a7be6",
+    "shortSha": "d69226e",
+    "subject": "Merge pull request #57 from AnderG0D/fix/docs-normal-pr-routing",
+    "committedAt": "2026-08-22T15:50:46-06:00",
     "pullRequest": {
-      "number": 49,
-      "title": "fix(docs): escape AUTO markers in quoted sections",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49",
+      "number": 57,
+      "title": "fix(docs): route normal pull requests separately",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/57",
       "state": "closed",
-      "mergedAt": "2026-08-22T06:10:25Z",
+      "mergedAt": "2026-08-22T21:50:47Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32600762282"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
