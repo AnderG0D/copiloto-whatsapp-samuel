@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "87551063e42888a71e29f57f568806da6719f562",
-    "shortSha": "8755106",
-    "subject": "Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping",
-    "committedAt": "2026-08-22T00:10:25-06:00",
+    "sha": "91c68088524989a123883ce3111ce8eef3607417",
+    "shortSha": "91c6808",
+    "subject": "Merge pull request #52 from AnderG0D/docs/auto-sync-32556266302",
+    "committedAt": "2026-08-22T00:36:06-06:00",
     "pullRequest": {
-      "number": 49,
-      "title": "fix(docs): escape AUTO markers in quoted sections",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49",
+      "number": 52,
+      "title": "docs: promote Hito 4.5 activation for 8755106",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/52",
       "state": "closed",
-      "mergedAt": "2026-08-22T06:10:25Z",
+      "mergedAt": "2026-08-22T06:36:07Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32557397529"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
