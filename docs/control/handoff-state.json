@@ -11,5 +11,20 @@
     "sender": false,
     "autoSendMessages": false,
     "noLeadSend": true
+  },
+  "bootstrapMaintenanceAuthorization": {
+    "pullRequestNumber": 49,
+    "baseRef": "main",
+    "headRef": "fix/docs-auto-marker-escaping",
+    "headSha": "4654041e02746dad0b85c7bc4ef35c071429362a",
+    "directParentSha": "2b3e90123306e0b54ab066ddea13528d613a2976",
+    "repairBaseSha": "2b3e90123306e0b54ab066ddea13528d613a2976",
+    "allowedPaths": [
+      "scripts/docs/generate-milestone-handoff.mjs",
+      "scripts/docs/generate-milestone-handoff.spec.mjs"
+    ],
+    "patchSha256": "d81e0b3615e05924537d06d2447d3a5e2c2b4e195063a46beda31f7b3be54a3e",
+    "expiresAt": "2026-08-29T23:59:59Z",
+    "consumed": false
   }
 }
