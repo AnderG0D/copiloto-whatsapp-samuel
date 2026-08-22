@@ -10,14 +10,14 @@ updated: 2026-08-22
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `8755106`, asociado al [PR #49](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49).
-- Commit completo: `87551063e42888a71e29f57f568806da6719f562`.
-- Mensaje: Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302).
+- Fuente: `main` en `86f93ed`, asociado al [PR #56](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/56).
+- Commit completo: `86f93ed730d3a56686332c4d59bc8c95ae5971e9`.
+- Mensaje: Merge pull request #56 from AnderG0D/feature/hito-4-5-shadow-whatsapp-first.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32601016882).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 163 casos ejecutados.
+- **Unitarias:** `APROBADO` — 176 casos ejecutados.
 - **E2E:** `APROBADO` — 6 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
@@ -35,6 +35,7 @@ updated: 2026-08-22
 - `LeadsModule` — `agent-core/src/leads/leads.module.ts`.
 - `ResponseDraftModule` — `agent-core/src/ai/response-drafts/response-draft.module.ts`.
 - `ResponseDraftReviewModule` — `agent-core/src/admin/response-drafts/response-draft-review.module.ts`.
+- `ShadowPilotModule` — `agent-core/src/shadow-pilot/shadow-pilot.module.ts`.
 - `SupabaseModule` — `agent-core/src/supabase/supabase.module.ts`.
 
 ## Migraciones detectadas
