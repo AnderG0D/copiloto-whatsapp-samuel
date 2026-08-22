@@ -10,10 +10,10 @@ updated: 2026-08-22
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `8755106`, asociado al [PR #49](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49).
-- Commit completo: `87551063e42888a71e29f57f568806da6719f562`.
-- Mensaje: Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302).
+- Fuente: `main` en `9f4c8c7`, asociado al [PR #54](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/54).
+- Commit completo: `9f4c8c71b14ace7ad28c32b46beaebc06facb242`.
+- Mensaje: Merge pull request #54 from AnderG0D/fix/docs-final-verifier-bootstrap.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32594596054).
 
 ## Validación
 
