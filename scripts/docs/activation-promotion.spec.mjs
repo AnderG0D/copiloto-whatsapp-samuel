@@ -1,270 +1,88 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import {
-  findActivationPromotion,
-  validatePullRequestContract,
-} from './verify-activation-promotion.mjs';
+import { bootstrapEvidenceForPullRequest, findActivationPromotion, validatePullRequestContract } from './verify-activation-promotion.mjs';
 
 const sha = 'a'.repeat(40);
-const promotionSha = 'b'.repeat(40);
+const bootstrap = {
+  pullRequestNumber: 49, baseRef: 'main', headRef: 'fix/docs-auto-marker-escaping',
+  headSha: '4654041e02746dad0b85c7bc4ef35c071429362a',
+  directParentSha: '2b3e90123306e0b54ab066ddea13528d613a2976',
+  repairBaseSha: '2b3e90123306e0b54ab066ddea13528d613a2976',
+  allowedPaths: ['scripts/docs/generate-milestone-handoff.mjs', 'scripts/docs/generate-milestone-handoff.spec.mjs'],
+  patchSha256: 'd81e0b3615e05924537d06d2447d3a5e2c2b4e195063a46beda31f7b3be54a3e',
+  expiresAt: '2099-01-01T00:00:00.000Z', consumed: false,
+};
 
-function response(body, status = 200) {
-  return { ok: status >= 200 && status < 300, status, json: async () => body };
+function response(body, status = 200) { return { ok: status >= 200 && status < 300, status, json: async () => body }; }
+function pendingContract(overrides = {}) {
+  return { schemaVersion: 3, lifecycleState: 'activation-pending-sync',
+    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
+    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+    bootstrapMaintenanceAuthorization: { ...bootstrap }, ...overrides };
 }
-
-function promotionPullRequest(overrides = {}) {
-  return {
-    number: 99,
-    state: 'open',
-    base: { ref: 'main' },
-    head: { ref: 'docs/auto-sync-123', sha: promotionSha },
-    user: { login: 'github-actions[bot]' },
-    ...overrides,
-  };
+function bootstrapPullRequest(overrides = {}) {
+  return { number: 49, state: 'open', merged: false, merged_at: null,
+    base: { ref: 'main', sha: bootstrap.repairBaseSha }, head: { ref: bootstrap.headRef, sha: bootstrap.headSha }, ...overrides };
 }
-
-test('rejects a main schema 3 revision without an associated automatic promotion', async () => {
-  const result = await findActivationPromotion({
-    repository: 'example/project',
-    sourceSha: sha,
-    token: 'test-token',
-    fetchImpl: async () => response([]),
-  });
-  assert.equal(result, null);
-});
+function bootstrapEvidence(overrides = {}) {
+  return { baseSha: bootstrap.repairBaseSha, mergeBaseSha: bootstrap.repairBaseSha,
+    directParentSha: bootstrap.directParentSha, commitCount: 1, changedPaths: [...bootstrap.allowedPaths],
+    changes: bootstrap.allowedPaths.map((path) => ({ path, status: 'M', oldMode: '100644', newMode: '100644' })),
+    patchSha256: bootstrap.patchSha256, ...overrides };
+}
+function assertBootstrapRejected(overrides, error) {
+  assert.throws(() => validatePullRequestContract({ contract: pendingContract(overrides.contract),
+    pullRequest: bootstrapPullRequest(overrides.pullRequest), evidence: bootstrapEvidence(overrides.evidence),
+    now: new Date('2026-08-21T00:00:00.000Z') }), error);
+}
 
 test('accepts only a two-commit automatic promotion rooted at the current main revision', async () => {
-  const result = await findActivationPromotion({
-    repository: 'example/project',
-    sourceSha: sha,
-    token: 'test-token',
-    fetchImpl: async (url) => {
-      if (url.includes('/pulls?')) return response([promotionPullRequest()]);
-      return response({
-        merge_base_commit: { sha },
-        status: 'ahead',
-        ahead_by: 2,
-      });
-    },
-  });
+  const result = await findActivationPromotion({ repository: 'example/project', sourceSha: sha, token: 'test-token',
+    fetchImpl: async (url) => (url.includes('/pulls?') ? response([{ number: 99, state: 'open', base: { ref: 'main' }, head: { ref: 'docs/auto-sync-123', sha: 'b'.repeat(40) }, user: { login: 'github-actions[bot]' } }]) : response({ merge_base_commit: { sha }, status: 'ahead', ahead_by: 2 })) });
   assert.equal(result.number, 99);
 });
 
-test('rejects a promotion PR with an invalid history relationship', async () => {
-  const result = await findActivationPromotion({
-    repository: 'example/project',
-    sourceSha: sha,
-    token: 'test-token',
-    fetchImpl: async (url) => {
-      if (url.includes('/pulls?')) return response([promotionPullRequest()]);
-      return response({
-        merge_base_commit: { sha },
-        status: 'ahead',
-        ahead_by: 1,
-      });
-    },
-  });
-  assert.equal(result, null);
+test('schema 3 accepts only activation PR #46 on its normal route', () => {
+  assert.equal(validatePullRequestContract({ contract: pendingContract({ bootstrapMaintenanceAuthorization: undefined }),
+    pullRequest: bootstrapPullRequest({ number: 46, head: { ref: 'docs/activate-hito-4-5', sha: 'b'.repeat(40) } }) }), 'activation');
+  assertBootstrapRejected({ pullRequest: { number: 47, head: { ref: 'fix/docs-anything', sha: bootstrap.headSha } } }, /only permits pull request #49/);
 });
 
-test('pull request validation rejects an arbitrary schema 1 PR and accepts the automatic promotion PR', () => {
-  const finalContract = { schemaVersion: 1 };
-  assert.throws(
-    () => validatePullRequestContract({
-      contract: finalContract,
-      pullRequest: promotionPullRequest({ head: { ref: 'feature/arbitrary', sha: promotionSha } }),
-    }),
-    /only valid for an automatic documentation promotion/,
-  );
-  assert.doesNotThrow(() => validatePullRequestContract({
-    contract: finalContract,
-    pullRequest: promotionPullRequest(),
-  }));
+test('accepts the exact unconsumed, unexpired bootstrap patch for PR #49', () => {
+  assert.equal(validatePullRequestContract({ contract: pendingContract(), pullRequest: bootstrapPullRequest(), evidence: bootstrapEvidence(), now: new Date('2026-08-21T00:00:00.000Z') }), 'bootstrap-maintenance');
 });
 
-test('pull request validation accepts the declared activation pending PR #46', () => {
-  const pendingContract = {
-    schemaVersion: 3,
-    lifecycleState: 'activation-pending-sync',
-    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-  };
-  const activationPullRequest = promotionPullRequest({
-    number: 46,
-    head: { ref: 'docs/activate-hito-4-5', sha: promotionSha },
-  });
-  assert.throws(
-    () => validatePullRequestContract({
-      contract: pendingContract,
-      pullRequest: promotionPullRequest({ number: 45, head: { ref: 'docs/activate-hito-4-5', sha: promotionSha } }),
-    }),
-    /explicit fix\/docs-\* repair branch/,
-  );
-  assert.equal(validatePullRequestContract({
-    contract: pendingContract,
-    pullRequest: activationPullRequest,
-  }), 'activation');
+test('derives the authorized evidence from the pinned PR #49 commit', () => {
+  const pullRequest = bootstrapPullRequest();
+  const evidence = bootstrapEvidenceForPullRequest({ pullRequest });
+  assert.equal(evidence.patchSha256, bootstrap.patchSha256);
+  assert.equal(validatePullRequestContract({ contract: pendingContract(), pullRequest, evidence,
+    now: new Date('2026-08-21T00:00:00.000Z') }), 'bootstrap-maintenance');
 });
 
-function documentationRepairPullRequest(overrides = {}) {
-  return promotionPullRequest({
-    number: 47,
-    head: { ref: 'fix/docs-handoff-4-5-gate-v2', sha: promotionSha },
-    ...overrides,
-  });
-}
-
-const documentationRepairPaths = [
-  'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
-  'scripts/docs/verify-activation-promotion.mjs',
-  'scripts/docs/activation-promotion.spec.mjs',
-  'scripts/docs/generate-milestone-handoff.spec.mjs',
-  'scripts/docs/promote-activation-pending.mjs',
-];
-
-test('pull request validation accepts a constrained documentation repair including the handoff generator test', () => {
-  const pendingContract = {
-    schemaVersion: 3,
-    lifecycleState: 'activation-pending-sync',
-    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-  };
-  assert.equal(validatePullRequestContract({
-    contract: pendingContract,
-    pullRequest: documentationRepairPullRequest(),
-    changedPaths: documentationRepairPaths,
-  }), 'maintenance-repair');
-});
-
-test('pull request validation accepts a chain of constrained documentation repairs after PR #46', () => {
-  const pendingContract = {
-    schemaVersion: 3,
-    lifecycleState: 'activation-pending-sync',
-    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-  };
-  for (const number of [47, 48, 49]) {
-    assert.equal(validatePullRequestContract({
-      contract: pendingContract,
-      pullRequest: documentationRepairPullRequest({
-        number,
-        head: { ref: `fix/docs-handoff-4-5-gate-v${number}`, sha: promotionSha },
-      }),
-      changedPaths: documentationRepairPaths,
-    }), 'maintenance-repair');
-  }
-});
-
-test('pull request validation accepts the four repair scripts without requiring an active-note change', () => {
-  const pendingContract = {
-    schemaVersion: 3,
-    lifecycleState: 'activation-pending-sync',
-    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-  };
-  assert.equal(validatePullRequestContract({
-    contract: pendingContract,
-    pullRequest: documentationRepairPullRequest(),
-    changedPaths: documentationRepairPaths.slice(1),
-  }), 'maintenance-repair');
-});
-
-for (const repairPath of documentationRepairPaths.slice(1)) {
-  test(`pull request validation accepts ${repairPath} as an individual safe repair path`, () => {
-    const pendingContract = {
-      schemaVersion: 3,
-      lifecycleState: 'activation-pending-sync',
-      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-    };
-    assert.equal(validatePullRequestContract({
-      contract: pendingContract,
-      pullRequest: documentationRepairPullRequest(),
-      changedPaths: [repairPath],
-    }), 'maintenance-repair');
-  });
-}
-
-test('pull request validation rejects any fifth repair path', () => {
-  const pendingContract = {
-    schemaVersion: 3,
-    lifecycleState: 'activation-pending-sync',
-    activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-    safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-  };
-  assert.throws(
-    () => validatePullRequestContract({
-      contract: pendingContract,
-      pullRequest: documentationRepairPullRequest(),
-      changedPaths: [...documentationRepairPaths, 'scripts/docs/collect-project-state.mjs'],
-    }),
-    /cannot modify scripts\/docs\/collect-project-state\.mjs/,
-  );
-});
-
-for (const changedPath of [
-  'docs/control/handoff-state.json',
-  'docs/control/milestones.json',
-  'docs/control/documentation-policy.json',
-  'docs/_generated/project-state.json',
-  'docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Maestro - Hito actual.md',
-  'docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md',
-  'agent-core/src/main.ts',
-]) {
-  test(`pull request validation rejects a schema 3 maintenance repair changing ${changedPath}`, () => {
-    const pendingContract = {
-      schemaVersion: 3,
-      lifecycleState: 'activation-pending-sync',
-      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
-    };
-    assert.throws(
-      () => validatePullRequestContract({
-        contract: pendingContract,
-        pullRequest: documentationRepairPullRequest(),
-        changedPaths: [...documentationRepairPaths, changedPath],
-      }),
-      new RegExp(`cannot modify ${changedPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
-    );
-  });
-}
-
-for (const [safetyInvariants, error] of [
-  [{ sender: true, autoSendMessages: false, noLeadSend: true }, /sender=false/],
-  [{ sender: false, autoSendMessages: true, noLeadSend: true }, /AUTO_SEND_MESSAGES=false/],
-  [{ sender: false, autoSendMessages: false, noLeadSend: false }, /noLeadSend=true/],
-]) {
-  test('pull request validation rejects a schema 3 repair that weakens a safety invariant', () => {
-    const pendingContract = {
-      schemaVersion: 3,
-      lifecycleState: 'activation-pending-sync',
-      activationPullRequest: { number: 46, headRef: 'docs/activate-hito-4-5' },
-      safetyInvariants,
-    };
-    assert.throws(
-      () => validatePullRequestContract({
-        contract: pendingContract,
-        pullRequest: documentationRepairPullRequest(),
-        changedPaths: documentationRepairPaths,
-      }),
-      error,
-    );
-  });
-}
-
-test('workflow filters include isolated handoff-state changes and main waits for a promotion', async () => {
-  const [activeMilestone, syncWorkflow, backendWorkflow] = await Promise.all([
-    readFile(
-      'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
-      'utf8',
-    ),
-    readFile('.github/workflows/documentation-sync.yml', 'utf8'),
-    readFile('.github/workflows/backend-ci.yml', 'utf8'),
-  ]);
-  assert.match(activeMilestone, /^## Gate técnico previo$/m);
-  assert.match(syncWorkflow, /'docs\/control\/handoff-state\.json'/);
-  assert.match(backendWorkflow, /--await-promotion --source-sha/);
-  assert.match(backendWorkflow, /--require-github-api/);
-  assert.doesNotMatch(backendWorkflow, /--allow-activation-pending\n/);
-});
+for (const [name, overrides, error] of [
+  ['missing authorization', { contract: { bootstrapMaintenanceAuthorization: undefined } }, /authorization is required/],
+  ['tampered authorization pin', { contract: { bootstrapMaintenanceAuthorization: { ...bootstrap, directParentSha: sha } } }, /unexpected directParentSha/],
+  ['tampered authorization paths', { contract: { bootstrapMaintenanceAuthorization: { ...bootstrap, allowedPaths: [bootstrap.allowedPaths[0]] } } }, /unexpected allowedPaths/],
+  ['other PR', { pullRequest: { number: 48 } }, /only permits pull request #49/],
+  ['other fix/docs branch', { pullRequest: { head: { ref: 'fix/docs-other', sha: bootstrap.headSha } } }, /head ref/],
+  ['different head SHA', { pullRequest: { head: { ref: bootstrap.headRef, sha } } }, /head SHA/],
+  ['wrong base ref', { pullRequest: { base: { ref: 'trunk', sha: bootstrap.repairBaseSha } } }, /base must be main/],
+  ['wrong base SHA', { evidence: { baseSha: sha } }, /base SHA/],
+  ['wrong merge base', { evidence: { mergeBaseSha: sha } }, /merge-base/],
+  ['additional commit', { evidence: { commitCount: 2 } }, /exactly the authorized commit/],
+  ['different parent', { evidence: { directParentSha: sha } }, /exactly the authorized commit/],
+  ['force push', { pullRequest: { head: { ref: bootstrap.headRef, sha } } }, /head SHA/],
+  ['additional file', { evidence: { changedPaths: [...bootstrap.allowedPaths, 'README.md'] } }, /changed paths/],
+  ['rename', { evidence: { changes: [{ path: bootstrap.allowedPaths[0], status: 'R', oldMode: '100644', newMode: '100644' }] } }, /rename, change mode, or delete/],
+  ['mode change', { evidence: { changes: [{ path: bootstrap.allowedPaths[0], status: 'M', oldMode: '100644', newMode: '100755' }] } }, /rename, change mode, or delete/],
+  ['deletion', { evidence: { changes: [{ path: bootstrap.allowedPaths[0], status: 'D', oldMode: '100644', newMode: '000000' }] } }, /rename, change mode, or delete/],
+  ['different patch hash', { evidence: { patchSha256: '0'.repeat(64) } }, /patch hash/],
+  ['merged pull request', { pullRequest: { merged: true } }, /open and unmerged/],
+  ['closed pull request', { pullRequest: { state: 'closed' } }, /pull request must be open/],
+  ['expired authorization', { contract: { bootstrapMaintenanceAuthorization: { ...bootstrap, expiresAt: '2026-08-20T00:00:00.000Z' } } }, /expired/],
+  ['consumed authorization', { contract: { bootstrapMaintenanceAuthorization: { ...bootstrap, consumed: true } } }, /already been consumed/],
+  ['sender invariant', { contract: { safetyInvariants: { sender: true, autoSendMessages: false, noLeadSend: true } } }, /sender=false/],
+  ['AUTO_SEND_MESSAGES invariant', { contract: { safetyInvariants: { sender: false, autoSendMessages: true, noLeadSend: true } } }, /AUTO_SEND_MESSAGES=false/],
+  ['noLeadSend invariant', { contract: { safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: false } } }, /noLeadSend=true/],
+]) test(`rejects bootstrap maintenance with ${name}`, () => assertBootstrapRejected(overrides, error));
