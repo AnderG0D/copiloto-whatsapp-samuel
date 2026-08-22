@@ -207,11 +207,12 @@ export function validatePullRequestContract({ contract, pullRequest, evidence, n
     return 'bootstrap-maintenance';
   }
   if (contract.schemaVersion === 1) {
-    ensure(/^docs\/auto-sync-\d+$/.test(pullRequest.head?.ref ?? ''),
-      'schema 1 is only valid for an automatic documentation promotion pull request');
-    ensure(pullRequest.user?.login === 'github-actions[bot]',
-      'schema 1 promotion pull request must be created by github-actions[bot]');
-    return 'promotion';
+    if (/^docs\/auto-sync-\d+$/.test(pullRequest.head?.ref ?? '')) {
+      ensure(pullRequest.user?.login === 'github-actions[bot]',
+        'schema 1 promotion pull request must be created by github-actions[bot]');
+      return 'promotion';
+    }
+    return 'normal';
   }
   throw new Error('Activation promotion verification failed: pull request handoff contract must use schemaVersion 1 or 3');
 }
