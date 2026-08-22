@@ -61,10 +61,22 @@ test('rejects a promotion PR with an invalid history relationship', async () => 
   assert.equal(result, null);
 });
 
-test('schema 1 rejects an arbitrary PR and accepts the automatic promotion PR', () => {
+test('schema 1 accepts automatic promotion and normal pull request routes', () => {
+  assert.equal(validatePullRequestContract({ contract: { schemaVersion: 1 }, pullRequest: promotionPullRequest() }), 'promotion');
+  assert.equal(validatePullRequestContract({ contract: { schemaVersion: 1 },
+    pullRequest: promotionPullRequest({ head: { ref: 'feature/arbitrary', sha: promotionSha }, user: { login: 'developer' } }) }), 'normal');
+});
+
+test('schema 1 rejects an automatic promotion branch not created by github-actions[bot]', () => {
   assert.throws(() => validatePullRequestContract({ contract: { schemaVersion: 1 },
-    pullRequest: promotionPullRequest({ head: { ref: 'feature/arbitrary', sha: promotionSha } }) }), /only valid for an automatic documentation promotion/);
-  assert.doesNotThrow(() => validatePullRequestContract({ contract: { schemaVersion: 1 }, pullRequest: promotionPullRequest() }));
+    pullRequest: promotionPullRequest({ user: { login: 'developer' } }) }), /created by github-actions\[bot\]/);
+});
+
+test('schema 1 rejects pull requests not open against main', () => {
+  assert.throws(() => validatePullRequestContract({ contract: { schemaVersion: 1 },
+    pullRequest: promotionPullRequest({ base: { ref: 'trunk' } }) }), /base must be main/);
+  assert.throws(() => validatePullRequestContract({ contract: { schemaVersion: 1 },
+    pullRequest: promotionPullRequest({ state: 'closed' }) }), /pull request must be open/);
 });
 
 test('schema 3 accepts only activation PR #46 on its normal route', () => {
