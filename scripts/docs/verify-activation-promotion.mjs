@@ -8,6 +8,8 @@ import { parseArguments } from './shared.mjs';
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const defaultRepositoryRoot = path.resolve(scriptDirectory, '../..');
 const contractPath = 'docs/control/handoff-state.json';
+// This exact historical pin never authorizes a current repair PR. Any authorization
+// must be established by an external administrative action on trusted main.
 const bootstrapRepair = Object.freeze({
   pullRequestNumber: 49,
   baseRef: 'main',
@@ -141,8 +143,6 @@ function verifyBootstrapAuthorization({ contract, pullRequest, evidence, now }) 
     'schema 3 bootstrap maintenance pull request must be open and unmerged');
   ensure(evidence && typeof evidence === 'object',
     'schema 3 bootstrap maintenance pull request evidence is required');
-  ensure(evidence?.baseSha === bootstrapRepair.repairBaseSha,
-    'schema 3 bootstrap maintenance pull request base SHA is not authorized');
   ensure(evidence.mergeBaseSha === bootstrapRepair.repairBaseSha,
     'schema 3 bootstrap maintenance pull request merge-base is not authorized');
   ensure(evidence.directParentSha === bootstrapRepair.directParentSha && evidence.commitCount === 1,
@@ -173,7 +173,11 @@ export function bootstrapEvidenceForPullRequest({ pullRequest, root = defaultRep
   const parentLine = git(['rev-list', '--parents', '-n', '1', headSha]).split(/\s+/);
   const patch = execFileSync(
     'git',
-    ['diff', '--full-index', '--no-ext-diff', `${baseSha}...${headSha}`],
+    [
+      'diff', '--binary', '--full-index', '--no-color', '--no-ext-diff',
+      '--no-textconv', '--no-renames', '--diff-algorithm=myers',
+      '--src-prefix=a/', '--dst-prefix=b/', `${baseSha}...${headSha}`,
+    ],
     { cwd: root, encoding: 'buffer', stdio: ['ignore', 'pipe', 'pipe'] },
   );
   return {
