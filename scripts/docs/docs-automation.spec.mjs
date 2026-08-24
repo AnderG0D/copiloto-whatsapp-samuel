@@ -37,12 +37,12 @@ async function pathContentAllEvidenceMatches(evidence, sourceOverrides = new Map
   return matches.every(Boolean);
 }
 
-async function checkpointEvidence(checkpointId) {
+async function checkpointEvidence(milestoneId, checkpointId) {
   const milestones = JSON.parse(await readFile(
     path.join(repositoryRoot, 'docs/control/milestones.json'), 'utf8',
   ));
   return milestones.milestones
-    .find((milestone) => milestone.id === '4.4')
+    .find((milestone) => milestone.id === milestoneId)
     .checkpoints.find((checkpoint) => checkpoint.id === checkpointId)
     .evidence;
 }
@@ -301,7 +301,11 @@ test('the configured lifecycle activates Hito 4.5 after Hito 4.4 closes', async 
 
   assert.equal(state.milestone.id, '4.5');
   assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.match(state.nextAction.title, /4\.5-A/);
+  assert.equal(
+    state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-A').complete,
+    true,
+  );
+  assert.match(state.nextAction.title, /4\.5-B/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
@@ -360,7 +364,7 @@ test('Hito 4.4 records all checkpoints complete without a sender', async () => {
 });
 
 test('4.4-D remains incomplete when any required per-file assertion is truly absent', async () => {
-  const evidence = await checkpointEvidence('4.4-D');
+  const evidence = await checkpointEvidence('4.4', '4.4-D');
   const target = evidence.pathContentAll.find((candidate) => (
     candidate.path === 'agent-core/src/webhooks/evolution/evolution-webhook.service.spec.ts'
   ));
@@ -371,6 +375,29 @@ test('4.4-D remains incomplete when any required per-file assertion is truly abs
     await pathContentAllEvidenceMatches(
       evidence,
       new Map([[target.path, source.replace('outbox', 'out-box')]]),
+    ),
+    false,
+  );
+});
+
+test('4.5-A evidence resolves the configured shadow pilot allowlist', async () => {
+  const evidence = await checkpointEvidence('4.5', '4.5-A');
+  const [target] = evidence.pathContentAll;
+  const source = await readFile(path.join(repositoryRoot, target.path), 'utf8');
+  const missingPathEvidence = {
+    pathContentAll: [{ ...target, path: 'agent-core/src/shadow-pilot/missing.config.ts' }],
+  };
+
+  assert.deepEqual(target.contentAll, ['shadow-hiram', 'shadow-samuel', 'allowlist']);
+  assert.equal(await pathContentAllEvidenceMatches(evidence), true);
+  await assert.rejects(
+    () => pathContentAllEvidenceMatches(missingPathEvidence),
+    { code: 'ENOENT' },
+  );
+  assert.equal(
+    await pathContentAllEvidenceMatches(
+      evidence,
+      new Map([[target.path, source.replaceAll('SHADOW_PILOT_ALLOWLIST', 'SHADOW_PILOT_IDENTITIES')]]),
     ),
     false,
   );
