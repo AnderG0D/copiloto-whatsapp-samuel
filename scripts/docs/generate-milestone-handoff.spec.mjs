@@ -13,7 +13,11 @@ import {
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { generateMilestoneHandoff } from './generate-milestone-handoff.mjs';
+import {
+  evidenceMatchesForComparison,
+  generateMilestoneHandoff,
+  migrateHistoricalEvidence45A,
+} from './generate-milestone-handoff.mjs';
 import {
   promoteActivationPending,
   verifyHistoricalRepairPullRequest49,
@@ -1452,6 +1456,85 @@ test('accepts compatible historical evidence semantics but requires exact live e
     generateMilestoneHandoff({ root: fixture.root }),
     /checkpoint 4\.4-D differs between configuration and observed state \(live state\)/,
   );
+});
+
+test('migrates only the frozen 4.5-A shadow pilot evidence path historically', () => {
+  const frozenRevision = 'd2a261a2e5666f1e1b7426f3b6ce6e15b0b96b1f';
+  const historicalEvidence = {
+    pathContentAll: [{
+      path: 'agent-core/src/pilot/shadow-pilot.config.ts',
+      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+    }],
+  };
+  const canonicalEvidence = {
+    pathContentAll: [{
+      path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
+      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+    }],
+  };
+  const migrate = ({
+    contract = { frozenRevision },
+    checkpointId = '4.5-A',
+    observedEvidence = historicalEvidence,
+    configuredEvidence = canonicalEvidence,
+  } = {}) => migrateHistoricalEvidence45A({
+    contract,
+    checkpointId,
+    observedEvidence,
+    configuredEvidence,
+  });
+  const matchesHistorically = (options) => evidenceMatchesForComparison({
+    contract: options?.contract ?? { frozenRevision },
+    checkpointId: options?.checkpointId ?? '4.5-A',
+    observedEvidence: options?.observedEvidence ?? historicalEvidence,
+    configuredEvidence: options?.configuredEvidence ?? canonicalEvidence,
+    evidenceComparison: 'historical-compatible',
+  });
+
+  assert.deepEqual(migrate(), canonicalEvidence);
+  assert.equal(matchesHistorically(), true);
+
+  assert.deepEqual(
+    migrate({ contract: { frozenRevision: 'a'.repeat(40) } }),
+    historicalEvidence,
+  );
+  assert.equal(matchesHistorically({ contract: { frozenRevision: 'a'.repeat(40) } }), false);
+  assert.deepEqual(migrate({ checkpointId: '4.5-B' }), historicalEvidence);
+  assert.equal(matchesHistorically({ checkpointId: '4.5-B' }), false);
+
+  const otherHistoricalPath = {
+    pathContentAll: [{ ...historicalEvidence.pathContentAll[0], path: 'agent-core/src/pilot/other.config.ts' }],
+  };
+  assert.deepEqual(migrate({ observedEvidence: otherHistoricalPath }), otherHistoricalPath);
+  assert.equal(matchesHistorically({ observedEvidence: otherHistoricalPath }), false);
+
+  const otherCanonicalPath = {
+    pathContentAll: [{ ...canonicalEvidence.pathContentAll[0], path: 'agent-core/src/shadow-pilot/other.config.ts' }],
+  };
+  assert.deepEqual(migrate({ configuredEvidence: otherCanonicalPath }), historicalEvidence);
+  assert.equal(matchesHistorically({ configuredEvidence: otherCanonicalPath }), false);
+
+  const additionalEvidence = {
+    pathContentAll: [...historicalEvidence.pathContentAll, {
+      path: 'agent-core/src/pilot/extra.config.ts',
+      contentAll: ['allowlist'],
+    }],
+  };
+  assert.equal(matchesHistorically({ observedEvidence: additionalEvidence }), false);
+  assert.equal(matchesHistorically({ observedEvidence: {
+    pathContentAllAny: historicalEvidence.pathContentAll,
+  } }), false);
+  assert.equal(matchesHistorically({ observedEvidence: {
+    pathContentAll: [{ ...historicalEvidence.pathContentAll[0], contentAll: ['different'] }],
+  } }), false);
+
+  assert.equal(evidenceMatchesForComparison({
+    contract: { frozenRevision },
+    checkpointId: '4.5-A',
+    observedEvidence: historicalEvidence,
+    configuredEvidence: canonicalEvidence,
+    evidenceComparison: 'exact',
+  }), false);
 });
 
 test('rejects historical evidence when its required file changes', async (t) => {

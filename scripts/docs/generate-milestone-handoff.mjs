@@ -607,6 +607,41 @@ function normalizedEvidenceCandidates(evidence) {
   ));
 }
 
+const historicalEvidenceMigration45A = Object.freeze({
+  frozenRevision: 'd2a261a2e5666f1e1b7426f3b6ce6e15b0b96b1f',
+  checkpointId: '4.5-A',
+  historicalEvidence: {
+    pathContentAll: [{
+      path: 'agent-core/src/pilot/shadow-pilot.config.ts',
+      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+    }],
+  },
+  canonicalEvidence: {
+    pathContentAll: [{
+      path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
+      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+    }],
+  },
+});
+
+export function migrateHistoricalEvidence45A({
+  contract,
+  checkpointId,
+  observedEvidence,
+  configuredEvidence,
+}) {
+  const migration = historicalEvidenceMigration45A;
+  if (
+    contract?.frozenRevision === migration.frozenRevision
+    && checkpointId === migration.checkpointId
+    && isDeepStrictEqual(observedEvidence, migration.historicalEvidence)
+    && isDeepStrictEqual(configuredEvidence, migration.canonicalEvidence)
+  ) {
+    return configuredEvidence;
+  }
+  return observedEvidence;
+}
+
 function hasCompatibleHistoricalEvidence(observed, configured) {
   const observedCandidates = normalizedEvidenceCandidates(observed);
   const configuredCandidates = normalizedEvidenceCandidates(configured);
@@ -629,8 +664,30 @@ function hasCompatibleHistoricalEvidence(observed, configured) {
       && configuredCandidates[index].contentAll.every((needle) => (
         typeof needle === 'string' && needle.length > 0
       ))
+      && isDeepStrictEqual(candidate.contentAll, configuredCandidates[index].contentAll)
     )),
   );
+}
+
+export function evidenceMatchesForComparison({
+  contract,
+  checkpointId,
+  observedEvidence,
+  configuredEvidence,
+  evidenceComparison,
+}) {
+  if (evidenceComparison === 'historical-compatible') {
+    return hasCompatibleHistoricalEvidence(
+      migrateHistoricalEvidence45A({
+        contract,
+        checkpointId,
+        observedEvidence,
+        configuredEvidence,
+      }),
+      configuredEvidence,
+    );
+  }
+  return isDeepStrictEqual(observedEvidence, configuredEvidence);
 }
 
 function validateStateAgainstConfiguration({
@@ -687,9 +744,13 @@ function validateStateAgainstConfiguration({
   for (let index = 0; index < active.checkpoints.length; index += 1) {
     const configured = active.checkpoints[index];
     const observed = state.milestone.checkpoints[index];
-    const evidenceMatches = evidenceComparison === 'historical-compatible'
-      ? hasCompatibleHistoricalEvidence(observed.evidence, configured.evidence)
-      : isDeepStrictEqual(observed.evidence, configured.evidence);
+    const evidenceMatches = evidenceMatchesForComparison({
+      contract,
+      checkpointId: configured.id,
+      observedEvidence: observed.evidence,
+      configuredEvidence: configured.evidence,
+      evidenceComparison,
+    });
     ensure(
       observed.id === configured.id
         && observed.title === configured.title

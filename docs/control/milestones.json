@@ -258,7 +258,7 @@
           "evidence": {
             "pathContentAll": [
               {
-                "path": "agent-core/src/pilot/shadow-pilot.config.ts",
+                "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
                 "contentAll": [
                   "shadow-hiram",
                   "shadow-samuel",

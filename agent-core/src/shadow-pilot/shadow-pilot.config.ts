@@ -21,22 +21,20 @@ export const SHADOW_PILOT_SAFETY_INVARIANTS: ShadowPilotSafetyInvariants =
     noLeadSend: true,
   });
 
-const SHADOW_PILOTS: readonly ShadowPilotConfiguration[] = Object.freeze([
-  Object.freeze({
-    id: 'shadow-hiram' as const,
-    operatorId: 'operator-shadow-hiram',
-    testAccountId: 'test-account-shadow-hiram',
-    evolutionInstanceName: 'evolution-shadow-hiram',
-    dataNamespace: 'controlled-data-shadow-hiram',
-  }),
-  Object.freeze({
-    id: 'shadow-samuel' as const,
-    operatorId: 'operator-shadow-samuel',
-    testAccountId: 'test-account-shadow-samuel',
-    evolutionInstanceName: 'evolution-shadow-samuel',
-    dataNamespace: 'controlled-data-shadow-samuel',
-  }),
+export const SHADOW_PILOT_ALLOWLIST: readonly ShadowPilotId[] = Object.freeze([
+  'shadow-hiram',
+  'shadow-samuel',
 ]);
+
+const SHADOW_PILOTS: readonly ShadowPilotConfiguration[] = Object.freeze(
+  SHADOW_PILOT_ALLOWLIST.map((id) => Object.freeze({
+    id,
+    operatorId: `operator-${id}`,
+    testAccountId: `test-account-${id}`,
+    evolutionInstanceName: `evolution-${id}`,
+    dataNamespace: `controlled-data-${id}`,
+  })),
+);
 
 export const getShadowPilotConfigurations = (): readonly ShadowPilotConfiguration[] =>
   SHADOW_PILOTS;

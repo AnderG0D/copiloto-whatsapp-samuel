@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getShadowPilotConfigurations } from './shadow-pilot.config';
+import {
+  getShadowPilotConfigurations,
+  SHADOW_PILOT_ALLOWLIST,
+} from './shadow-pilot.config';
 import {
   ShadowPilotAccessDeniedError,
   ShadowPilotService,
@@ -13,6 +16,11 @@ describe('ShadowPilotService', () => {
   it('defines exactly the two required isolated pilots', () => {
     expect(service.listPilotIds()).toEqual(['shadow-hiram', 'shadow-samuel']);
     expect(getShadowPilotConfigurations()).toHaveLength(2);
+  });
+
+  it('exports a frozen allowlist for exactly the two shadow pilots', () => {
+    expect(Object.isFrozen(SHADOW_PILOT_ALLOWLIST)).toBe(true);
+    expect(SHADOW_PILOT_ALLOWLIST).toEqual(['shadow-hiram', 'shadow-samuel']);
   });
 
   it('uses distinct operator, account, instance, and data namespace identifiers', () => {
