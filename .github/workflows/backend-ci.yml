@@ -81,8 +81,10 @@ jobs:
           node scripts/docs/verify-activation-promotion.mjs --verify-pull-request
           if node -e "process.exit(require('./docs/control/handoff-state.json').schemaVersion === 3 ? 0 : 1)"; then
             node scripts/docs/generate-milestone-handoff.mjs --check --allow-activation-pending --observed-state .docs-activation-pending-state.json
+          elif node -e "process.exit(require(process.env.GITHUB_EVENT_PATH).pull_request?.head?.ref?.startsWith('docs/auto-sync-') ? 0 : 1)"; then
+            npm run docs:handoff:check
           else
-            node scripts/docs/generate-milestone-handoff.mjs --check --observed-state .docs-activation-pending-state.json
+            echo "Normal technical pull request: generated documentation validation deferred to Documentation sync after merge"
           fi
 
       - name: Verify activation state on main
