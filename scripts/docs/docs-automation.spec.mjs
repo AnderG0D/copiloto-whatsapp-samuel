@@ -296,16 +296,17 @@ test('collects and dry-renders a v2 waiting lifecycle without a milestone object
   assert.match(stdout, /Would render/);
 });
 
-test('the configured lifecycle activates Hito 4.5 after Hito 4.4 closes', async () => {
+test('the configured lifecycle keeps 4.5-A active until its isolated pilot artifacts exist', async () => {
   const state = await collectCurrentProjectState();
+  const checkpointA = state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-A');
+  const checkpointB = state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-B');
 
   assert.equal(state.milestone.id, '4.5');
   assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.equal(
-    state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-A').complete,
-    true,
-  );
-  assert.match(state.nextAction.title, /4\.5-B/);
+  assert.equal(checkpointA.complete, false);
+  assert.match(state.nextAction.title, /4\.5-A/);
+  assert.equal(checkpointB.complete, false);
+  assert.doesNotMatch(state.nextAction.title, /4\.5-B/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {
