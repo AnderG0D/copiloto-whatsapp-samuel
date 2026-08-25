@@ -1469,7 +1469,7 @@ test('migrates only the frozen 4.5-A shadow pilot evidence path historically', (
   const canonicalEvidence = {
     pathContentAll: [{
       path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
-      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+      contentAll: ['shadow-edgar', 'shadow-samuel', 'allowlist'],
     }],
   };
   const migrate = ({

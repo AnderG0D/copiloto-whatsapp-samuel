@@ -260,7 +260,7 @@
               {
                 "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
                 "contentAll": [
-                  "shadow-hiram",
+                  "shadow-edgar",
                   "shadow-samuel",
                   "allowlist"
                 ]

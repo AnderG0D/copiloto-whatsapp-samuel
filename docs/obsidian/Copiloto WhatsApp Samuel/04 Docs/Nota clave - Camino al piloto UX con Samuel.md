@@ -437,7 +437,7 @@ Para el primer piloto, un servidor pequeño puede ser suficiente si las medicion
 - [ ] Valor visible: tiempo ahorrado, calidad o claridad.
 - [ ] Alcance del piloto delimitado.
 - [ ] Costos aproximados identificados.
-- [ ] Responsabilidades de Samuel y Hiram definidas.
+- [ ] Responsabilidades de Samuel y Edgar definidas.
 - [ ] Propuesta comercial preparada.
 
 ### Puerta C — Listo para desplegar
