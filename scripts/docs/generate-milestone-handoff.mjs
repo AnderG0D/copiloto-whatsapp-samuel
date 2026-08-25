@@ -617,6 +617,11 @@ const historicalEvidenceMigration45A = Object.freeze({
     }],
   },
   canonicalEvidence: {
+    requiredPaths: [
+      'agent-core/src/shadow-pilot/shadow-edgar.compose.json',
+      'agent-core/src/shadow-pilot/shadow-samuel.compose.json',
+      'agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts',
+    ],
     pathContentAll: [{
       path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
       contentAll: ['shadow-edgar', 'shadow-samuel', 'allowlist'],
