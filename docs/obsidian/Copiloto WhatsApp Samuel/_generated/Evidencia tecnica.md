@@ -10,10 +10,10 @@ updated: 2026-08-24
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `49d46b6`, asociado al [PR #60](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/60).
-- Commit completo: `49d46b6e49c71bf54742c2767a1793b2707850e0`.
-- Mensaje: Merge pull request #60 from AnderG0D/fix/hito-4-5-a-evidence-alignment.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32789839697).
+- Fuente: `main` en `b385c8b`, asociado al [PR #62](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/62).
+- Commit completo: `b385c8b5faabccd40e599792cb9edb4f1aa04b3f`.
+- Mensaje: Merge pull request #62 from AnderG0D/fix/hito-4-5-a-evidence-alignment.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32811426474).
 
 ## Validación
 

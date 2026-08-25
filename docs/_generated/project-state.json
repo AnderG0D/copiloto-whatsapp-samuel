@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "49d46b6e49c71bf54742c2767a1793b2707850e0",
-    "shortSha": "49d46b6",
-    "subject": "Merge pull request #60 from AnderG0D/fix/hito-4-5-a-evidence-alignment",
-    "committedAt": "2026-08-24T17:33:02-06:00",
+    "sha": "b385c8b5faabccd40e599792cb9edb4f1aa04b3f",
+    "shortSha": "b385c8b",
+    "subject": "Merge pull request #62 from AnderG0D/fix/hito-4-5-a-evidence-alignment",
+    "committedAt": "2026-08-24T23:04:53-06:00",
     "pullRequest": {
-      "number": 60,
-      "title": "fix(docs): align hito 4.5-A live evidence",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/60",
+      "number": 62,
+      "title": "fix(shadow-pilot): rename Hiram pilot to Edgar and keep 4.5-A active",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/62",
       "state": "closed",
-      "mergedAt": "2026-08-24T23:33:02Z",
+      "mergedAt": "2026-08-25T05:04:53Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32789839697"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32811426474"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -167,7 +167,7 @@
             {
               "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
               "contentAll": [
-                "shadow-hiram",
+                "shadow-edgar",
                 "shadow-samuel",
                 "allowlist"
               ]
