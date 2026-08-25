@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-22",
+  "observedDate": "2026-08-24",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "87551063e42888a71e29f57f568806da6719f562",
-    "shortSha": "8755106",
-    "subject": "Merge pull request #49 from AnderG0D/fix/docs-auto-marker-escaping",
-    "committedAt": "2026-08-22T00:10:25-06:00",
+    "sha": "49d46b6e49c71bf54742c2767a1793b2707850e0",
+    "shortSha": "49d46b6",
+    "subject": "Merge pull request #60 from AnderG0D/fix/hito-4-5-a-evidence-alignment",
+    "committedAt": "2026-08-24T17:33:02-06:00",
     "pullRequest": {
-      "number": 49,
-      "title": "fix(docs): escape AUTO markers in quoted sections",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/49",
+      "number": 60,
+      "title": "fix(docs): align hito 4.5-A live evidence",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/60",
       "state": "closed",
-      "mergedAt": "2026-08-22T06:10:25Z",
+      "mergedAt": "2026-08-24T23:33:02Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32556266302"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32789839697"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 163,
+      "unit": 177,
       "e2e": 6
     }
   },
@@ -62,6 +62,10 @@
       {
         "name": "ResponseDraftReviewModule",
         "path": "agent-core/src/admin/response-drafts/response-draft-review.module.ts"
+      },
+      {
+        "name": "ShadowPilotModule",
+        "path": "agent-core/src/shadow-pilot/shadow-pilot.module.ts"
       },
       {
         "name": "SupabaseModule",
@@ -161,7 +165,7 @@
         "evidence": {
           "pathContentAll": [
             {
-              "path": "agent-core/src/pilot/shadow-pilot.config.ts",
+              "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
               "contentAll": [
                 "shadow-hiram",
                 "shadow-samuel",
@@ -170,7 +174,7 @@
             }
           ]
         },
-        "complete": false
+        "complete": true
       },
       {
         "id": "4.5-B",
@@ -199,9 +203,9 @@
   },
   "nextAction": {
     "kind": "implement-checkpoint",
-    "title": "4.5-A: Preparar el piloto local aislado",
-    "text": "En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-A: Preparar el piloto local aislado** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: configure isolated shadow pilot allowlists",
+    "title": "4.5-B: Habilitar el canal restringido de operadores",
+    "text": "En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-B: Habilitar el canal restringido de operadores** y sus pruebas, sin ampliar el alcance.",
+    "commitHint": "feat: restrict WhatsApp operator channel",
     "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }
