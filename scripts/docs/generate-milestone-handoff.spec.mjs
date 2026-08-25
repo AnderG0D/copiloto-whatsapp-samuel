@@ -1467,6 +1467,11 @@ test('migrates only the frozen 4.5-A shadow pilot evidence path historically', (
     }],
   };
   const canonicalEvidence = {
+    requiredPaths: [
+      'agent-core/src/shadow-pilot/shadow-edgar.compose.json',
+      'agent-core/src/shadow-pilot/shadow-samuel.compose.json',
+      'agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts',
+    ],
     pathContentAll: [{
       path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
       contentAll: ['shadow-edgar', 'shadow-samuel', 'allowlist'],
@@ -1513,6 +1518,19 @@ test('migrates only the frozen 4.5-A shadow pilot evidence path historically', (
   };
   assert.deepEqual(migrate({ configuredEvidence: otherCanonicalPath }), historicalEvidence);
   assert.equal(matchesHistorically({ configuredEvidence: otherCanonicalPath }), false);
+
+  for (const requiredPaths of [
+    [
+      'agent-core/src/shadow-pilot/other.compose.json',
+      ...canonicalEvidence.requiredPaths.slice(1),
+    ],
+    [...canonicalEvidence.requiredPaths, 'agent-core/src/shadow-pilot/extra.compose.json'],
+    canonicalEvidence.requiredPaths.slice(0, -1),
+  ]) {
+    const configuredEvidence = { ...canonicalEvidence, requiredPaths };
+    assert.deepEqual(migrate({ configuredEvidence }), historicalEvidence);
+    assert.equal(matchesHistorically({ configuredEvidence }), false);
+  }
 
   const additionalEvidence = {
     pathContentAll: [...historicalEvidence.pathContentAll, {
