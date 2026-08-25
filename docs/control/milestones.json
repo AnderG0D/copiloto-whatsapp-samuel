@@ -256,6 +256,11 @@
           "title": "Preparar el piloto local aislado",
           "commitHint": "feat: configure isolated shadow pilot allowlists",
           "evidence": {
+            "requiredPaths": [
+              "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
+              "agent-core/src/shadow-pilot/shadow-samuel.compose.json",
+              "agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts"
+            ],
             "pathContentAll": [
               {
                 "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
