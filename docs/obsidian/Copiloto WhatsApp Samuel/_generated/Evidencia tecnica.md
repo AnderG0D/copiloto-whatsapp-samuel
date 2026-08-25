@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-08-24
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `b385c8b`, asociado al [PR #62](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/62).
-- Commit completo: `b385c8b5faabccd40e599792cb9edb4f1aa04b3f`.
-- Mensaje: Merge pull request #62 from AnderG0D/fix/hito-4-5-a-evidence-alignment.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32811426474).
+- Fuente: `main` en `63339a2`, asociado al [PR #65](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/65).
+- Commit completo: `63339a27757efc4ad39f0438d01b5d96f49c5789`.
+- Mensaje: Merge pull request #65 from AnderG0D/fix/hito-4-5-a-evidence-alignment.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32907150429).
 
 ## Validación
 
