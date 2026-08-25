@@ -619,7 +619,7 @@ const historicalEvidenceMigration45A = Object.freeze({
   canonicalEvidence: {
     pathContentAll: [{
       path: 'agent-core/src/shadow-pilot/shadow-pilot.config.ts',
-      contentAll: ['shadow-hiram', 'shadow-samuel', 'allowlist'],
+      contentAll: ['shadow-edgar', 'shadow-samuel', 'allowlist'],
     }],
   },
 });

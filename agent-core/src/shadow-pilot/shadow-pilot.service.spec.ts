@@ -11,28 +11,28 @@ import {
 
 describe('ShadowPilotService', () => {
   const service = new ShadowPilotService();
-  const [hiramPilot, samuelPilot] = getShadowPilotConfigurations();
+  const [edgarPilot, samuelPilot] = getShadowPilotConfigurations();
 
   it('defines exactly the two required isolated pilots', () => {
-    expect(service.listPilotIds()).toEqual(['shadow-hiram', 'shadow-samuel']);
+    expect(service.listPilotIds()).toEqual(['shadow-edgar', 'shadow-samuel']);
     expect(getShadowPilotConfigurations()).toHaveLength(2);
   });
 
   it('exports a frozen allowlist for exactly the two shadow pilots', () => {
     expect(Object.isFrozen(SHADOW_PILOT_ALLOWLIST)).toBe(true);
-    expect(SHADOW_PILOT_ALLOWLIST).toEqual(['shadow-hiram', 'shadow-samuel']);
+    expect(SHADOW_PILOT_ALLOWLIST).toEqual(['shadow-edgar', 'shadow-samuel']);
   });
 
   it('uses distinct operator, account, instance, and data namespace identifiers', () => {
-    expect(hiramPilot.operatorId).not.toBe(samuelPilot.operatorId);
-    expect(hiramPilot.testAccountId).not.toBe(samuelPilot.testAccountId);
-    expect(hiramPilot.evolutionInstanceName).not.toBe(
+    expect(edgarPilot.operatorId).not.toBe(samuelPilot.operatorId);
+    expect(edgarPilot.testAccountId).not.toBe(samuelPilot.testAccountId);
+    expect(edgarPilot.evolutionInstanceName).not.toBe(
       samuelPilot.evolutionInstanceName,
     );
-    expect(hiramPilot.dataNamespace).not.toBe(samuelPilot.dataNamespace);
+    expect(edgarPilot.dataNamespace).not.toBe(samuelPilot.dataNamespace);
   });
 
-  it.each([hiramPilot, samuelPilot])(
+  it.each([edgarPilot, samuelPilot])(
     'resolves only the complete allowed combination for $id',
     (pilot) => {
       expect(
@@ -49,20 +49,20 @@ describe('ShadowPilotService', () => {
   it.each([
     {
       name: 'unknown pilot',
-      request: { ...hiramPilot, pilotId: 'shadow-unknown' },
+      request: { ...edgarPilot, pilotId: 'shadow-unknown' },
     },
     {
       name: 'unknown operator',
-      request: { ...hiramPilot, operatorId: 'operator-unknown' },
+      request: { ...edgarPilot, operatorId: 'operator-unknown' },
     },
     {
       name: 'unknown test account',
-      request: { ...hiramPilot, testAccountId: 'test-account-unknown' },
+      request: { ...edgarPilot, testAccountId: 'test-account-unknown' },
     },
     {
       name: 'unknown Evolution instance',
       request: {
-        ...hiramPilot,
+        ...edgarPilot,
         evolutionInstanceName: 'evolution-shadow-unknown',
       },
     },
@@ -72,29 +72,29 @@ describe('ShadowPilotService', () => {
 
   it.each([
     {
-      name: 'Hiram operator with Samuel pilot',
+      name: 'Edgar operator with Samuel pilot',
       request: {
         pilotId: samuelPilot.id,
-        operatorId: hiramPilot.operatorId,
+        operatorId: edgarPilot.operatorId,
         testAccountId: samuelPilot.testAccountId,
         evolutionInstanceName: samuelPilot.evolutionInstanceName,
       },
     },
     {
-      name: 'Samuel account with Hiram pilot',
+      name: 'Samuel account with Edgar pilot',
       request: {
-        pilotId: hiramPilot.id,
-        operatorId: hiramPilot.operatorId,
+        pilotId: edgarPilot.id,
+        operatorId: edgarPilot.operatorId,
         testAccountId: samuelPilot.testAccountId,
-        evolutionInstanceName: hiramPilot.evolutionInstanceName,
+        evolutionInstanceName: edgarPilot.evolutionInstanceName,
       },
     },
     {
-      name: 'Samuel instance with Hiram pilot',
+      name: 'Samuel instance with Edgar pilot',
       request: {
-        pilotId: hiramPilot.id,
-        operatorId: hiramPilot.operatorId,
-        testAccountId: hiramPilot.testAccountId,
+        pilotId: edgarPilot.id,
+        operatorId: edgarPilot.operatorId,
+        testAccountId: edgarPilot.testAccountId,
         evolutionInstanceName: samuelPilot.evolutionInstanceName,
       },
     },

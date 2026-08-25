@@ -57,12 +57,12 @@ Solo después de 4.5-A podrá implementarse un canal de WhatsApp estrictamente l
 
 | Piloto | Operador permitido | Cuenta de prueba | Instancia Evolution | Datos permitidos |
 | --- | --- | --- | --- | --- |
-| Prueba local de Hiram | Hiram, mediante su WhatsApp personal | `shadow-hiram` | Aislada para Hiram | Simulados/controlados solo para Hiram |
+| Prueba local de Edgar | Edgar, mediante su WhatsApp personal | `shadow-edgar` | Aislada para Edgar | Simulados/controlados solo para Edgar |
 | Prueba guiada con Samuel | Samuel, mediante su WhatsApp personal | `shadow-samuel` | Aislada para Samuel | Simulados/controlados solo para Samuel |
 
-- Hiram y Samuel actúan únicamente como operadores; sus cuentas personales no son cuentas de prueba ni destinatarios de leads.
+- Edgar y Samuel actúan únicamente como operadores; sus cuentas personales no son cuentas de prueba ni destinatarios de leads.
 - Cada cuenta de prueba se enlaza mediante QR exclusivamente a su instancia Evolution aislada.
-- No se comparten sesiones, cuentas, datos ni leads entre Hiram, Samuel y los leads simulados.
+- No se comparten sesiones, cuentas, datos ni leads entre Edgar, Samuel y los leads simulados.
 - Un lead real nunca se incorpora al piloto ni se usa como dato de prueba.
 
 ## Progreso observado
@@ -76,7 +76,7 @@ Solo después de 4.5-A podrá implementarse un canal de WhatsApp estrictamente l
 
 ### 4.5-A — Preparar el piloto local aislado
 
-Definir e implementar la configuración local mínima para `shadow-hiram` y `shadow-samuel`, con allowlists explícitas, instancias aisladas y datos controlados. La evidencia debe demostrar que un operador fuera de la allowlist no puede usar el piloto y que no se requiere migración de base de datos.
+Definir e implementar la configuración local mínima para `shadow-edgar` y `shadow-samuel`, con allowlists explícitas, instancias aisladas y datos controlados. La evidencia debe demostrar que un operador fuera de la allowlist no puede usar el piloto y que no se requiere migración de base de datos.
 
 ### 4.5-B — Habilitar el canal restringido de operadores
 
@@ -84,7 +84,7 @@ Tras completar 4.5-A, habilitar el canal de WhatsApp solamente para los operador
 
 ## Criterios de aceptación
 
-- [ ] Existen dos configuraciones locales aisladas: `shadow-hiram` y `shadow-samuel`.
+- [ ] Existen dos configuraciones locales aisladas: `shadow-edgar` y `shadow-samuel`.
 - [ ] Cada configuración usa una cuenta de WhatsApp de prueba distinta, enlazada por QR a su instancia Evolution aislada.
 - [ ] Las allowlists de operadores son explícitas y verificables.
 - [ ] Los datos y leads de prueba son simulados/controlados y están aislados por piloto.
@@ -111,7 +111,7 @@ Tras completar 4.5-A, habilitar el canal de WhatsApp solamente para los operador
 - Un sender para WhatsApp.
 - Producción, cuentas de negocio reales o datos de clientes.
 - Migraciones de base de datos para 4.5-A.
-- Reutilizar sesiones, cuentas o datos entre Hiram, Samuel y leads simulados.
+- Reutilizar sesiones, cuentas o datos entre Edgar, Samuel y leads simulados.
 
 ## Primera acción funcional
 

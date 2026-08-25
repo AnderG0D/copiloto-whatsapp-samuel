@@ -1,4 +1,4 @@
-export type ShadowPilotId = 'shadow-hiram' | 'shadow-samuel';
+export type ShadowPilotId = 'shadow-edgar' | 'shadow-samuel';
 
 export type ShadowPilotConfiguration = Readonly<{
   id: ShadowPilotId;
@@ -22,7 +22,7 @@ export const SHADOW_PILOT_SAFETY_INVARIANTS: ShadowPilotSafetyInvariants =
   });
 
 export const SHADOW_PILOT_ALLOWLIST: readonly ShadowPilotId[] = Object.freeze([
-  'shadow-hiram',
+  'shadow-edgar',
   'shadow-samuel',
 ]);
 

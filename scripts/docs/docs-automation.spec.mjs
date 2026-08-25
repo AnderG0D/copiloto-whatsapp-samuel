@@ -388,7 +388,7 @@ test('4.5-A evidence resolves the configured shadow pilot allowlist', async () =
     pathContentAll: [{ ...target, path: 'agent-core/src/shadow-pilot/missing.config.ts' }],
   };
 
-  assert.deepEqual(target.contentAll, ['shadow-hiram', 'shadow-samuel', 'allowlist']);
+  assert.deepEqual(target.contentAll, ['shadow-edgar', 'shadow-samuel', 'allowlist']);
   assert.equal(await pathContentAllEvidenceMatches(evidence), true);
   await assert.rejects(
     () => pathContentAllEvidenceMatches(missingPathEvidence),
