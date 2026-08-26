@@ -1,27 +1,19 @@
 {
-  "schemaVersion": 1,
-  "handoffId": "4.4-to-4.5",
-  "lastClosedMilestone": "4.4",
-  "activeMilestone": "4.5",
-  "activationPullRequest": {
-    "number": 46,
-    "headRef": "docs/activate-hito-4-5"
-  },
-  "transitionGate": {
-    "description": "validar y fusionar el relevo documental 4.4 → 4.5",
-    "conditionedCheckpoint": "4.5-A",
-    "completionCondition": "el relevo documental post-merge haya sido validado y fusionado"
-  },
+  "schemaVersion": 2,
+  "lifecycleState": "awaiting-next-milestone-approval",
+  "lastClosedMilestone": "4.5",
+  "activeMilestone": null,
   "safetyInvariants": {
     "sender": false,
     "autoSendMessages": false,
     "noLeadSend": true
   },
-  "observedRevision": "87551063e42888a71e29f57f568806da6719f562",
-  "frozenRevision": "d2a261a2e5666f1e1b7426f3b6ce6e15b0b96b1f",
+  "historicalHandoff": {
+    "path": "docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md",
+    "sha256": "73e974ad972324232d7dec87f2c9587af8f9ad5c664b018dfbdbf9d81a393a3b"
+  },
   "outputs": {
     "masterPrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Maestro - Hito actual.md",
-    "portablePrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Portatil - Hito actual.md",
-    "historicalHandoff": "docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md"
+    "portablePrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Portatil - Hito actual.md"
   }
 }

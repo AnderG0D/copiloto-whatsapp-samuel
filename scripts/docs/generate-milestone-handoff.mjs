@@ -315,6 +315,7 @@ ${action}
 
 - \`sender=${contract.safetyInvariants.sender}\`.
 - \`AUTO_SEND_MESSAGES=${contract.safetyInvariants.autoSendMessages}\`.
+- \`noLeadSend=${contract.safetyInvariants.noLeadSend}\`.
 - Aprobar un borrador no envía mensajes.
 `;
 }

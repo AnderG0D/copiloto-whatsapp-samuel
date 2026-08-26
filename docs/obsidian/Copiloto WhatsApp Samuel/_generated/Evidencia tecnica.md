@@ -10,15 +10,14 @@ updated: 2026-08-25
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `2fe6ba9`, asociado al [PR #67](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/67).
-- Commit completo: `2fe6ba9772b97df96b7f6b8987e73e69dc7f323f`.
-- Mensaje: Merge pull request #67 from AnderG0D/fix/hito-4-5-a-evidence-alignment.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32924245872).
+- Fuente: `main` en `33dc4eb`, asociado al [PR #71](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71).
+- Commit completo: `33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc`.
+- Mensaje: Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel.
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 184 casos ejecutados.
-- **E2E:** `APROBADO` — 6 casos ejecutados.
+- **Unitarias:** `APROBADO` — 97 casos ejecutados.
+- **E2E:** `APROBADO` — 3 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
 ## Backend

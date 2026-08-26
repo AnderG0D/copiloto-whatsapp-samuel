@@ -155,13 +155,15 @@ for (const changedPath of [
   });
 }
 
-test('workflow filters include isolated handoff-state changes and main waits for a promotion', async () => {
-  const [activeMilestone, syncWorkflow, backendWorkflow] = await Promise.all([
-    readFile('docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md', 'utf8'),
+test('workflow filters include isolated handoff-state changes and the closed 4.5 note preserves waiting safety', async () => {
+  const [closedMilestone, syncWorkflow, backendWorkflow] = await Promise.all([
+    readFile('docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first DONE.md', 'utf8'),
     readFile('.github/workflows/documentation-sync.yml', 'utf8'),
     readFile('.github/workflows/backend-ci.yml', 'utf8'),
   ]);
-  assert.match(activeMilestone, /^## Gate técnico previo$/m);
+  assert.match(closedMilestone, /^status: done$/m);
+  assert.match(closedMilestone, /espera aprobación humana explícita/);
+  assert.match(closedMilestone, /noLeadSend=true/);
   assert.match(syncWorkflow, /'docs\/control\/handoff-state\.json'/);
   assert.match(backendWorkflow, /--await-promotion --source-sha/);
   assert.match(backendWorkflow, /--require-github-api/);

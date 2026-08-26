@@ -9,11 +9,11 @@ updated: 2026-08-25
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `2fe6ba9`, asociado al [PR #67](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/67). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `33dc4eb`, asociado al [PR #71](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
-**Hito 4.5 — Piloto UX en sombra WhatsApp-first**.
+**No hay hito activo.** El último hito cerrado es **4.5**; el proyecto espera aprobación humana explícita antes de definir o activar el siguiente hito.
 
 ## Hitos confirmados
 
@@ -27,7 +27,7 @@ updated: 2026-08-25
 | 4.2 | Contexto confiable y borradores seguros de respuesta | `DONE` | Configurado como cerrado |
 | 4.3 | Persistencia e integración de borradores sin envío | `DONE` | Configurado como cerrado |
 | 4.4 | Revisión y aprobación humana | `DONE` | Configurado como cerrado |
-| 4.5 | Piloto UX en sombra WhatsApp-first | `ACTIVE` | 1/2 checkpoints observados |
+| 4.5 | Piloto UX en sombra WhatsApp-first | `DONE` | Configurado como cerrado |
 
 ## Componentes confirmados
 

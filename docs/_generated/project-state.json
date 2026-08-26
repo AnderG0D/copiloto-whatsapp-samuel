@@ -1,23 +1,23 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "observedDate": "2026-08-25",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "HEAD",
+    "ref": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
     "branch": "main",
-    "sha": "2fe6ba9772b97df96b7f6b8987e73e69dc7f323f",
-    "shortSha": "2fe6ba9",
-    "subject": "Merge pull request #67 from AnderG0D/fix/hito-4-5-a-evidence-alignment",
-    "committedAt": "2026-08-25T20:50:59-06:00",
+    "sha": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
+    "shortSha": "33dc4eb",
+    "subject": "Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel",
+    "committedAt": "2026-08-25T22:38:45-06:00",
     "pullRequest": {
-      "number": 67,
-      "title": "feat(shadow-pilot): add isolated pilot evidence artifacts",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/67",
+      "number": 71,
+      "title": "fix(pilot): align 4.5-B evidence detection",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71",
       "state": "closed",
-      "mergedAt": "2026-08-26T02:50:59Z",
+      "mergedAt": "2026-08-26T04:38:46Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32924245872"
+    "ciUrl": null
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 184,
+      "unit": 203,
       "e2e": 6
     }
   },
@@ -147,70 +147,19 @@
     {
       "id": "4.5",
       "title": "Piloto UX en sombra WhatsApp-first",
-      "status": "active",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md"
+      "status": "done",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first DONE.md"
     }
   ],
-  "milestone": {
-    "id": "4.5",
-    "title": "Piloto UX en sombra WhatsApp-first",
-    "status": "active",
-    "workingBranch": "feature/hito-4-5-shadow-whatsapp-first",
-    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md",
-    "checkpoints": [
-      {
-        "id": "4.5-A",
-        "title": "Preparar el piloto local aislado",
-        "commitHint": "feat: configure isolated shadow pilot allowlists",
-        "evidence": {
-          "requiredPaths": [
-            "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
-            "agent-core/src/shadow-pilot/shadow-samuel.compose.json",
-            "agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts"
-          ],
-          "pathContentAll": [
-            {
-              "path": "agent-core/src/shadow-pilot/shadow-pilot.config.ts",
-              "contentAll": [
-                "shadow-edgar",
-                "shadow-samuel",
-                "allowlist"
-              ]
-            }
-          ]
-        },
-        "complete": true
-      },
-      {
-        "id": "4.5-B",
-        "title": "Habilitar el canal restringido de operadores",
-        "commitHint": "feat: restrict WhatsApp operator channel",
-        "evidence": {
-          "pathContentAll": [
-            {
-              "path": "agent-core/src/pilot/shadow-operator-channel.service.ts",
-              "contentAll": [
-                "allowlist",
-                "lead"
-              ]
-            }
-          ]
-        },
-        "complete": false
-      }
-    ],
-    "completionRequires": [
-      "unit",
-      "e2e",
-      "build",
-      "mergedPullRequest"
-    ]
-  },
+  "milestone": null,
+  "lifecycleState": "awaiting-next-milestone-approval",
+  "lastClosedMilestone": "4.5",
+  "activeMilestone": null,
   "nextAction": {
-    "kind": "implement-checkpoint",
-    "title": "4.5-B: Habilitar el canal restringido de operadores",
-    "text": "En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-B: Habilitar el canal restringido de operadores** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: restrict WhatsApp operator channel",
-    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
+    "kind": "await-next-milestone-approval",
+    "title": "Esperar aprobación del siguiente hito",
+    "text": "Esperar aprobación humana explícita antes de definir o activar el siguiente hito.",
+    "commitHint": null,
+    "doneWhen": "Una persona aprueba explícitamente el alcance y la activación de un próximo hito."
   }
 }

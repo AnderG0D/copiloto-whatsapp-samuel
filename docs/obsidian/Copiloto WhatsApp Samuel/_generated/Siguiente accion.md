@@ -8,9 +8,7 @@ updated: 2026-08-25
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-B: Habilitar el canal restringido de operadores** y sus pruebas, sin ampliar el alcance.
+- [ ] Esperar aprobación humana explícita antes de definir o activar el siguiente hito.
 
-**Commit sugerido:** `feat: restrict WhatsApp operator channel`
-
-**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
+**Termina cuando:** Una persona aprueba explícitamente el alcance y la activación de un próximo hito.
 <!-- AUTO:END next-action -->

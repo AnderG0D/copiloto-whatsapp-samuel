@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.5-B: Habilitar el canal restringido de operadores**.
+No hay hito activo; esperar aprobación humana explícita antes de definir o activar el siguiente hito.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:
