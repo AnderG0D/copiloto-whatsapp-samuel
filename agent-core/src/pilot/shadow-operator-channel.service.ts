@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  SHADOW_PILOT_ALLOWLIST,
   type ShadowPilotConfiguration,
   type ShadowPilotSafetyInvariants,
 } from '../shadow-pilot/shadow-pilot.config';
@@ -30,6 +31,12 @@ export class ShadowOperatorChannelService {
   constructor(private readonly shadowPilotService: ShadowPilotService) {}
 
   open(request: ShadowOperatorChannelRequest): ShadowOperatorChannelAccess {
+    const allowlist = SHADOW_PILOT_ALLOWLIST;
+
+    if (!allowlist.some((pilotId) => pilotId === request.pilotId)) {
+      throw new ShadowOperatorChannelAccessDeniedError();
+    }
+
     let pilot: ShadowPilotConfiguration;
 
     try {
