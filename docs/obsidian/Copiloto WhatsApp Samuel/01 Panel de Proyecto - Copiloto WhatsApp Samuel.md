@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-- El primer checkpoint pendiente es **4.5-A: Preparar el piloto local aislado**.
+- El primer checkpoint pendiente es **4.5-B: Habilitar el canal restringido de operadores**.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:
