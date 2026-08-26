@@ -17,7 +17,7 @@
       "mergedAt": "2026-08-26T04:38:46Z",
       "source": "github-api"
     },
-    "ciUrl": null
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
