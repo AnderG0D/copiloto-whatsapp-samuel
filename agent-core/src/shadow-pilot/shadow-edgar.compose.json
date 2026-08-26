@@ -1,0 +1,15 @@
+{
+  "id": "shadow-edgar",
+  "allowlist": ["operator-shadow-edgar"],
+  "operatorId": "operator-shadow-edgar",
+  "testAccountId": "test-account-shadow-edgar",
+  "evolutionInstanceName": "evolution-shadow-edgar",
+  "dataNamespace": "controlled-data-shadow-edgar",
+  "sender": false,
+  "autoSendMessages": false,
+  "noLeadSend": true,
+  "qr": false,
+  "contacts": [],
+  "leads": [],
+  "externalServices": []
+}
