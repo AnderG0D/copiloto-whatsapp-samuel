@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "a1295d6703cf8b489fb3d00253dd569ba1c96e7f",
-    "shortSha": "a1295d6",
-    "subject": "Merge pull request #69 from AnderG0D/feature/hito-4-5-b-operator-channel",
-    "committedAt": "2026-08-25T22:00:10-06:00",
+    "sha": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
+    "shortSha": "33dc4eb",
+    "subject": "Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel",
+    "committedAt": "2026-08-25T22:38:45-06:00",
     "pullRequest": {
-      "number": 69,
-      "title": "feat(pilot): enable restricted operator channel",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/69",
+      "number": 71,
+      "title": "fix(pilot): align 4.5-B evidence detection",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71",
       "state": "closed",
-      "mergedAt": "2026-08-26T04:00:10Z",
+      "mergedAt": "2026-08-26T04:38:46Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32928551697"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -196,7 +196,7 @@
             }
           ]
         },
-        "complete": false
+        "complete": true
       }
     ],
     "completionRequires": [
@@ -207,10 +207,10 @@
     ]
   },
   "nextAction": {
-    "kind": "implement-checkpoint",
-    "title": "4.5-B: Habilitar el canal restringido de operadores",
-    "text": "En la rama `feature/hito-4-5-shadow-whatsapp-first`, implementar únicamente el checkpoint **4.5-B: Habilitar el canal restringido de operadores** y sus pruebas, sin ampliar el alcance.",
-    "commitHint": "feat: restrict WhatsApp operator channel",
-    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
+    "kind": "close-milestone",
+    "title": "Cerrar Hito 4.5",
+    "text": "Comprobar el merge y los checks finales del Hito 4.5; si son correctos, registrar su cierre y activar el siguiente hito ya aprobado.",
+    "commitHint": null,
+    "doneWhen": "El hito está fusionado, la validación está verde y su estado documental coincide con GitHub."
   }
 }

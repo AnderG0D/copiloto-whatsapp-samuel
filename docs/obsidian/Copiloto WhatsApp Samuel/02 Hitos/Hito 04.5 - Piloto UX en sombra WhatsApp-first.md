@@ -69,7 +69,7 @@ Solo después de 4.5-A podrá implementarse un canal de WhatsApp estrictamente l
 
 <!-- AUTO:BEGIN milestone-progress -->
 - [x] 4.5-A — Preparar el piloto local aislado.
-- [ ] 4.5-B — Habilitar el canal restringido de operadores.
+- [x] 4.5-B — Habilitar el canal restringido de operadores.
 <!-- AUTO:END milestone-progress -->
 
 ## Checkpoints
