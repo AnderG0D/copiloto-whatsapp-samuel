@@ -296,17 +296,19 @@ test('collects and dry-renders a v2 waiting lifecycle without a milestone object
   assert.match(stdout, /Would render/);
 });
 
-test('the configured lifecycle keeps 4.5-A active until its isolated pilot artifacts exist', async () => {
+test('the configured lifecycle keeps 4.5-A complete while 4.5-B remains incomplete', async () => {
   const state = await collectCurrentProjectState();
   const checkpointA = state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-A');
   const checkpointB = state.milestone.checkpoints.find((checkpoint) => checkpoint.id === '4.5-B');
 
   assert.equal(state.milestone.id, '4.5');
   assert.equal(state.nextAction.kind, 'implement-checkpoint');
-  assert.equal(checkpointA.complete, false);
-  assert.match(state.nextAction.title, /4\.5-A/);
+  assert.equal(checkpointA.complete, true);
+  assert.equal(
+    state.nextAction.title,
+    '4.5-B: Habilitar el canal restringido de operadores',
+  );
   assert.equal(checkpointB.complete, false);
-  assert.doesNotMatch(state.nextAction.title, /4\.5-B/);
 });
 
 test('Hito 4.2 components remain detected after the active milestone changes', async () => {

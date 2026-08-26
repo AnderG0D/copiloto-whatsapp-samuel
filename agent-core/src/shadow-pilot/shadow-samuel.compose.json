@@ -1,0 +1,15 @@
+{
+  "id": "shadow-samuel",
+  "allowlist": ["operator-shadow-samuel"],
+  "operatorId": "operator-shadow-samuel",
+  "testAccountId": "test-account-shadow-samuel",
+  "evolutionInstanceName": "evolution-shadow-samuel",
+  "dataNamespace": "controlled-data-shadow-samuel",
+  "sender": false,
+  "autoSendMessages": false,
+  "noLeadSend": true,
+  "qr": false,
+  "contacts": [],
+  "leads": [],
+  "externalServices": []
+}
