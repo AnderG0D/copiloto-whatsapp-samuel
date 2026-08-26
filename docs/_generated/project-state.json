@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "2fe6ba9772b97df96b7f6b8987e73e69dc7f323f",
-    "shortSha": "2fe6ba9",
-    "subject": "Merge pull request #67 from AnderG0D/fix/hito-4-5-a-evidence-alignment",
-    "committedAt": "2026-08-25T20:50:59-06:00",
+    "sha": "a1295d6703cf8b489fb3d00253dd569ba1c96e7f",
+    "shortSha": "a1295d6",
+    "subject": "Merge pull request #69 from AnderG0D/feature/hito-4-5-b-operator-channel",
+    "committedAt": "2026-08-25T22:00:10-06:00",
     "pullRequest": {
-      "number": 67,
-      "title": "feat(shadow-pilot): add isolated pilot evidence artifacts",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/67",
+      "number": 69,
+      "title": "feat(pilot): enable restricted operator channel",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/69",
       "state": "closed",
-      "mergedAt": "2026-08-26T02:50:59Z",
+      "mergedAt": "2026-08-26T04:00:10Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32924245872"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32928551697"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 184,
+      "unit": 203,
       "e2e": 6
     }
   },

@@ -9,7 +9,7 @@ updated: 2026-08-25
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `2fe6ba9`, asociado al [PR #67](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/67). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `a1295d6`, asociado al [PR #69](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/69). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
