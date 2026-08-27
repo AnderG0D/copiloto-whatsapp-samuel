@@ -1,23 +1,23 @@
 {
   "schemaVersion": 2,
-  "observedDate": "2026-08-25",
+  "observedDate": "2026-08-27",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
+    "ref": "HEAD",
     "branch": "main",
-    "sha": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
-    "shortSha": "33dc4eb",
-    "subject": "Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel",
-    "committedAt": "2026-08-25T22:38:45-06:00",
+    "sha": "f9a23b96d0b4cf3e82b367ec79ac8435b8141298",
+    "shortSha": "f9a23b9",
+    "subject": "Merge pull request #76 from AnderG0D/feature/hito-4-6-controlled-real-pilot",
+    "committedAt": "2026-08-27T00:38:25-06:00",
     "pullRequest": {
-      "number": 71,
-      "title": "fix(pilot): align 4.5-B evidence detection",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71",
+      "number": 76,
+      "title": "feat(hito-4.6): implement receive-only shadow guard",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/76",
       "state": "closed",
-      "mergedAt": "2026-08-26T04:38:46Z",
+      "mergedAt": "2026-08-27T06:38:25Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33046601509"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 203,
+      "unit": 215,
       "e2e": 6
     }
   },
