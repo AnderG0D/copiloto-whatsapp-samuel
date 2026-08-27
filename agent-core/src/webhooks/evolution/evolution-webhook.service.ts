@@ -6,6 +6,7 @@ import type {
   SafeHistoryRole,
 } from '../../ai/response-drafts/response-draft.types';
 import { SupabaseService } from '../../supabase/supabase.service';
+import { ShadowReceiveOnlyGuard } from '../../shadow-pilot/shadow-receive-only.guard';
 import {
   LeadScoringService,
   type DetectedSignals,
@@ -53,9 +54,28 @@ export class EvolutionWebhookService {
     private readonly leadScoringService: LeadScoringService,
     private readonly responseDraftService: ResponseDraftService,
     private readonly responseDraftRepository: ResponseDraftRepository,
+    private readonly shadowReceiveOnlyGuard: ShadowReceiveOnlyGuard,
   ) {}
 
   async handleIncomingWebhook(payload: any) {
+    const shadowDecision = this.shadowReceiveOnlyGuard.evaluate(payload);
+
+    if (shadowDecision.isShadowInstance) {
+      return {
+        ok: true,
+        received: true,
+        shadow: true,
+        accepted: shadowDecision.accepted,
+        persisted: false,
+        ...(shadowDecision.pilotId && { pilotId: shadowDecision.pilotId }),
+        ...(!shadowDecision.accepted && {
+          rejected: true,
+          reason: shadowDecision.rejectionReason,
+        }),
+        safetyInvariants: shadowDecision.safetyInvariants,
+      };
+    }
+
     const incomingMessage = this.parseIncomingWhatsappMessage(payload);
 
     if (!incomingMessage) {

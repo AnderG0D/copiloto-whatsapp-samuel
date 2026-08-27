@@ -373,7 +373,7 @@ test('4.4-D remains incomplete when any required per-file assertion is truly abs
   assert.equal(
     await pathContentAllEvidenceMatches(
       evidence,
-      new Map([[target.path, source.replace('outbox', 'out-box')]]),
+      new Map([[target.path, source.replaceAll('outbox', 'out-box')]]),
     ),
     false,
   );
