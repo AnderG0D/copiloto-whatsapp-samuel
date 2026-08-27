@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "activeMilestone": "4.5",
-  "lifecycleState": "active",
-  "lastClosedMilestone": "4.4",
+  "activeMilestone": null,
+  "lifecycleState": "awaiting-next-milestone-approval",
+  "lastClosedMilestone": "4.5",
   "milestones": [
     {
       "id": "2",
@@ -247,9 +247,18 @@
     {
       "id": "4.5",
       "title": "Piloto UX en sombra WhatsApp-first",
-      "status": "active",
+      "status": "done",
       "workingBranch": "feature/hito-4-5-shadow-whatsapp-first",
-      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first DONE.md",
+      "evidence": {
+        "pullRequests": [69, 70, 71, 72],
+        "mergeCommits": [
+          "a1295d6703cf8b489fb3d00253dd569ba1c96e7f",
+          "0d1d3e8e62b2dcab38a481a046256e603139702d",
+          "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
+          "7cdafa081bd307e41a8df558114caa75a082cdf1"
+        ]
+      },
       "checkpoints": [
         {
           "id": "4.5-A",

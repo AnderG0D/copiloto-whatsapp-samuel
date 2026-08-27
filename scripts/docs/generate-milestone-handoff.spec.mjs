@@ -462,6 +462,7 @@ async function createWaitingFixture(t) {
     safetyInvariants: {
       sender: false,
       autoSendMessages: false,
+      noLeadSend: true,
     },
     outputs: waitingOutputPaths,
     historicalHandoff: {
@@ -591,6 +592,7 @@ test('generates a v2 waiting lifecycle without writing the historical handoff', 
     assert.match(text, /awaiting-next-milestone-approval/);
     assert.match(text, /sender=false/);
     assert.match(text, /AUTO_SEND_MESSAGES=false/);
+    assert.match(text, /noLeadSend=true/);
     assert.doesNotMatch(text, /4\.5/);
     assert.doesNotMatch(text, /feature\/hito/i);
   }
