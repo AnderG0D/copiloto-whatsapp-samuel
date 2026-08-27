@@ -7,6 +7,7 @@ import type {
   LeadScoringService,
 } from '../../leads/lead-scoring.service';
 import type { SupabaseService } from '../../supabase/supabase.service';
+import { ShadowReceiveOnlyGuard } from '../../shadow-pilot/shadow-receive-only.guard';
 import type { Database } from '../../types/database.types';
 import { EvolutionWebhookService } from './evolution-webhook.service';
 
@@ -107,6 +108,10 @@ describe('EvolutionWebhookService', () => {
       { scoreMessage: scoreMessageMock } as unknown as LeadScoringService,
       { generate: generateDraftMock } as unknown as ResponseDraftService,
       { create: createDraftMock } as unknown as ResponseDraftRepository,
+      new ShadowReceiveOnlyGuard({
+        SHADOW_EDGAR_OPERATOR_JIDS: '11111111111@s.whatsapp.net',
+        SHADOW_SAMUEL_OPERATOR_JIDS: '22222222222@s.whatsapp.net',
+      }),
     );
 
     jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => undefined);
@@ -392,6 +397,71 @@ describe('EvolutionWebhookService', () => {
       ignored: true,
     });
     expect(fromMock).not.toHaveBeenCalled();
+    expect(generateDraftMock).not.toHaveBeenCalled();
+    expect(createDraftMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects a shadow event before Supabase, scoring, AI, drafts, or outbox work', async () => {
+    const shadowPayload = {
+      ...payload,
+      instance: 'evolution-shadow-edgar',
+      data: {
+        ...payload.data,
+        key: {
+          ...payload.data.key,
+          remoteJid: '22222222222@s.whatsapp.net',
+        },
+      },
+    };
+
+    await expect(service.handleIncomingWebhook(shadowPayload)).resolves.toEqual(
+      {
+        ok: true,
+        received: true,
+        shadow: true,
+        accepted: false,
+        persisted: false,
+        pilotId: 'shadow-edgar',
+        rejected: true,
+        reason: 'cross_pilot_identity',
+        safetyInvariants: {
+          sender: false,
+          autoSendMessages: false,
+          noLeadSend: true,
+        },
+      },
+    );
+    expect(fromMock).not.toHaveBeenCalled();
+    expect(scoreMessageMock).not.toHaveBeenCalled();
+    expect(generateDraftMock).not.toHaveBeenCalled();
+    expect(createDraftMock).not.toHaveBeenCalled();
+    expect(fromMock).not.toHaveBeenCalledWith('outbox');
+  });
+
+  it('keeps an allowlisted shadow event receive-only without persistence or AI', async () => {
+    const shadowPayload = {
+      ...payload,
+      instance: 'evolution-shadow-edgar',
+      data: {
+        ...payload.data,
+        key: {
+          ...payload.data.key,
+          remoteJid: '11111111111@s.whatsapp.net',
+        },
+      },
+    };
+
+    await expect(
+      service.handleIncomingWebhook(shadowPayload),
+    ).resolves.toMatchObject({
+      ok: true,
+      shadow: true,
+      accepted: true,
+      persisted: false,
+      pilotId: 'shadow-edgar',
+    });
+    expect(fromMock).not.toHaveBeenCalled();
+    expect(scoreMessageMock).not.toHaveBeenCalled();
     expect(generateDraftMock).not.toHaveBeenCalled();
     expect(createDraftMock).not.toHaveBeenCalled();
   });
