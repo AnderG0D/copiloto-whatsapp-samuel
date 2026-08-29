@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-25
+updated: 2026-08-29
 ---
 
 # Evidencia técnica
@@ -10,14 +10,14 @@ updated: 2026-08-25
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `33dc4eb`, asociado al [PR #71](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71).
-- Commit completo: `33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc`.
-- Mensaje: Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664).
+- Fuente: `main` en `4e6803f`, asociado al [PR #78](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/78).
+- Commit completo: `4e6803f3647a6fb819331d0eb529b4ef4b18e3c9`.
+- Mensaje: Merge pull request #78 from AnderG0D/feature/hito-4-6-controlled-real-pilot.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33276900058).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 203 casos ejecutados.
+- **Unitarias:** `APROBADO` — 232 casos ejecutados.
 - **E2E:** `APROBADO` — 6 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
@@ -35,6 +35,7 @@ updated: 2026-08-25
 - `LeadsModule` — `agent-core/src/leads/leads.module.ts`.
 - `ResponseDraftModule` — `agent-core/src/ai/response-drafts/response-draft.module.ts`.
 - `ResponseDraftReviewModule` — `agent-core/src/admin/response-drafts/response-draft-review.module.ts`.
+- `ShadowOnlyModule` — `agent-core/src/shadow-pilot/shadow-only.module.ts`.
 - `ShadowPilotModule` — `agent-core/src/shadow-pilot/shadow-pilot.module.ts`.
 - `SupabaseModule` — `agent-core/src/supabase/supabase.module.ts`.
 
