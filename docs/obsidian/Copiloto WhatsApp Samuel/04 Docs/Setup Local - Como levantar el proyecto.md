@@ -29,12 +29,7 @@ GitHub Actions usa Node.js 22; conviene usar la misma versión local.
 
 ## Repositorio
 
-```powershell
-cd "C:\Users\manzo\Desktop\Freelance\Copilot"
-git status --short --branch
-git switch main
-git pull --ff-only origin main
-```
+La copia canónica `C:\Users\manzo\Desktop\Freelance\Copilot` permanece exclusivamente en `main` y no es un espacio de desarrollo. Para la puerta de limpieza, la sincronización exacta, la creación de worktrees y el ciclo posterior a la integración, seguir la [[Flujo de Trabajo ChatGPT Work Codex GitHub#Regla oficial y estricta del ciclo Git|regla oficial y estricta del ciclo Git]]. Esta nota no duplica esos comandos ni autoriza operaciones remotas.
 
 ## Backend
 
