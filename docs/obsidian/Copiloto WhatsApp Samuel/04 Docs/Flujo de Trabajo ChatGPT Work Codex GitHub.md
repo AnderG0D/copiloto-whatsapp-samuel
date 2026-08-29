@@ -4,7 +4,7 @@ project: Copiloto WhatsApp Samuel
 area: flujo-de-desarrollo
 status: active
 created: 2026-07-08
-updated: 2026-07-29
+updated: 2026-08-29
 aliases:
   - Flujo de Trabajo - ChatGPT Web + Codex
   - Sistema operativo de desarrollo del Copiloto
@@ -34,13 +34,13 @@ También puede reutilizarse como base para futuros proyectos de software.
 
 ## 1. Decisión: trabajar `local-first`
 
-El desarrollo cotidiano del Copiloto debe hacerse sobre el repositorio real de la PC:
+La copia canónica local del Copiloto debe conservarse separada del desarrollo:
 
 ```text
 C:\Users\manzo\Desktop\Freelance\Copilot
 ```
 
-Ahí están el entorno verdadero del proyecto, Docker, Evolution API, las dependencias, la configuración local y las herramientas necesarias para comprobar la integración.
+La copia canónica conserva el punto de sincronización de `main`, pero no es un espacio de desarrollo. El desarrollo se realiza en un worktree separado; allí se usan Docker, Evolution API, las dependencias, la configuración local y las herramientas necesarias para comprobar la integración.
 
 El modelo recomendado es:
 
@@ -64,6 +64,156 @@ PC local + VS Code + Codex
 > El trabajo queda realmente conservado cuando vive en un commit de Git y, cuando corresponde compartirlo, en GitHub.
 
 ---
+
+## Regla oficial y estricta del ciclo Git
+
+Esta sección es la única fuente de verdad del ciclo Git del proyecto. Sus reglas son obligatorias para cualquier hito, fix, reparación, experimento o tarea independiente. Si otra guía contiene una instrucción distinta, prevalece esta sección y la otra guía debe remitirse aquí.
+
+### Copia canónica y aislamiento del trabajo
+
+La copia canónica local del repositorio es:
+
+```text
+C:\Users\manzo\Desktop\Freelance\Copilot
+```
+
+Debe permanecer exclusivamente en la rama `main`. Nunca se desarrolla directamente dentro de esta copia. Todo trabajo se realiza en un worktree separado, con su propia rama, y cada hito, fix, reparación o tarea independiente usa un worktree distinto.
+
+### Puerta obligatoria antes de sincronizar `main`
+
+Antes de actualizar `main` local, confirmar todos estos puntos desde la copia canónica:
+
+- la ruta es exactamente `C:\Users\manzo\Desktop\Freelance\Copilot`;
+- la rama actual es `main`;
+- el árbol está limpio;
+- no existen archivos no rastreados;
+- no existen commits locales inesperados frente a `origin/main`;
+- `git diff --check` no reporta errores;
+- no existen modificaciones, conflictos ni ningún estado ambiguo.
+
+Una comprobación mínima, sin corregir automáticamente nada, es:
+
+```powershell
+cd "C:\Users\manzo\Desktop\Freelance\Copilot"
+git rev-parse --show-toplevel
+git branch --show-current
+git status --short --branch
+git ls-files --others --exclude-standard
+git log --oneline origin/main..main
+git diff --check
+```
+
+Si cualquiera de las comprobaciones no es inequívocamente correcta, detenerse. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolver el estado de forma explícita y con autorización humana cuando corresponda.
+
+### Sincronización exacta de `main`
+
+Sólo después de superar la puerta anterior, actualizar la copia canónica con estos comandos exactos:
+
+```powershell
+git fetch origin
+git merge --ff-only origin/main
+```
+
+No realizar merges automáticos ni usar `git pull` u otro comando ambiguo. Si `git merge --ff-only origin/main` falla, detenerse y resolver explícitamente; no crear worktrees ni ramas desde ese estado.
+
+### Creación y uso de worktrees
+
+Crear cada worktree y su rama únicamente después de que `main` local esté actualizado, limpio y alineado con `origin/main`:
+
+```powershell
+git worktree add -b <rama> <ruta-del-worktree> main
+```
+
+Trabajar exclusivamente dentro del worktree correspondiente. El código, las pruebas y la documentación relacionada forman parte del mismo trabajo y deben incluirse y validarse dentro de ese worktree. La copia canónica no se usa para desarrollar, editar ni validar cambios de una tarea.
+
+### Gate obligatorio antes de declarar `DONE`
+
+Antes de declarar `DONE`, comprobar y conservar evidencia de:
+
+- alcance completo de la tarea;
+- pruebas relevantes;
+- build;
+- validaciones documentales;
+- formato;
+- `git diff --check`;
+- ausencia de secretos;
+- invariantes de seguridad del proyecto, incluyendo no usar credenciales reales, no enviar mensajes reales, mantener `AUTO_SEND_MESSAGES=false` y respetar los límites de permisos, datos e inventario;
+- estado Git y archivos modificados.
+
+La autorización humana explícita es obligatoria antes de cualquier commit, push, creación de PR, merge o rerun de procesos remotos. No se presume por el hecho de que las validaciones locales estén verdes.
+
+### Integración remota
+
+El código y la documentación relacionada se integran en `main`. Si la automatización genera un PR de documentación separado, ambos PR deben aprobarse, pasar sus checks y quedar mergeados antes de continuar. Todo merge a `main` debe realizarse usando **Create a merge commit**; no usar squash merge, rebase merge ni una variante automática.
+
+Después de confirmar que todos los PR relacionados están mergeados y que sus checks están verdes:
+
+1. regresar a la copia canónica `C:\Users\manzo\Desktop\Freelance\Copilot`;
+2. confirmar que sigue en `main` y supera de nuevo la puerta de limpieza;
+3. ejecutar `git fetch origin`;
+4. ejecutar `git merge --ff-only origin/main`;
+5. verificar con `git rev-parse HEAD` y `git rev-parse origin/main` que ambos valores coincidan;
+6. verificar con `git status --porcelain` que `main` local esté limpia;
+7. sólo entonces crear el siguiente worktree o rama.
+
+Si la copia canónica está sucia, atrasada, adelantada, tiene conflictos, worktrees ambiguos o PRs pendientes, detener el ciclo. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolverlo explícitamente.
+
+No eliminar worktrees históricos automáticamente. Su eliminación requiere revisión y autorización explícita.
+
+### Checklists operativas
+
+#### Inicio de ciclo
+
+- [ ] Estoy en `C:\Users\manzo\Desktop\Freelance\Copilot`.
+- [ ] La rama es exclusivamente `main`.
+- [ ] El árbol está limpio y no hay archivos no rastreados.
+- [ ] No hay commits locales inesperados, conflictos ni estado ambiguo.
+- [ ] `git diff --check` pasa.
+- [ ] `git fetch origin` y `git merge --ff-only origin/main` dejan `main` actualizada, limpia y alineada.
+
+#### Desarrollo
+
+- [ ] Creé un worktree y una rama sólo después de actualizar `main`.
+- [ ] El worktree es exclusivo para este hito, fix, reparación o tarea.
+- [ ] Trabajo exclusivamente dentro de ese worktree.
+- [ ] Código, pruebas y documentación relacionada permanecen en el mismo trabajo.
+- [ ] No se modifican la copia canónica ni otros worktrees.
+
+#### Gate `DONE`
+
+- [ ] El alcance está completo y sólo se tocaron archivos previstos.
+- [ ] Pasaron las pruebas relevantes y el build.
+- [ ] Pasaron las validaciones documentales y de formato aplicables.
+- [ ] `git diff --check` pasa.
+- [ ] No hay secretos ni datos reales.
+- [ ] Se verificaron las invariantes de seguridad del proyecto.
+- [ ] Revisé el estado Git y todos los archivos modificados.
+- [ ] No declaro `DONE` sin evidencia suficiente.
+
+#### Integración remota
+
+- [ ] Existe autorización humana explícita para commit, push, PR y merge.
+- [ ] Código y documentación relacionada están integrados en `main`.
+- [ ] Si hay PR documental separado, ambos PR están aprobados, verdes y mergeados.
+- [ ] El merge se realizó con **Create a merge commit**.
+
+#### Actualización posterior de `main` local
+
+- [ ] Todos los PR relacionados están mergeados y sus checks están verdes.
+- [ ] Regresé a `C:\Users\manzo\Desktop\Freelance\Copilot`.
+- [ ] Confirmé rama `main`, árbol limpio, ausencia de no rastreados, conflictos y estado ambiguo.
+- [ ] Ejecuté `git fetch origin`.
+- [ ] Ejecuté `git merge --ff-only origin/main`.
+- [ ] `git rev-parse HEAD` coincide con `git rev-parse origin/main`.
+- [ ] `git status --porcelain` no devuelve archivos.
+- [ ] `main` local está limpia.
+
+#### Creación del siguiente worktree
+
+- [ ] `main` local está actualizada, limpia y alineada con `origin/main`.
+- [ ] No hay PRs pendientes ni worktrees ambiguos.
+- [ ] La nueva rama y el nuevo worktree son exclusivos del siguiente trabajo.
+- [ ] No eliminé worktrees históricos automáticamente.
 
 ## 2. Por qué este flujo encaja con el Copiloto
 
@@ -117,6 +267,7 @@ No toda la información debe guardarse en el mismo lugar.
 | Decisión arquitectónica       | ADR dentro del proyecto             |
 | Estado del hito               | Nota correspondiente en `02 Hitos/` |
 | Próxima acción física         | Panel del proyecto                  |
+| Ciclo Git oficial              | Regla oficial de esta nota          |
 | Reglas permanentes para Codex | `AGENTS.md`                         |
 | Alcance de la tarea actual    | Prompt del chat activo              |
 | Explicación estable del flujo | Esta nota                           |
@@ -159,28 +310,14 @@ Termina cuando unitarias, e2e y build pasen.
 
 ### Paso 2 — Actualizar `main`
 
-Antes de abrir una rama:
-
-```powershell
-cd C:\Users\manzo\Desktop\Freelance\Copilot
-git switch main
-git pull --ff-only origin main
-git status
-```
-
-Confirmar:
-
-- que estás en `main`;
-- que `main` está sincronizada;
-- que no existen cambios locales olvidados;
-- que el punto de partida es el correcto.
+Antes de abrir un worktree, cumplir íntegramente la [[Flujo de Trabajo ChatGPT Work Codex GitHub#Regla oficial y estricta del ciclo Git|regla oficial y estricta del ciclo Git]]. La sincronización sólo puede hacerse desde la copia canónica, después de confirmar ruta, rama, limpieza, ausencia de no rastreados, commits locales inesperados, conflictos y estado ambiguo. Se usan exclusivamente `git fetch origin` y `git merge --ff-only origin/main`.
 
 ### Paso 3 — Crear una rama por resultado
 
-Ejemplo:
+La rama y el worktree se crean únicamente después de que `main` local esté actualizada, limpia y alineada con `origin/main`:
 
 ```powershell
-git switch -c feature/hito-4-1-ai-provider
+git worktree add -b feature/hito-4-1-ai-provider C:\Users\manzo\Desktop\Freelance\Copilot-hito-4-1-ai-provider main
 ```
 
 Convenciones útiles:
@@ -193,11 +330,11 @@ docs/tema-documentado
 chore/mantenimiento
 ```
 
-No crear una rama nueva para cada archivo. La rama representa un resultado coherente.
+No crear una rama nueva para cada archivo. La rama representa un resultado coherente y el trabajo continúa exclusivamente dentro de su worktree.
 
 ### Paso 4 — Abrir el repositorio real en Codex
 
-Abrir la carpeta del proyecto en VS Code y confirmar que Codex está trabajando en la ruta correcta.
+Abrir el worktree correspondiente en VS Code y confirmar que Codex está trabajando dentro de esa ruta, nunca dentro de la copia canónica.
 
 Antes de editar, pedirle que muestre:
 
@@ -281,7 +418,9 @@ Preguntas antes de aceptar:
 - ¿El cambio conserva la arquitectura acordada?
 - ¿Quedó algún riesgo o pendiente?
 
-### Paso 8 — Crear un commit pequeño
+### Paso 8 — Crear un commit pequeño, con autorización
+
+Sólo crear un commit después de revisar el gate `DONE` y recibir autorización humana explícita. La autorización no se sobreentiende por tener validaciones locales verdes.
 
 Seleccionar únicamente los archivos revisados:
 
@@ -307,7 +446,9 @@ Un commit pequeño debe:
 - conservar el proyecto en estado válido;
 - ser sencillo de revisar o revertir.
 
-### Paso 9 — Subir la rama y abrir un Pull Request
+### Paso 9 — Subir la rama y abrir un Pull Request, con autorización
+
+El push y la creación del Pull Request también requieren autorización humana explícita.
 
 ```powershell
 git push --set-upstream origin feature/hito-4-1-ai-provider
@@ -350,14 +491,16 @@ ChatGPT Work debe revisar información publicada o compartida. No se debe asumir
 
 ### Paso 12 — Hacer merge y actualizar el estado
 
-Cuando el PR esté aprobado y los checks estén verdes:
+Cuando el PR esté aprobado, los checks estén verdes y exista autorización humana explícita:
 
-1. hacer merge a `main`;
-2. actualizar `main` en la PC;
-3. marcar la evidencia real en la nota del hito;
-4. actualizar la próxima acción física;
-5. registrar un ADR solamente si hubo una decisión arquitectónica;
-6. iniciar el siguiente ciclo en una rama nueva.
+1. hacer merge a `main` usando **Create a merge commit**;
+2. confirmar que todos los PR relacionados, incluido cualquier PR documental separado, estén aprobados, verdes y mergeados;
+3. regresar a la copia canónica y actualizarla con `git fetch origin` y `git merge --ff-only origin/main`;
+4. verificar que `HEAD` local coincida con `origin/main` y que `main` esté limpia;
+5. marcar la evidencia real en la nota del hito;
+6. actualizar la próxima acción física;
+7. registrar un ADR solamente si hubo una decisión arquitectónica;
+8. sólo entonces iniciar el siguiente ciclo en un worktree y rama nuevos.
 
 ---
 
@@ -387,13 +530,13 @@ El proyecto conserva contexto compartido, pero cada chat permanece enfocado.
 
 ### Codex en VS Code
 
-Usarlo para trabajar directamente sobre:
+Usarlo para trabajar directamente sobre el worktree correspondiente, no sobre:
 
 ```text
 C:\Users\manzo\Desktop\Freelance\Copilot
 ```
 
-Ahí Codex puede leer el código actual, hacer cambios, ejecutar comandos y mostrar el diff real.
+Esa ruta sólo conserva `main` y se usa para sincronizar. Codex puede leer el código actual, hacer cambios, ejecutar comandos y mostrar el diff real dentro del worktree de la tarea.
 
 ### GitHub como puente
 
@@ -493,11 +636,11 @@ Mantenerlo corto y corregirlo conforme aparezcan errores repetidos. Las reglas d
 
 ---
 
-## 9. Cuándo usar un entorno cloud o un worktree
+## 9. Uso obligatorio del worktree
 
-El flujo local es el predeterminado, no la única posibilidad.
+El worktree separado es obligatorio para cada hito, fix, reparación o tarea independiente. La copia canónica permanece exclusivamente en `main` y sólo sirve para las comprobaciones y sincronización descritas en la regla oficial.
 
-Un entorno aislado o worktree sirve cuando:
+Un entorno aislado adicional puede servir cuando:
 
 - la tarea puede hacerse sin servicios locales especiales;
 - se quiere investigar o programar en paralelo;
@@ -505,7 +648,7 @@ Un entorno aislado o worktree sirve cuando:
 - el resultado puede validarse dentro de ese entorno;
 - existe una ruta clara para publicar o transferir el cambio.
 
-Mantener el trabajo en la PC cuando:
+Mantener el trabajo dentro del worktree en la PC cuando:
 
 - se necesita Docker o Evolution API local;
 - se requiere probar la integración real;
@@ -513,7 +656,7 @@ Mantener el trabajo en la PC cuando:
 - se quiere inspeccionar y ejecutar todo en el IDE habitual.
 
 > [!warning]
-> No trabajar simultáneamente sobre la misma rama desde dos checkouts. Para trabajo paralelo, usar ramas o worktrees distintos.
+> No trabajar simultáneamente sobre la misma rama desde dos checkouts. Para trabajo paralelo, usar ramas y worktrees distintos, sin modificar la copia canónica.
 
 ---
 
@@ -549,40 +692,9 @@ Solución: excluir `.env`, credenciales, datos reales, `.git`, `node_modules` y 
 
 ---
 
-## 11. Checklist corto de cada ciclo
+## 11. Recordatorio de las checklists oficiales
 
-### Antes de programar
-
-- [ ] Elegí un resultado pequeño.
-- [ ] `main` está actualizada.
-- [ ] El árbol de trabajo está limpio.
-- [ ] Creé o confirmé la rama correcta.
-- [ ] El prompt tiene objetivo, contexto, restricciones y terminado cuando.
-
-### Antes del commit
-
-- [ ] Revisé `git diff`.
-- [ ] Sólo cambiaron archivos esperados.
-- [ ] Pasaron las pruebas unitarias.
-- [ ] Pasó la prueba e2e.
-- [ ] Pasó el build.
-- [ ] No se incluyeron secretos ni datos reales.
-- [ ] El envío automático sigue desactivado.
-
-### Antes del merge
-
-- [ ] La rama está en GitHub.
-- [ ] El Pull Request explica el alcance.
-- [ ] GitHub Actions está verde.
-- [ ] Se revisaron riesgos y arquitectura.
-- [ ] La documentación afectada está actualizada.
-
-### Después del merge
-
-- [ ] Actualicé `main` local.
-- [ ] Actualicé la nota del hito.
-- [ ] Actualicé la próxima acción física.
-- [ ] La siguiente tarea comenzará en una rama nueva.
+Las checklists operativas oficiales —inicio de ciclo, desarrollo, gate `DONE`, integración remota, actualización posterior de `main` local y creación del siguiente worktree— están en la sección [[Flujo de Trabajo ChatGPT Work Codex GitHub#Checklists operativas|Checklists operativas]] de esta misma nota. No mantener otra versión resumida con reglas distintas.
 
 ---
 
@@ -609,11 +721,7 @@ Cuando el mismo flujo se haya aplicado a varios proyectos, se puede extraer una 
 
 Y dejar en esta nota únicamente las reglas específicas del Copiloto.
 
-Agregar al apartado **Documentación técnica** de [[00 Copiloto WhatsApp Samuel - MOC]]:
-
-```md
-- [[Flujo de Trabajo - ChatGPT Web + Codex]]
-```
+El MOC ya contiene el único enlace del índice principal hacia esta nota. No crear una copia ni agregar enlaces duplicados.
 
 ---
 
@@ -624,7 +732,7 @@ Agregar al apartado **Documentación técnica** de [[00 Copiloto WhatsApp Samuel
 >
 > Sólo completa una vuelta:
 >
-> **definir → abrir rama → programar → probar → revisar → commit → push → PR → CI → merge → documentar**
+> **confirmar `main` → crear worktree → definir → programar → probar → revisar → autorizar → commit → push → PR → CI → Create a merge commit → actualizar `main` → documentar**
 
 Para una mente TDAH, la clave no es sostener todo el proyecto en la cabeza. La clave es que cada herramienta conserve una parte del sistema y que siempre exista una siguiente acción física pequeña.
 
