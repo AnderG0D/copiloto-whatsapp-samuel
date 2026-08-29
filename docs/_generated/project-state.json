@@ -1,23 +1,23 @@
 {
   "schemaVersion": 2,
-  "observedDate": "2026-08-25",
+  "observedDate": "2026-08-29",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
+    "ref": "HEAD",
     "branch": "main",
-    "sha": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
-    "shortSha": "33dc4eb",
-    "subject": "Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel",
-    "committedAt": "2026-08-25T22:38:45-06:00",
+    "sha": "4e6803f3647a6fb819331d0eb529b4ef4b18e3c9",
+    "shortSha": "4e6803f",
+    "subject": "Merge pull request #78 from AnderG0D/feature/hito-4-6-controlled-real-pilot",
+    "committedAt": "2026-08-29T15:45:54-06:00",
     "pullRequest": {
-      "number": 71,
-      "title": "fix(pilot): align 4.5-B evidence detection",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71",
+      "number": 78,
+      "title": "fix(hito-4.6): finalize Edgar shadow pilot and workflow",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/78",
       "state": "closed",
-      "mergedAt": "2026-08-26T04:38:46Z",
+      "mergedAt": "2026-08-29T21:45:54Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33276900058"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 203,
+      "unit": 232,
       "e2e": 6
     }
   },
@@ -62,6 +62,10 @@
       {
         "name": "ResponseDraftReviewModule",
         "path": "agent-core/src/admin/response-drafts/response-draft-review.module.ts"
+      },
+      {
+        "name": "ShadowOnlyModule",
+        "path": "agent-core/src/shadow-pilot/shadow-only.module.ts"
       },
       {
         "name": "ShadowPilotModule",

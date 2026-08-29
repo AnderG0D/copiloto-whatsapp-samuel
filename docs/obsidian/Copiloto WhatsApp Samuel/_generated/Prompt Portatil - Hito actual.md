@@ -3,7 +3,7 @@ type: generated-milestone-waiting-portable-prompt
 project: Copiloto WhatsApp Samuel
 generated: true
 lifecycle-state: awaiting-next-milestone-approval
-updated: 2026-08-25
+updated: 2026-08-29
 ---
 
 # Prompt portátil — sin hito activo
