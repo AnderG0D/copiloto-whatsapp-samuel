@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-25
+updated: 2026-08-27
 ---
 
 # Evidencia técnica
@@ -10,14 +10,14 @@ updated: 2026-08-25
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `33dc4eb`, asociado al [PR #71](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71).
-- Commit completo: `33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc`.
-- Mensaje: Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664).
+- Fuente: `main` en `f9a23b9`, asociado al [PR #76](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/76).
+- Commit completo: `f9a23b96d0b4cf3e82b367ec79ac8435b8141298`.
+- Mensaje: Merge pull request #76 from AnderG0D/feature/hito-4-6-controlled-real-pilot.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33046601509).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 203 casos ejecutados.
+- **Unitarias:** `APROBADO` — 215 casos ejecutados.
 - **E2E:** `APROBADO` — 6 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
