@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "03dee83175bc374110b2beef47fb44834a953b07",
-    "shortSha": "03dee83",
-    "subject": "fix(ci): trigger documentation sync for policy changes (#84)",
-    "committedAt": "2026-08-30T16:35:56-06:00",
+    "sha": "e73d21227da1a00134104de7cb89b95b70b9573a",
+    "shortSha": "e73d212",
+    "subject": "docs: promote Hito 4.5 activation for 03dee83 (#85)",
+    "committedAt": "2026-08-30T16:45:15-06:00",
     "pullRequest": {
-      "number": 84,
-      "title": "fix(ci): trigger documentation sync for policy changes",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84",
+      "number": 85,
+      "title": "docs: promote Hito 4.5 activation for 03dee83",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/85",
       "state": "closed",
-      "mergedAt": "2026-08-30T22:35:56Z",
+      "mergedAt": "2026-08-30T22:45:16Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339984844"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",

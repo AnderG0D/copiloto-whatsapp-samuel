@@ -10,10 +10,10 @@ updated: 2026-08-30
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `03dee83`, asociado al [PR #84](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84).
-- Commit completo: `03dee83175bc374110b2beef47fb44834a953b07`.
-- Mensaje: fix(ci): trigger documentation sync for policy changes (#84).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963).
+- Fuente: `main` en `e73d212`, asociado al [PR #85](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/85).
+- Commit completo: `e73d21227da1a00134104de7cb89b95b70b9573a`.
+- Mensaje: docs: promote Hito 4.5 activation for 03dee83 (#85).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339984844).
 
 ## Validación
 
