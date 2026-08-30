@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-29
+updated: 2026-08-30
 ---
 
 # Evidencia técnica
@@ -10,15 +10,16 @@ updated: 2026-08-29
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `fix/hito-4-6-shadow-persistence-and-qr` en `de38920`, asociado al [PR #80](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/80).
-- Commit completo: `de38920c13432e84b29e024d18f38703d29e9d37`.
-- Mensaje: docs(hito-4.6): activate operational pilot and documentation-first flow (#80).
+- Fuente: `main` en `03dee83`, asociado al [PR #84](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84).
+- Commit completo: `03dee83175bc374110b2beef47fb44834a953b07`.
+- Mensaje: fix(ci): trigger documentation sync for policy changes (#84).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963).
 
 ## Validación
 
-- **Unitarias:** `NO EJECUTADO` — 133 casos ejecutados.
-- **E2E:** `NO EJECUTADO` — 3 casos ejecutados.
-- **Build:** `NO EJECUTADO` — compilación del backend.
+- **Unitarias:** `APROBADO` — 242 casos ejecutados.
+- **E2E:** `APROBADO` — 6 casos ejecutados.
+- **Build:** `APROBADO` — compilación del backend.
 
 ## Backend
 

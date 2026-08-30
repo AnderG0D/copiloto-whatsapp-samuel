@@ -1,16 +1,27 @@
 {
-  "schemaVersion": 3,
-  "lifecycleState": "activation-pending-sync",
+  "schemaVersion": 1,
+  "handoffId": "4.5-to-4.6",
   "lastClosedMilestone": "4.5",
   "activeMilestone": "4.6",
+  "activationPullRequest": {
+    "number": 80,
+    "headRef": "docs/close-hito-4-6"
+  },
+  "transitionGate": {
+    "description": "validar y fusionar el relevo documental 4.5 → 4.6",
+    "conditionedCheckpoint": "4.6-A",
+    "completionCondition": "el relevo documental post-merge haya sido validado y fusionado"
+  },
   "safetyInvariants": {
     "sender": false,
     "autoSendMessages": false,
     "noLeadSend": true
   },
-  "activationPullRequest": {
-    "number": 80,
-    "headRef": "docs/close-hito-4-6"
-  },
-  "documentationFirst": true
+  "observedRevision": "03dee83175bc374110b2beef47fb44834a953b07",
+  "frozenRevision": "f2e64aa0116df32eb5508cbe30adab45c9d6acd3",
+  "outputs": {
+    "masterPrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Maestro - Hito actual.md",
+    "portablePrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Portatil - Hito actual.md",
+    "historicalHandoff": "docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.5 a 04.6.md"
+  }
 }

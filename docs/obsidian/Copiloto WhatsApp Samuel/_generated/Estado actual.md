@@ -2,14 +2,14 @@
 type: generated-project-state
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-29
+updated: 2026-08-30
 ---
 
 # Estado actual
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `fix/hito-4-6-shadow-persistence-and-qr` en `de38920`, asociado al [PR #80](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/80). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `03dee83`, asociado al [PR #84](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
