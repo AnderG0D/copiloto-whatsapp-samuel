@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { isAuthorizedMaintenanceRepairPath } from './promote-activation-pending.mjs';
 import { bootstrapEvidenceForPullRequest, findActivationPromotion, validatePullRequestContract } from './verify-activation-promotion.mjs';
 
 const sha = 'a'.repeat(40);
@@ -168,4 +169,9 @@ test('workflow filters include isolated handoff-state changes and the closed 4.5
   assert.match(backendWorkflow, /--await-promotion --source-sha/);
   assert.match(backendWorkflow, /--require-github-api/);
   assert.doesNotMatch(backendWorkflow, /--allow-activation-pending\n/);
+});
+
+test('allows the documentation sync workflow as a maintenance repair and rejects other paths', () => {
+  assert.equal(isAuthorizedMaintenanceRepairPath('.github/workflows/documentation-sync.yml'), true);
+  assert.equal(isAuthorizedMaintenanceRepairPath('.github/workflows/backend-ci.yml'), false);
 });
