@@ -8,7 +8,7 @@
   "sender": false,
   "autoSendMessages": false,
   "noLeadSend": true,
-  "qr": false,
+  "qr": true,
   "contacts": [],
   "leads": [],
   "externalServices": []

@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ResponseDraftReviewModule } from './admin/response-drafts/response-draft-review.module';
 import { ShadowPilotModule } from './shadow-pilot/shadow-pilot.module';
-import { isEdgarShadowOnlyMode } from './shadow-pilot/shadow-only.config';
+import { isShadowOnlyMode } from './shadow-pilot/shadow-only.config';
 import { ShadowOnlyModule } from './shadow-pilot/shadow-only.module';
 import { EvolutionWebhookModule } from './webhooks/evolution/evolution-webhook.module';
 
 export function getApplicationModules(
   environment: NodeJS.ProcessEnv = process.env,
 ) {
-  if (isEdgarShadowOnlyMode(environment)) {
+  if (isShadowOnlyMode(environment)) {
     return [ShadowOnlyModule];
   }
 
@@ -21,7 +21,7 @@ export function getApplicationModules(
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      ignoreEnvFile: process.env.NODE_ENV === 'test' || isEdgarShadowOnlyMode(),
+      ignoreEnvFile: process.env.NODE_ENV === 'test' || isShadowOnlyMode(),
     }),
     ...getApplicationModules(),
   ],

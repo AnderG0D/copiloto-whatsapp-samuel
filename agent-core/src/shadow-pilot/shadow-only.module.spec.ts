@@ -18,6 +18,12 @@ describe('shadow-only application composition', () => {
     );
   });
 
+  it('loads only the Samuel receive-only module in Samuel shadow-only mode', () => {
+    expect(getApplicationModules({ SHADOW_ONLY_MODE: 'samuel' })).toEqual([
+      ShadowOnlyModule,
+    ]);
+  });
+
   it('preserves the normal module composition when shadow-only mode is absent', () => {
     expect(getApplicationModules({})).toEqual([
       EvolutionWebhookModule,

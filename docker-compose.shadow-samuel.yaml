@@ -1,50 +1,50 @@
-name: copilot-shadow-edgar
+name: copilot-shadow-samuel
 
 services:
-  shadow-edgar-api:
-    container_name: copilot_shadow_edgar_api
+  shadow-samuel-api:
+    container_name: copilot_shadow_samuel_api
     build:
       context: ./agent-core
       dockerfile: Dockerfile.shadow
     restart: "no"
     environment:
       NODE_ENV: production
-      SHADOW_ONLY_MODE: edgar
-      PORT: "3311"
+      SHADOW_ONLY_MODE: samuel
+      PORT: "3321"
       SENDER: "false"
       AUTO_SEND_MESSAGES: "false"
       NO_LEAD_SEND: "true"
-      SHADOW_EVOLUTION_INSTANCE_NAME: evolution-shadow-edgar
-      SHADOW_EDGAR_OPERATOR_JIDS: "${SHADOW_EDGAR_OPERATOR_JIDS:-}"
+      SHADOW_EVOLUTION_INSTANCE_NAME: evolution-shadow-samuel
+      SHADOW_SAMUEL_OPERATOR_JIDS: "${SHADOW_SAMUEL_OPERATOR_JIDS:-}"
     ports:
-      - "127.0.0.1:3311:3311"
+      - "127.0.0.1:3321:3321"
     volumes:
-      - shadow_edgar_data:/app/data
+      - shadow_samuel_data:/app/data
     networks:
-      - shadow-edgar-net
+      - shadow-samuel-net
 
-  shadow-edgar-evolution-api:
-    container_name: copilot_shadow_edgar_evolution_api
+  shadow-samuel-evolution-api:
+    container_name: copilot_shadow_samuel_evolution_api
     image: evoapicloud/evolution-api:v2.3.7
     restart: "no"
     depends_on:
-      shadow-edgar-api:
+      shadow-samuel-api:
         condition: service_started
-      shadow-edgar-postgres:
+      shadow-samuel-postgres:
         condition: service_healthy
-      shadow-edgar-redis:
+      shadow-samuel-redis:
         condition: service_healthy
     environment:
-      SERVER_NAME: evolution-shadow-edgar
+      SERVER_NAME: evolution-shadow-samuel
       SERVER_TYPE: http
       SERVER_PORT: "8080"
-      SERVER_URL: http://127.0.0.1:18081
-      AUTHENTICATION_API_KEY: "${SHADOW_EDGAR_EVOLUTION_API_KEY:?Set SHADOW_EDGAR_EVOLUTION_API_KEY in the environment}"
+      SERVER_URL: http://127.0.0.1:18082
+      AUTHENTICATION_API_KEY: "${SHADOW_SAMUEL_EVOLUTION_API_KEY:?Set SHADOW_SAMUEL_EVOLUTION_API_KEY in the environment}"
       AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "false"
       DATABASE_ENABLED: "true"
       DATABASE_PROVIDER: postgresql
-      DATABASE_CONNECTION_URI: "postgresql://shadow_edgar:${SHADOW_EDGAR_POSTGRES_PASSWORD_URLENCODED:?Set SHADOW_EDGAR_POSTGRES_PASSWORD_URLENCODED in the environment}@shadow-edgar-postgres:5432/shadow_edgar?schema=public"
-      DATABASE_CONNECTION_CLIENT_NAME: evolution-shadow-edgar
+      DATABASE_CONNECTION_URI: "postgresql://shadow_samuel:${SHADOW_SAMUEL_POSTGRES_PASSWORD_URLENCODED:?Set SHADOW_SAMUEL_POSTGRES_PASSWORD_URLENCODED in the environment}@shadow-samuel-postgres:5432/shadow_samuel?schema=public"
+      DATABASE_CONNECTION_CLIENT_NAME: evolution-shadow-samuel
       # Only Evolution's technical instance/session state is retained here.
       # Messages and operational/business data are not persisted.
       DATABASE_SAVE_DATA_INSTANCE: "true"
@@ -55,13 +55,13 @@ services:
       DATABASE_SAVE_DATA_HISTORIC: "false"
       DATABASE_SAVE_DATA_LABELS: "false"
       CACHE_REDIS_ENABLED: "false"
-      CACHE_REDIS_URI: redis://shadow-edgar-redis:6379/0
-      CACHE_REDIS_PREFIX_KEY: evolution-shadow-edgar
+      CACHE_REDIS_URI: redis://shadow-samuel-redis:6379/0
+      CACHE_REDIS_PREFIX_KEY: evolution-shadow-samuel
       CACHE_REDIS_SAVE_INSTANCES: "false"
       CACHE_LOCAL_ENABLED: "true"
       CONFIG_SESSION_PHONE_VERSION: "2.3000.1033773198"
       WEBHOOK_GLOBAL_ENABLED: "true"
-      WEBHOOK_GLOBAL_URL: http://shadow-edgar-api:3311/webhooks/evolution
+      WEBHOOK_GLOBAL_URL: http://shadow-samuel-api:3321/webhooks/evolution
       WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS: "false"
       WEBHOOK_EVENTS_QRCODE_UPDATED: "true"
       WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"
@@ -77,20 +77,20 @@ services:
       RABBITMQ_ENABLED: "false"
       SQS_ENABLED: "false"
     ports:
-      - "127.0.0.1:18081:8080"
+      - "127.0.0.1:18082:8080"
     volumes:
-      - shadow_edgar_evolution_instances:/evolution/instances
+      - shadow_samuel_evolution_instances:/evolution/instances
     networks:
-      - shadow-edgar-net
+      - shadow-samuel-net
 
-  shadow-edgar-postgres:
-    container_name: copilot_shadow_edgar_postgres
+  shadow-samuel-postgres:
+    container_name: copilot_shadow_samuel_postgres
     image: postgres:15
     restart: "no"
     environment:
-      POSTGRES_DB: shadow_edgar
-      POSTGRES_USER: shadow_edgar
-      POSTGRES_PASSWORD: "${SHADOW_EDGAR_POSTGRES_PASSWORD:?Set SHADOW_EDGAR_POSTGRES_PASSWORD in the environment}"
+      POSTGRES_DB: shadow_samuel
+      POSTGRES_USER: shadow_samuel
+      POSTGRES_PASSWORD: "${SHADOW_SAMUEL_POSTGRES_PASSWORD:?Set SHADOW_SAMUEL_POSTGRES_PASSWORD in the environment}"
     command:
       - postgres
       - -c
@@ -98,19 +98,19 @@ services:
       - -c
       - listen_addresses=*
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shadow_edgar -d shadow_edgar"]
+      test: ["CMD-SHELL", "pg_isready -U shadow_samuel -d shadow_samuel"]
       interval: 5s
       timeout: 5s
       retries: 12
     ports:
-      - "127.0.0.1:15433:5432"
+      - "127.0.0.1:15434:5432"
     volumes:
-      - shadow_edgar_postgres_data:/var/lib/postgresql/data
+      - shadow_samuel_postgres_data:/var/lib/postgresql/data
     networks:
-      - shadow-edgar-net
+      - shadow-samuel-net
 
-  shadow-edgar-redis:
-    container_name: copilot_shadow_edgar_redis
+  shadow-samuel-redis:
+    container_name: copilot_shadow_samuel_redis
     image: redis:7
     restart: "no"
     command: redis-server --port 6379 --appendonly yes
@@ -120,23 +120,23 @@ services:
       timeout: 5s
       retries: 12
     ports:
-      - "127.0.0.1:16379:6379"
+      - "127.0.0.1:16380:6379"
     volumes:
-      - shadow_edgar_redis_data:/data
+      - shadow_samuel_redis_data:/data
     networks:
-      - shadow-edgar-net
+      - shadow-samuel-net
 
 volumes:
-  shadow_edgar_data:
-    name: copilot_shadow_edgar_data
-  shadow_edgar_evolution_instances:
-    name: copilot_shadow_edgar_evolution_instances
-  shadow_edgar_postgres_data:
-    name: copilot_shadow_edgar_postgres_data
-  shadow_edgar_redis_data:
-    name: copilot_shadow_edgar_redis_data
+  shadow_samuel_data:
+    name: copilot_shadow_samuel_data
+  shadow_samuel_evolution_instances:
+    name: copilot_shadow_samuel_evolution_instances
+  shadow_samuel_postgres_data:
+    name: copilot_shadow_samuel_postgres_data
+  shadow_samuel_redis_data:
+    name: copilot_shadow_samuel_redis_data
 
 networks:
-  shadow-edgar-net:
-    name: copilot-shadow-edgar-net
+  shadow-samuel-net:
+    name: copilot-shadow-samuel-net
     driver: bridge

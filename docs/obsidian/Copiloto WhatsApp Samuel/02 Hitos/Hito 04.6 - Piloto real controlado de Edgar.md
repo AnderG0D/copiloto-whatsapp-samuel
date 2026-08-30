@@ -25,7 +25,7 @@ La implementación del piloto ya está mergeada en `main`. PR #76 y PR #78, con 
 
 - Preparar y ejecutar una prueba controlada de Edgar con la instancia y cuenta de prueba dedicadas.
 - Confirmar el estado de Docker y Compose, la instancia Evolution, el QR, la conexión, el webhook y la recepción de mensajes de prueba.
-- Confirmar que el flujo permanece receive-only y no realiza persistencia, generación de IA ni envío a leads durante la prueba.
+- Confirmar que el flujo permanece receive-only y no persiste mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; tampoco realiza generación de IA ni envío a leads durante la prueba.
 - Repetir la secuencia operativa controlada con Samuel, sin mezclar cuentas, sesiones, espacios de datos o evidencias.
 - Revisar el feedback de Edgar y Samuel y registrar los hallazgos antes de ampliar el alcance.
 - Acordar con Samuel el pago y el alcance posterior antes de tratar el piloto como trabajo comercial ampliado.
@@ -36,7 +36,7 @@ La implementación del piloto ya está mergeada en `main`. PR #76 y PR #78, con 
 - No enviar mensajes a leads, contactos externos o números no autorizados.
 - No conectar el piloto a inventario, precios, vehículos, archivos o datos comerciales no provistos por una fuente confiable.
 - No habilitar envío automático, campañas, persistencia de conversaciones ni generación de respuestas para el piloto.
-- No modificar backend funcional, Docker, Compose, migraciones, infraestructura remota o configuración productiva.
+- No modificar backend funcional fuera del receive-only aislado ni configuración productiva, migraciones o infraestructura remota; los Compose del piloto deben permanecer limitados a sus runtimes aislados.
 - No cerrar el Hito 4.6 ni crear un documento `DONE` en esta fase.
 
 ## Implementación ya mergeada
@@ -47,6 +47,7 @@ La implementación observable incluye rutas aisladas para Edgar y pruebas automa
 - Commit de implementación mergeada: `4e6803f`.
 - Configuración del piloto: `agent-core/src/shadow-pilot/shadow-edgar.compose.json`.
 - Compose aislado: `docker-compose.shadow-edgar.yaml`.
+- Compose aislado disponible para la secuencia de Samuel: `docker-compose.shadow-samuel.yaml`.
 - Pruebas de Compose e aislamiento: `agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts` y `agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts`.
 - Pruebas receive-only y webhook: `agent-core/src/shadow-pilot/shadow-receive-only.guard.spec.ts` y `agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts`.
 
@@ -63,7 +64,7 @@ La validación aún no está completada. El estado activo representa una prueba 
 3. Levantar y revisar únicamente el entorno aislado autorizado cuando exista aprobación operativa separada.
 4. Confirmar la instancia `evolution-shadow-edgar`, la cuenta de prueba dedicada y el QR sin guardar imágenes, tokens, números completos o payloads reales.
 5. Confirmar la conexión de Edgar y enviar sólo el mensaje de prueba autorizado al canal receive-only; verificar webhook y recepción.
-6. Confirmar que no hubo persistencia, generación de IA, envío automático ni contacto con leads.
+6. Confirmar que no hubo persistencia operativa de mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; sólo puede permanecer la persistencia técnica mínima de sesión/instancia que Evolution necesita, sin payloads operativos.
 7. Detener, aislar y revisar la evidencia de Edgar; no reutilizar la sesión ni sus datos.
 8. Repetir la misma secuencia para Samuel con `evolution-shadow-samuel`, sus identificadores y su espacio controlado.
 9. Comparar feedback y bloqueos sin copiar datos personales; registrar sólo conclusiones mínimas y trazables.
@@ -75,9 +76,12 @@ La validación aún no está completada. El estado activo representa una prueba 
 - [ ] QR de la cuenta de prueba revisado sin almacenar el QR ni secretos.
 - [ ] Conexión de la cuenta de prueba confirmada con evidencia segura y mínima.
 - [ ] Webhook receive-only configurado para la instancia aislada.
+- [ ] QR habilitado explícitamente en el manifiesto y en Compose para vincular la cuenta de prueba; no se conserva la imagen ni el contenido del QR.
 - [ ] Mensaje de prueba recibido por el webhook, sin conservar payload personal.
+- [ ] Persistencia operativa deshabilitada para mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas y leads; la persistencia técnica de sesión/instancia, si se requiere, permanece aislada y sin datos operativos.
 - [ ] `sender=false`, `AUTO_SEND_MESSAGES=false` y `noLeadSend=true` verificados.
 - [ ] Ausencia de envío a leads y contactos externos verificada.
+- [ ] Compose Samuel disponible con instancia, red, volúmenes, puertos, allowlist y variables `SHADOW_SAMUEL_*` independientes.
 - [ ] Secuencia Edgar → Samuel completada sin mezclar identidades o datos.
 
 ## Evidencia requerida
@@ -85,7 +89,7 @@ La validación aún no está completada. El estado activo representa una prueba 
 - Registro de fecha, alcance y aprobación de la prueba, sin secretos ni datos personales innecesarios.
 - Identificación de la instancia y cuenta de prueba mediante identificadores controlados, no números completos.
 - Evidencia segura de conexión, webhook y recepción.
-- Resultado explícito de ausencia de envío, persistencia, generación de IA y contacto con leads.
+- Resultado explícito de ausencia de envío, persistencia operativa, generación de IA y contacto con leads; cualquier persistencia técnica de sesión/instancia debe quedar identificada como tal.
 - Registro separado del feedback de Edgar y Samuel.
 - Checkpoint comercial con el acuerdo de pago y alcance posterior documentado por Samuel.
 - Pruebas automatizadas relevantes, `npm run docs:check`, `npm run test:docs`, `npm run docs:handoff:check` y `git diff --check`, con su resultado real.
@@ -114,6 +118,7 @@ El checkpoint 4.6-D sólo se marca cuando Samuel acuerde explícitamente el pago
 - `noLeadSend=true`: cero envío a leads.
 - Edgar y Samuel son operadores de prueba; no son leads ni destinatarios de mensajes.
 - Las cuentas, sesiones, instancias, identificadores y espacios de datos de Edgar y Samuel permanecen aislados.
+- Evolution no persiste mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; sólo puede persistir estado técnico mínimo de sesión/instancia, aislado y sin payloads operativos.
 - No usar credenciales reales en pruebas automatizadas ni registrar secretos, QR, números completos o payloads reales.
 - No conectar generación de IA ni servicios externos al webhook sin autorización explícita.
 - Detenerse ante cualquier identidad no allowlisted, instancia inesperada, conflicto, dato real no autorizado o estado ambiguo.

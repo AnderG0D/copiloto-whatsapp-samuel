@@ -64,6 +64,25 @@ describe('ShadowOnlyWebhookService', () => {
     });
   });
 
+  it('accepts Samuel input in the Samuel-only process', () => {
+    const service = new ShadowOnlyWebhookService(
+      new ShadowReceiveOnlyGuard(runtimeEnvironment),
+      'shadow-samuel',
+    );
+
+    expect(
+      service.handleIncomingWebhook(
+        payloadFor('evolution-shadow-samuel', '22222222222@s.whatsapp.net'),
+      ),
+    ).toMatchObject({
+      received: true,
+      shadow: true,
+      accepted: true,
+      persisted: false,
+      pilotId: 'shadow-samuel',
+    });
+  });
+
   it('does not route regular instances through the normal flow', () => {
     const service = new ShadowOnlyWebhookService(
       new ShadowReceiveOnlyGuard(runtimeEnvironment),

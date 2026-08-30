@@ -10,13 +10,13 @@ updated: 2026-08-29
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `docs/close-hito-4-6` en `4e6803f`.
-- Commit completo: `4e6803f3647a6fb819331d0eb529b4ef4b18e3c9`.
-- Mensaje: Merge pull request #78 from AnderG0D/feature/hito-4-6-controlled-real-pilot.
+- Fuente: `fix/hito-4-6-shadow-persistence-and-qr` en `de38920`, asociado al [PR #80](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/80).
+- Commit completo: `de38920c13432e84b29e024d18f38703d29e9d37`.
+- Mensaje: docs(hito-4.6): activate operational pilot and documentation-first flow (#80).
 
 ## Validación
 
-- **Unitarias:** `NO EJECUTADO` — 123 casos ejecutados.
+- **Unitarias:** `NO EJECUTADO` — 133 casos ejecutados.
 - **E2E:** `NO EJECUTADO` — 3 casos ejecutados.
 - **Build:** `NO EJECUTADO` — compilación del backend.
 
