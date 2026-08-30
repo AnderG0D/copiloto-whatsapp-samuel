@@ -2,13 +2,13 @@
 type: generated-next-action
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-25
+updated: 2026-08-29
 ---
 
 # Siguiente acción — Copiloto WhatsApp Samuel
 
 <!-- AUTO:BEGIN next-action -->
-- [ ] Esperar aprobación humana explícita antes de definir o activar el siguiente hito.
+- [ ] En la rama `feature/hito-4-6-controlled-real-pilot`, implementar únicamente el checkpoint **4.6-A: Ejecutar la prueba controlada de Edgar** y sus pruebas, sin ampliar el alcance.
 
-**Termina cuando:** Una persona aprueba explícitamente el alcance y la activación de un próximo hito.
+**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
 <!-- AUTO:END next-action -->

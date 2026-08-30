@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "activeMilestone": null,
-  "lifecycleState": "awaiting-next-milestone-approval",
+  "activeMilestone": "4.6",
+  "lifecycleState": "activation-pending-sync",
   "lastClosedMilestone": "4.5",
   "milestones": [
     {
@@ -300,6 +300,95 @@
         }
       ],
       "completionRequires": [
+        "unit",
+        "e2e",
+        "build",
+        "mergedPullRequest"
+      ]
+    },
+    {
+      "id": "4.6",
+      "title": "Piloto real controlado de Edgar",
+      "status": "active",
+      "workingBranch": "feature/hito-4-6-controlled-real-pilot",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.6 - Piloto real controlado de Edgar.md",
+      "evidence": {
+        "pullRequests": [76, 78],
+        "mergeCommit": "4e6803f3647a6fb819331d0eb529b4ef4b18e3c9",
+        "requiredPaths": [
+          "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
+          "docker-compose.shadow-edgar.yaml",
+          "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+          "agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts",
+          "agent-core/src/shadow-pilot/shadow-receive-only.guard.spec.ts",
+          "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts"
+        ]
+      },
+      "checkpoints": [
+        {
+          "id": "4.6-A",
+          "title": "Ejecutar la prueba controlada de Edgar",
+          "commitHint": null,
+          "evidence": {
+            "requiredPaths": [
+              "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
+              "docker-compose.shadow-edgar.yaml",
+              "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+              "agent-core/src/shadow-pilot/shadow-receive-only.guard.spec.ts",
+              "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts"
+            ],
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+                "contentAll": ["operational Edgar pilot evidence recorded"]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.6-B",
+          "title": "Completar la secuencia controlada Edgar → Samuel",
+          "commitHint": null,
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+                "contentAll": ["operational Edgar to Samuel validation recorded"]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.6-C",
+          "title": "Revisar y registrar el feedback operativo",
+          "commitHint": null,
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+                "contentAll": ["operational feedback checkpoint recorded"]
+              }
+            ]
+          }
+        },
+        {
+          "id": "4.6-D",
+          "title": "Acordar con Samuel el pago y el alcance posterior",
+          "commitHint": null,
+          "evidence": {
+            "pathContentAll": [
+              {
+                "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+                "contentAll": ["commercial scope and payment agreement recorded"]
+              }
+            ]
+          }
+        }
+      ],
+      "completionRequires": [
+        "controlledOperationalValidation",
+        "feedbackReview",
+        "commercialAgreement",
         "unit",
         "e2e",
         "build",

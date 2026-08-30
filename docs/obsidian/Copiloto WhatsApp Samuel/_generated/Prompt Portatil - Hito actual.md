@@ -1,30 +1,36 @@
 ---
-type: generated-milestone-waiting-portable-prompt
+type: generated-active-milestone-portable-prompt
 project: Copiloto WhatsApp Samuel
 generated: true
-lifecycle-state: awaiting-next-milestone-approval
-updated: 2026-08-25
+updated: 2026-08-29
 ---
 
-# Prompt portátil — sin hito activo
+# Prompt portátil — Hito actual
 
-No hay hito activo. El último hito cerrado es **4.5**.
+<!-- AUTO:BEGIN active-milestone-portable-prompt -->
+El Hito 4.6 está activo y su validación operativa sigue pendiente.
 
-## Estado operativo
+## Alcance actual
 
-- Estado: `awaiting-next-milestone-approval`.
-- Esperar aprobación humana explícita antes de definir o activar el siguiente hito.
-- No hay rama activa, checkpoint operativo ni destino de relevo.
+- Hito: **4.6 — Piloto real controlado de Edgar**.
+- Rama documental/de referencia: `feature/hito-4-6-controlled-real-pilot`.
+- Último hito cerrado: **4.5**.
+- Implementación observada: `4e6803f`; no equivale a validación operativa completada.
 
-## Siguiente acción canónica
+## Siguiente acción
 
-- [ ] Esperar aprobación humana explícita antes de definir o activar el siguiente hito.
+- [ ] En la rama `feature/hito-4-6-controlled-real-pilot`, implementar únicamente el checkpoint **4.6-A: Ejecutar la prueba controlada de Edgar** y sus pruebas, sin ampliar el alcance.
 
-**Termina cuando:** Una persona aprueba explícitamente el alcance y la activación de un próximo hito.
+**Termina cuando:** La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos.
 
-## Invariantes de ausencia de envío
+## Regla documentation-first
+
+Antes de iniciar otro hito deben existir su registro, documento base, alcance, criterios, riesgos, invariantes, evidencia, estado, handoff, siguiente acción y aprobación humana; después se sincroniza `main` y se crea un worktree exclusivo. Mantén documentación, código y evidencia alineados y no declares `DONE` sólo por terminar el código.
+
+## Invariantes
 
 - `sender=false`.
 - `AUTO_SEND_MESSAGES=false`.
 - `noLeadSend=true`.
-- Aprobar un borrador no envía mensajes.
+- No enviar mensajes a leads ni usar secretos o datos reales.
+<!-- AUTO:END active-milestone-portable-prompt -->

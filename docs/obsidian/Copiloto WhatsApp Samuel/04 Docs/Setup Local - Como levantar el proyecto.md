@@ -21,6 +21,12 @@ updated: 2026-07-31
 
 GitHub Actions usa Node.js 22; conviene usar la misma versión local.
 
+## Inicio documentation-first
+
+Antes de levantar un entorno para un hito nuevo, completar el registro documental: control del hito, documento base, objetivo, alcance, fuera de alcance, criterios de aceptación, riesgos, invariantes, evidencia requerida, estado, handoff, siguiente acción y aprobación humana explícita. Después, y sólo después de confirmar que la copia canónica `main` está limpia y sincronizada con `origin/main`, crear un worktree y rama exclusivos desde ese `main` y trabajar únicamente allí.
+
+Durante la prueba, actualizar la nota del hito con evidencia real y distinguir la implementación mergeada de la validación operativa. No marcar checkpoints sin evidencia ni declarar `DONE` sólo porque el código terminó. Si hay conflictos, cambios locales no explicados, pruebas pendientes o documentación desalineada, detenerse y reportarlo. El procedimiento completo está en [[Flujo de Trabajo ChatGPT Work Codex GitHub#Regla permanente: ciclo `documentation-first`|la regla documentation-first]].
+
 ## Entorno observado
 
 <!-- AUTO:BEGIN setup-runtime -->

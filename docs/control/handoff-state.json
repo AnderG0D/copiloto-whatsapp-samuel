@@ -1,19 +1,16 @@
 {
-  "schemaVersion": 2,
-  "lifecycleState": "awaiting-next-milestone-approval",
+  "schemaVersion": 3,
+  "lifecycleState": "activation-pending-sync",
   "lastClosedMilestone": "4.5",
-  "activeMilestone": null,
+  "activeMilestone": "4.6",
   "safetyInvariants": {
     "sender": false,
     "autoSendMessages": false,
     "noLeadSend": true
   },
-  "historicalHandoff": {
-    "path": "docs/obsidian/Copiloto WhatsApp Samuel/04 Handoffs/Hito 04.4 a 04.5.md",
-    "sha256": "73e974ad972324232d7dec87f2c9587af8f9ad5c664b018dfbdbf9d81a393a3b"
+  "activationPullRequest": {
+    "number": 78,
+    "headRef": "feature/hito-4-6-controlled-real-pilot"
   },
-  "outputs": {
-    "masterPrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Maestro - Hito actual.md",
-    "portablePrompt": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Prompt Portatil - Hito actual.md"
-  }
+  "documentationFirst": true
 }

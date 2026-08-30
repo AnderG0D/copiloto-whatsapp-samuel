@@ -167,6 +167,10 @@ ${state.milestone
 
 ${renderMilestones()}
 
+## Regla permanente: documentation-first
+
+Antes de comenzar un hito nuevo deben existir su registro, documento base, alcance, criterios, riesgos, invariantes, evidencia, estado, handoff, siguiente acción y aprobación humana. Después se sincroniza \`main\`, se crea un worktree exclusivo y el trabajo permanece allí. Durante y al cierre, la documentación, el código y la evidencia deben mantenerse alineados; código mergeado no equivale a validación operativa ni a \`DONE\`.
+
 ## Componentes confirmados
 
 ${implementedComponents()}
@@ -220,7 +224,33 @@ ${state.architecture.components.responseDraftConnectedToWebhook
   ? '`EvolutionWebhookService` llama a `ResponseDraftService`, que usa `AI_PROVIDER` para generar borradores. El flujo los persiste como `PROPOSED`; no envía mensajes a WhatsApp.'
   : state.architecture.components.aiConnectedToWebhook
     ? 'El contrato de IA participa directamente en el flujo del webhook.'
-    : 'El contrato de IA no está conectado al webhook; no puede generar respuestas desde ese flujo.'}`;
+  : 'El contrato de IA no está conectado al webhook; no puede generar respuestas desde ese flujo.'}`;
+
+const activePromptBody = state.milestone
+  ? `El Hito ${state.milestone.id} está activo y su validación operativa sigue pendiente.
+
+## Alcance actual
+
+- Hito: **${state.milestone.id} — ${state.milestone.title}**.
+- Rama documental/de referencia: \`${state.milestone.workingBranch}\`.
+- Último hito cerrado: **${state.lastClosedMilestone}**.
+- Implementación observada: \`${state.source.shortSha}\`; no equivale a validación operativa completada.
+
+## Siguiente acción
+
+${nextActionBody}
+
+## Regla documentation-first
+
+Antes de iniciar otro hito deben existir su registro, documento base, alcance, criterios, riesgos, invariantes, evidencia, estado, handoff, siguiente acción y aprobación humana; después se sincroniza \`main\` y se crea un worktree exclusivo. Mantén documentación, código y evidencia alineados y no declares \`DONE\` sólo por terminar el código.
+
+## Invariantes
+
+- \`sender=false\`.
+- \`AUTO_SEND_MESSAGES=false\`.
+- \`noLeadSend=true\`.
+- No enviar mensajes a leads ni usar secretos o datos reales.`
+  : null;
 
 const generatedFiles = {
   [`${projectRoot}/_generated/Estado actual.md`]: generatedDocument(
@@ -235,6 +265,14 @@ const generatedFiles = {
   [`${projectRoot}/_generated/Arquitectura actual.md`]: generatedDocument(
     'generated-architecture', 'Arquitectura actual observada', 'architecture', architectureBody,
   ),
+  ...(activePromptBody ? {
+    [`${projectRoot}/_generated/Prompt Maestro - Hito actual.md`]: generatedDocument(
+      'generated-active-milestone-prompt', 'Prompt maestro — Hito actual', 'active-milestone-prompt', activePromptBody,
+    ),
+    [`${projectRoot}/_generated/Prompt Portatil - Hito actual.md`]: generatedDocument(
+      'generated-active-milestone-portable-prompt', 'Prompt portátil — Hito actual', 'active-milestone-portable-prompt', activePromptBody,
+    ),
+  } : {}),
 };
 
 if (!dryRun) {

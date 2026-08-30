@@ -64,7 +64,7 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 ## Bloqueos y riesgos operativos
 
 <!-- AUTO:BEGIN blockers -->
-No hay hito activo; esperar aprobación humana explícita antes de definir o activar el siguiente hito.
+- El primer checkpoint pendiente es **4.6-A: Ejecutar la prueba controlada de Edgar**.
 <!-- AUTO:END blockers -->
 
 Riesgos de producto que requieren decisiones humanas:

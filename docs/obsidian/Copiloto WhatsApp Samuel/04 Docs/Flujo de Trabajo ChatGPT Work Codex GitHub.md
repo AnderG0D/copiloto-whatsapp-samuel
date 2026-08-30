@@ -65,6 +65,25 @@ PC local + VS Code + Codex
 
 ---
 
+## Regla permanente: ciclo `documentation-first`
+
+Antes de comenzar cualquier hito nuevo, la documentación autoritativa debe existir y reflejar el contrato de trabajo. El orden obligatorio es:
+
+1. Registrar el hito en el sistema de control.
+2. Crear su documento base o plantilla.
+3. Definir objetivo, alcance, fuera de alcance, criterios de aceptación, riesgos, invariantes y evidencia requerida.
+4. Definir estado, handoff y siguiente acción.
+5. Obtener aprobación humana explícita.
+6. Sincronizar la copia canónica local `main` con `origin/main`.
+7. Crear un worktree y una rama exclusivos desde ese `main` actualizado.
+8. Trabajar únicamente dentro de ese worktree.
+
+Durante el hito, actualizar la documentación paso a paso, marcar cada checkpoint sólo cuando exista evidencia, registrar pruebas, builds, validaciones, decisiones y bloqueos, y mantener código, documentación y evidencia alineados. Terminar el código no equivale a declarar `DONE`; siempre debe distinguirse entre implementación mergeada y validación operativa completada.
+
+Para cerrar un hito, confirmar el alcance completo; ejecutar pruebas, build, validaciones documentales, formato y `git diff --check`; verificar invariantes de seguridad y ausencia de secretos o datos reales; completar checklists y evidencia; y hacer commit, push, PR y merge sólo con autorización humana explícita. El merge remoto debe usar **Create a merge commit**. Después, actualizar la copia canónica con `git fetch origin` y `git merge --ff-only origin/main`, verificar que `main` esté limpia y exactamente alineada con `origin/main`, y sólo entonces preparar el siguiente hito y crear su nuevo worktree.
+
+Si hay estado ambiguo, cambios locales no explicados, conflictos, pruebas pendientes o documentación desalineada, detenerse y reportarlo.
+
 ## Regla oficial y estricta del ciclo Git
 
 Esta sección es la única fuente de verdad del ciclo Git del proyecto. Sus reglas son obligatorias para cualquier hito, fix, reparación, experimento o tarea independiente. Si otra guía contiene una instrucción distinta, prevalece esta sección y la otra guía debe remitirse aquí.

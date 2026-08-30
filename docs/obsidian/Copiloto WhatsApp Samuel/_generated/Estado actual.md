@@ -2,18 +2,18 @@
 type: generated-project-state
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-25
+updated: 2026-08-29
 ---
 
 # Estado actual
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `33dc4eb`, asociado al [PR #71](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `docs/close-hito-4-6` en `4e6803f`. Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
-**No hay hito activo.** El último hito cerrado es **4.5**; el proyecto espera aprobación humana explícita antes de definir o activar el siguiente hito.
+**Hito 4.6 — Piloto real controlado de Edgar**.
 
 ## Hitos confirmados
 
@@ -28,6 +28,11 @@ updated: 2026-08-25
 | 4.3 | Persistencia e integración de borradores sin envío | `DONE` | Configurado como cerrado |
 | 4.4 | Revisión y aprobación humana | `DONE` | Configurado como cerrado |
 | 4.5 | Piloto UX en sombra WhatsApp-first | `DONE` | Configurado como cerrado |
+| 4.6 | Piloto real controlado de Edgar | `ACTIVE` | 0/4 checkpoints observados |
+
+## Regla permanente: documentation-first
+
+Antes de comenzar un hito nuevo deben existir su registro, documento base, alcance, criterios, riesgos, invariantes, evidencia, estado, handoff, siguiente acción y aprobación humana. Después se sincroniza `main`, se crea un worktree exclusivo y el trabajo permanece allí. Durante y al cierre, la documentación, el código y la evidencia deben mantenerse alineados; código mergeado no equivale a validación operativa ni a `DONE`.
 
 ## Componentes confirmados
 

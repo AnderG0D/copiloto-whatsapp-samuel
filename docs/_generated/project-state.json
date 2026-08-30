@@ -1,23 +1,16 @@
 {
-  "schemaVersion": 2,
-  "observedDate": "2026-08-25",
+  "schemaVersion": 1,
+  "observedDate": "2026-08-29",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
-    "ref": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
-    "branch": "main",
-    "sha": "33dc4ebedd76f8a8d540e50c3f9cb82468d0e7dc",
-    "shortSha": "33dc4eb",
-    "subject": "Merge pull request #71 from AnderG0D/feature/hito-4-5-b-operator-channel",
-    "committedAt": "2026-08-25T22:38:45-06:00",
-    "pullRequest": {
-      "number": 71,
-      "title": "fix(pilot): align 4.5-B evidence detection",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/71",
-      "state": "closed",
-      "mergedAt": "2026-08-26T04:38:46Z",
-      "source": "github-api"
-    },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/32930999664"
+    "ref": "HEAD",
+    "branch": "docs/close-hito-4-6",
+    "sha": "4e6803f3647a6fb819331d0eb529b4ef4b18e3c9",
+    "shortSha": "4e6803f",
+    "subject": "Merge pull request #78 from AnderG0D/feature/hito-4-6-controlled-real-pilot",
+    "committedAt": "2026-08-29T15:45:54-06:00",
+    "pullRequest": null,
+    "ciUrl": null
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -33,12 +26,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "passed",
-    "e2e": "passed",
-    "build": "passed",
+    "unit": "not_run",
+    "e2e": "not_run",
+    "build": "not_run",
     "discoveredTests": {
-      "unit": 203,
-      "e2e": 6
+      "unit": 123,
+      "e2e": 3
     }
   },
   "architecture": {
@@ -62,6 +55,10 @@
       {
         "name": "ResponseDraftReviewModule",
         "path": "agent-core/src/admin/response-drafts/response-draft-review.module.ts"
+      },
+      {
+        "name": "ShadowOnlyModule",
+        "path": "agent-core/src/shadow-pilot/shadow-only.module.ts"
       },
       {
         "name": "ShadowPilotModule",
@@ -149,17 +146,126 @@
       "title": "Piloto UX en sombra WhatsApp-first",
       "status": "done",
       "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first DONE.md"
+    },
+    {
+      "id": "4.6",
+      "title": "Piloto real controlado de Edgar",
+      "status": "active",
+      "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.6 - Piloto real controlado de Edgar.md"
     }
   ],
-  "milestone": null,
-  "lifecycleState": "awaiting-next-milestone-approval",
+  "milestone": {
+    "id": "4.6",
+    "title": "Piloto real controlado de Edgar",
+    "status": "active",
+    "workingBranch": "feature/hito-4-6-controlled-real-pilot",
+    "document": "docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.6 - Piloto real controlado de Edgar.md",
+    "evidence": {
+      "pullRequests": [
+        76,
+        78
+      ],
+      "mergeCommit": "4e6803f3647a6fb819331d0eb529b4ef4b18e3c9",
+      "requiredPaths": [
+        "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
+        "docker-compose.shadow-edgar.yaml",
+        "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+        "agent-core/src/shadow-pilot/shadow-pilot-isolation.spec.ts",
+        "agent-core/src/shadow-pilot/shadow-receive-only.guard.spec.ts",
+        "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts"
+      ]
+    },
+    "checkpoints": [
+      {
+        "id": "4.6-A",
+        "title": "Ejecutar la prueba controlada de Edgar",
+        "commitHint": null,
+        "evidence": {
+          "requiredPaths": [
+            "agent-core/src/shadow-pilot/shadow-edgar.compose.json",
+            "docker-compose.shadow-edgar.yaml",
+            "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+            "agent-core/src/shadow-pilot/shadow-receive-only.guard.spec.ts",
+            "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts"
+          ],
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/shadow-pilot/shadow-edgar.compose.spec.ts",
+              "contentAll": [
+                "operational Edgar pilot evidence recorded"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.6-B",
+        "title": "Completar la secuencia controlada Edgar → Samuel",
+        "commitHint": null,
+        "evidence": {
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+              "contentAll": [
+                "operational Edgar to Samuel validation recorded"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.6-C",
+        "title": "Revisar y registrar el feedback operativo",
+        "commitHint": null,
+        "evidence": {
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+              "contentAll": [
+                "operational feedback checkpoint recorded"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      },
+      {
+        "id": "4.6-D",
+        "title": "Acordar con Samuel el pago y el alcance posterior",
+        "commitHint": null,
+        "evidence": {
+          "pathContentAll": [
+            {
+              "path": "agent-core/src/shadow-pilot/shadow-only-webhook.service.spec.ts",
+              "contentAll": [
+                "commercial scope and payment agreement recorded"
+              ]
+            }
+          ]
+        },
+        "complete": false
+      }
+    ],
+    "completionRequires": [
+      "controlledOperationalValidation",
+      "feedbackReview",
+      "commercialAgreement",
+      "unit",
+      "e2e",
+      "build",
+      "mergedPullRequest"
+    ]
+  },
+  "lifecycleState": "activation-pending-sync",
   "lastClosedMilestone": "4.5",
-  "activeMilestone": null,
+  "activeMilestone": "4.6",
   "nextAction": {
-    "kind": "await-next-milestone-approval",
-    "title": "Esperar aprobación del siguiente hito",
-    "text": "Esperar aprobación humana explícita antes de definir o activar el siguiente hito.",
+    "kind": "implement-checkpoint",
+    "title": "4.6-A: Ejecutar la prueba controlada de Edgar",
+    "text": "En la rama `feature/hito-4-6-controlled-real-pilot`, implementar únicamente el checkpoint **4.6-A: Ejecutar la prueba controlada de Edgar** y sus pruebas, sin ampliar el alcance.",
     "commitHint": null,
-    "doneWhen": "Una persona aprueba explícitamente el alcance y la activación de un próximo hito."
+    "doneWhen": "La evidencia configurada existe, las pruebas relevantes pasan y el diff no conecta envíos ni servicios externos."
   }
 }
