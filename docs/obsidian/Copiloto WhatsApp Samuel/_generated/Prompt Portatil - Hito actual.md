@@ -2,7 +2,7 @@
 type: generated-active-milestone-portable-prompt
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-29
+updated: 2026-08-30
 ---
 
 # Prompt portátil — Hito actual
@@ -15,7 +15,7 @@ El Hito 4.6 está activo y su validación operativa sigue pendiente.
 - Hito: **4.6 — Piloto real controlado de Edgar**.
 - Rama documental/de referencia: `feature/hito-4-6-controlled-real-pilot`.
 - Último hito cerrado: **4.5**.
-- Implementación observada: `de38920`; no equivale a validación operativa completada.
+- Implementación observada: `03dee83`; no equivale a validación operativa completada.
 
 ## Siguiente acción
 

@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-29",
+  "observedDate": "2026-08-30",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
-    "branch": "fix/hito-4-6-shadow-persistence-and-qr",
-    "sha": "de38920c13432e84b29e024d18f38703d29e9d37",
-    "shortSha": "de38920",
-    "subject": "docs(hito-4.6): activate operational pilot and documentation-first flow (#80)",
-    "committedAt": "2026-08-29T22:26:22-06:00",
+    "branch": "main",
+    "sha": "03dee83175bc374110b2beef47fb44834a953b07",
+    "shortSha": "03dee83",
+    "subject": "fix(ci): trigger documentation sync for policy changes (#84)",
+    "committedAt": "2026-08-30T16:35:56-06:00",
     "pullRequest": {
-      "number": 80,
-      "title": "docs(hito-4.6): activate operational pilot and documentation-first flow (#80)",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/80",
+      "number": 84,
+      "title": "fix(ci): trigger documentation sync for policy changes",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84",
       "state": "closed",
-      "mergedAt": null,
-      "source": "commit-subject"
+      "mergedAt": "2026-08-30T22:35:56Z",
+      "source": "github-api"
     },
-    "ciUrl": null
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -33,12 +33,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "not_run",
-    "e2e": "not_run",
-    "build": "not_run",
+    "unit": "passed",
+    "e2e": "passed",
+    "build": "passed",
     "discoveredTests": {
-      "unit": 133,
-      "e2e": 3
+      "unit": 242,
+      "e2e": 6
     }
   },
   "architecture": {
