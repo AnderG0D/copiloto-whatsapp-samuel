@@ -348,6 +348,10 @@ if (waitingForApproval) {
   state.lifecycleState = milestoneConfig.lifecycleState;
   state.lastClosedMilestone = milestoneConfig.lastClosedMilestone;
   state.activeMilestone = null;
+} else {
+  state.lifecycleState = milestoneConfig.lifecycleState;
+  state.lastClosedMilestone = milestoneConfig.lastClosedMilestone;
+  state.activeMilestone = milestoneConfig.activeMilestone;
 }
 
 state.nextAction = deriveNextAction({
