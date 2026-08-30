@@ -7,6 +7,7 @@ on:
     paths:
       - '**'
       - '!docs/**'
+      - 'docs/control/documentation-policy.json'
       - 'docs/control/milestones.json'
       - 'docs/control/handoff-state.json'
 
