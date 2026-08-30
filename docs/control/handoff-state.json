@@ -9,8 +9,8 @@
     "noLeadSend": true
   },
   "activationPullRequest": {
-    "number": 78,
-    "headRef": "feature/hito-4-6-controlled-real-pilot"
+    "number": 80,
+    "headRef": "docs/close-hito-4-6"
   },
   "documentationFirst": true
 }
