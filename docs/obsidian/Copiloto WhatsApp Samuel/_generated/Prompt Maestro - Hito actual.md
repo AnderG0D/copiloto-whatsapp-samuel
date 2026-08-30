@@ -15,7 +15,7 @@ El Hito 4.6 está activo y su validación operativa sigue pendiente.
 - Hito: **4.6 — Piloto real controlado de Edgar**.
 - Rama documental/de referencia: `feature/hito-4-6-controlled-real-pilot`.
 - Último hito cerrado: **4.5**.
-- Implementación observada: `4e6803f`; no equivale a validación operativa completada.
+- Implementación observada: `de38920`; no equivale a validación operativa completada.
 
 ## Siguiente acción
 

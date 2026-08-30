@@ -15,7 +15,7 @@ type ShadowPilotCompose = Readonly<{
   sender: false;
   autoSendMessages: false;
   noLeadSend: true;
-  qr: false;
+  qr: true;
   contacts: readonly [];
   leads: readonly [];
   externalServices: readonly [];
@@ -39,17 +39,17 @@ describe('shadow pilot isolation manifests', () => {
     expect(manifests.map((manifest) => manifest.id)).toEqual(
       SHADOW_PILOT_ALLOWLIST,
     );
-    expect(SHADOW_PILOT_ALLOWLIST).toEqual([
-      'shadow-edgar',
-      'shadow-samuel',
-    ]);
+    expect(SHADOW_PILOT_ALLOWLIST).toEqual(['shadow-edgar', 'shadow-samuel']);
   });
 
-  it.each(manifests)('$id has one dedicated operator allowlist entry', (manifest) => {
-    expect(manifest.allowlist).toEqual([manifest.operatorId]);
-    expect(manifest.allowlist).toHaveLength(1);
-    expect(manifest.allowlist[0]).toBe(`operator-${manifest.id}`);
-  });
+  it.each(manifests)(
+    '$id has one dedicated operator allowlist entry',
+    (manifest) => {
+      expect(manifest.allowlist).toEqual([manifest.operatorId]);
+      expect(manifest.allowlist).toHaveLength(1);
+      expect(manifest.allowlist[0]).toBe(`operator-${manifest.id}`);
+    },
+  );
 
   it('matches every manifest identity to the live service configuration', () => {
     const configurations = getShadowPilotConfigurations();
@@ -74,18 +74,22 @@ describe('shadow pilot isolation manifests', () => {
       'evolutionInstanceName',
       'dataNamespace',
     ] as const) {
-      expect(new Set(manifests.map((manifest) => manifest[field])).size).toBe(2);
+      expect(new Set(manifests.map((manifest) => manifest[field])).size).toBe(
+        2,
+      );
     }
   });
 
-  it.each(manifests)('$id is a no-send, no-contact local manifest', (manifest) => {
-    expect(manifest.sender).toBe(false);
-    expect(manifest.autoSendMessages).toBe(false);
-    expect(manifest.noLeadSend).toBe(true);
-    expect(manifest.qr).toBe(false);
-    expect(manifest.contacts).toEqual([]);
-    expect(manifest.leads).toEqual([]);
-    expect(manifest.externalServices).toEqual([]);
-  });
-
+  it.each(manifests)(
+    '$id is a no-send, no-contact local manifest',
+    (manifest) => {
+      expect(manifest.sender).toBe(false);
+      expect(manifest.autoSendMessages).toBe(false);
+      expect(manifest.noLeadSend).toBe(true);
+      expect(manifest.qr).toBe(true);
+      expect(manifest.contacts).toEqual([]);
+      expect(manifest.leads).toEqual([]);
+      expect(manifest.externalServices).toEqual([]);
+    },
+  );
 });

@@ -9,7 +9,7 @@ updated: 2026-08-29
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `docs/close-hito-4-6` en `4e6803f`. Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `fix/hito-4-6-shadow-persistence-and-qr` en `de38920`, asociado al [PR #80](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/80). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 

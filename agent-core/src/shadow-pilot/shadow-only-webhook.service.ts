@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   ShadowReceiveOnlyGuard,
   type ShadowReceiveOnlyRejectionReason,
 } from './shadow-receive-only.guard';
+import { SHADOW_ONLY_ACTIVE_PILOT } from './shadow-only.config';
+import type { ShadowPilotId } from './shadow-pilot.config';
 
 type ShadowOnlyRejectionReason =
   | ShadowReceiveOnlyRejectionReason
@@ -12,6 +14,8 @@ type ShadowOnlyRejectionReason =
 export class ShadowOnlyWebhookService {
   constructor(
     private readonly shadowReceiveOnlyGuard: ShadowReceiveOnlyGuard,
+    @Inject(SHADOW_ONLY_ACTIVE_PILOT)
+    private readonly activePilotId: ShadowPilotId = 'shadow-edgar',
   ) {}
 
   handleIncomingWebhook(payload: unknown) {
@@ -26,9 +30,9 @@ export class ShadowOnlyWebhookService {
       };
     }
 
-    const isEdgar = decision.pilotId === 'shadow-edgar';
-    const accepted = isEdgar && decision.accepted;
-    const rejectionReason: ShadowOnlyRejectionReason | undefined = isEdgar
+    const isActivePilot = decision.pilotId === this.activePilotId;
+    const accepted = isActivePilot && decision.accepted;
+    const rejectionReason: ShadowOnlyRejectionReason | undefined = isActivePilot
       ? decision.rejectionReason
       : 'inactive_shadow_pilot';
 

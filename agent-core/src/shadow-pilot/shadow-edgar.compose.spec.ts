@@ -10,6 +10,9 @@ describe('Edgar shadow-only Compose', () => {
     join(__dirname, '../../../docker-compose.yaml'),
     'utf8',
   );
+  const manifest = JSON.parse(
+    readFileSync(join(__dirname, 'shadow-edgar.compose.json'), 'utf8'),
+  ) as { qr: boolean };
 
   function serviceBlock(serviceName: string): string {
     const serviceStart = compose.indexOf(`  ${serviceName}:`);
@@ -77,6 +80,7 @@ describe('Edgar shadow-only Compose', () => {
     expect(compose).toContain('WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"');
     expect(compose).toContain('WEBHOOK_EVENTS_QRCODE_UPDATED: "true"');
     expect(compose).toContain('QRCODE_LIMIT: "30"');
+    expect(manifest.qr).toBe(true);
     expect(evolutionService).toContain('SERVER_NAME: evolution-shadow-edgar');
     expect(evolutionService).toContain(
       'WEBHOOK_GLOBAL_URL: http://shadow-edgar-api:3311/webhooks/evolution',
@@ -109,9 +113,12 @@ describe('Edgar shadow-only Compose', () => {
     );
   });
 
-  it('applies the documented QR-linking workaround only to Edgar Evolution', () => {
+  it('disables every operational persistence category while retaining instance state', () => {
     const evolutionService = serviceBlock('shadow-edgar-evolution-api');
-    const workaround = {
+    const persistence = {
+      DATABASE_SAVE_DATA_INSTANCE: 'true',
+      DATABASE_SAVE_DATA_NEW_MESSAGE: 'false',
+      DATABASE_SAVE_MESSAGE_UPDATE: 'false',
       CACHE_REDIS_ENABLED: 'false',
       CACHE_LOCAL_ENABLED: 'true',
       DATABASE_SAVE_DATA_CHATS: 'false',
@@ -121,12 +128,15 @@ describe('Edgar shadow-only Compose', () => {
       CONFIG_SESSION_PHONE_VERSION: '2.3000.1033773198',
     };
 
-    for (const [name, value] of Object.entries(workaround)) {
+    for (const [name, value] of Object.entries(persistence)) {
       expect(evolutionService).toContain(`${name}: "${value}"`);
     }
 
-    expect(evolutionService).toContain(
-      'DATABASE_SAVE_DATA_NEW_MESSAGE: "true"',
+    expect(evolutionService).not.toMatch(
+      /DATABASE_SAVE_DATA_(?:NEW_MESSAGE|CONTACTS|CHATS|HISTORIC|LABELS|LEADS):\s*"true"/i,
+    );
+    expect(evolutionService).not.toMatch(
+      /DATABASE_SAVE_MESSAGE_UPDATE:\s*"true"/i,
     );
     expect(evolutionService).toContain(
       'DATABASE_CONNECTION_URI: "postgresql://shadow_edgar:${SHADOW_EDGAR_POSTGRES_PASSWORD_URLENCODED:?Set SHADOW_EDGAR_POSTGRES_PASSWORD_URLENCODED in the environment}@shadow-edgar-postgres:5432/shadow_edgar?schema=public"',
@@ -134,6 +144,21 @@ describe('Edgar shadow-only Compose', () => {
     expect(evolutionService).toContain('QRCODE_LIMIT: "30"');
     expect(evolutionService).not.toContain('CACHE_REDIS_ENABLED: "true"');
     expect(evolutionService).not.toContain('CACHE_LOCAL_ENABLED: "false"');
+  });
+
+  it('does not load secrets from files or leave required variables unresolved', () => {
+    expect(compose).not.toContain('env_file:');
+
+    for (const expression of compose.matchAll(/\$\{([^}]+)\}/g)) {
+      expect(expression[1]).toMatch(/:\?|:-/);
+    }
+
+    expect(compose).toMatch(
+      /AUTHENTICATION_API_KEY:\s*"\$\{SHADOW_EDGAR_EVOLUTION_API_KEY:\?[^}]+\}"/,
+    );
+    expect(compose).toMatch(
+      /POSTGRES_PASSWORD:\s*"\$\{SHADOW_EDGAR_POSTGRES_PASSWORD:\?[^}]+\}"/,
+    );
   });
 
   it('uses the URL-encoded password only for the Evolution database URI', () => {
