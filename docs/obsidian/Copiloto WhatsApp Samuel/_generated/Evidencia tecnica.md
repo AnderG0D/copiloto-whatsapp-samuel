@@ -10,10 +10,10 @@ updated: 2026-08-30
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `03dee83`, asociado al [PR #84](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84).
-- Commit completo: `03dee83175bc374110b2beef47fb44834a953b07`.
-- Mensaje: fix(ci): trigger documentation sync for policy changes (#84).
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963).
+- Fuente: `main` en `9787ada`, asociado al [PR #87](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/87).
+- Commit completo: `9787ada5a411eb84fb09e634360787dd10a0fd68`.
+- Mensaje: fix(docs): allow workflow path in post-merge verification (#87).
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33343397952).
 
 ## Validación
 
