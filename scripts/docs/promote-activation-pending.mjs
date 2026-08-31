@@ -11,6 +11,7 @@ const contractPath = 'docs/control/handoff-state.json';
 const milestonesPath = 'docs/control/milestones.json';
 const statePath = 'docs/_generated/project-state.json';
 const maintenanceRepairPaths = new Set([
+  '.github/workflows/documentation-sync.yml',
   'docs/obsidian/Copiloto WhatsApp Samuel/02 Hitos/Hito 04.5 - Piloto UX en sombra WhatsApp-first.md',
   'scripts/docs/verify-activation-promotion.mjs',
   'scripts/docs/activation-promotion.spec.mjs',
@@ -60,6 +61,10 @@ function gitBytes(root, args) {
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+export function isAuthorizedMaintenanceRepairPath(filename) {
+  return maintenanceRepairPaths.has(filename);
 }
 
 async function readJson(root, relativePath) {
@@ -236,7 +241,7 @@ async function verifySnapshotPullRequest({
     'post-merge snapshot repair must use an explicit fix/docs-* branch');
   ensure(Array.isArray(files) && files.length > 0,
     'post-merge snapshot repair must provide a non-empty pull request diff');
-  const unauthorized = files.find(({ filename }) => !maintenanceRepairPaths.has(filename));
+  const unauthorized = files.find(({ filename }) => !isAuthorizedMaintenanceRepairPath(filename));
   if (unauthorized) {
     ensure(false, `post-merge snapshot repair cannot modify ${unauthorized.filename}`);
   }
