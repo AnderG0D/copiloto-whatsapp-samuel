@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "03dee83175bc374110b2beef47fb44834a953b07",
-    "shortSha": "03dee83",
-    "subject": "fix(ci): trigger documentation sync for policy changes (#84)",
-    "committedAt": "2026-08-30T16:35:56-06:00",
+    "sha": "9787ada5a411eb84fb09e634360787dd10a0fd68",
+    "shortSha": "9787ada",
+    "subject": "fix(docs): allow workflow path in post-merge verification (#87)",
+    "committedAt": "2026-08-30T18:02:49-06:00",
     "pullRequest": {
-      "number": 84,
-      "title": "fix(ci): trigger documentation sync for policy changes",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/84",
+      "number": 87,
+      "title": "fix(docs): allow workflow path in post-merge verification",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/87",
       "state": "closed",
-      "mergedAt": "2026-08-30T22:35:56Z",
+      "mergedAt": "2026-08-31T00:02:49Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33339582963"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33343397952"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
