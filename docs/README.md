@@ -21,6 +21,14 @@ El código y GitHub prueban qué existe. Los ADR, el alcance, la visión y el ro
 
 La clasificación exacta vive en `control/documentation-policy.json`.
 
+## Evidencia técnica reproducible
+
+La regla transversal `FD-EVIDENCIA-01` vive en `control/documentation-policy.json`, bajo `technicalEvidenceContract`. Toda auditoría, revisión de código o validación de runtime, Docker, Supabase, pipeline o documentación debe registrar evidencia reproducible, sanitizada y trazable.
+
+Usa la plantilla [Estándar de Evidencia Técnica Reproducible](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Estándar%20de%20Evidencia%20Técnica%20Reproducible.md). El contrato exige objetivo, alcance, contexto de Git y entorno, acción, salida original sanitizada, esperado/observado, estado, riesgos, decisión, siguiente checkpoint y autorización cuando aplique. Los únicos estados válidos son `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` y `UNKNOWN`.
+
+No inventes evidencia ni conserves logs crudos, secretos, datos personales, payloads sensibles o datos de leads reales. Si la evidencia no existe, registra `UNKNOWN`, `BLOCKED` o `NOT_RUN`.
+
 ## Una sola siguiente acción
 
 La nota canónica es:

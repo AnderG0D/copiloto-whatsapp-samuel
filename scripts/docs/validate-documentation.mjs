@@ -54,6 +54,53 @@ export function validateGeneratedDeclaration(file, category, frontmatter, issues
   }
 }
 
+export function validateTechnicalEvidenceContract(policy, issues) {
+  const contract = policy.technicalEvidenceContract;
+  const requiredFields = [
+    'objective', 'scope', 'project', 'milestone', 'environment', 'branch', 'commit',
+    'action', 'sanitizedOriginalOutput', 'expected', 'observed', 'status',
+    'findingsAndRisks', 'decision', 'nextCheckpoint', 'requiredAuthorization',
+  ];
+  const allowedStatuses = [
+    'PASS', 'PASS_WITH_WARNINGS', 'FAIL', 'BLOCKED', 'NOT_RUN', 'UNKNOWN',
+  ];
+  const requiredRules = {
+    forbidInventedEvidence: true,
+    missingEvidenceStatuses: ['UNKNOWN', 'BLOCKED', 'NOT_RUN'],
+    requireSanitizedOutput: true,
+    forbidRawLogPersistence: true,
+    forbidSensitiveData: true,
+    automationPreservesHumanGovernance: true,
+    requireExplicitHumanApprovalToAdvanceMilestone: true,
+  };
+
+  if (!contract || typeof contract !== 'object') {
+    issues.push('docs/control/documentation-policy.json: missing technicalEvidenceContract');
+    return;
+  }
+  if (contract.id !== 'FD-EVIDENCIA-01') {
+    issues.push('docs/control/documentation-policy.json: technicalEvidenceContract.id must be FD-EVIDENCIA-01');
+  }
+  if (!Number.isInteger(contract.version) || contract.version < 1) {
+    issues.push('docs/control/documentation-policy.json: technicalEvidenceContract.version must be a positive integer');
+  }
+  if (!Array.isArray(contract.requiredFields)
+    || requiredFields.some((field) => !contract.requiredFields.includes(field))) {
+    issues.push('docs/control/documentation-policy.json: technicalEvidenceContract.requiredFields is incomplete');
+  }
+  if (!Array.isArray(contract.allowedStatuses)
+    || contract.allowedStatuses.length !== allowedStatuses.length
+    || allowedStatuses.some((status) => !contract.allowedStatuses.includes(status))) {
+    issues.push('docs/control/documentation-policy.json: technicalEvidenceContract.allowedStatuses is incomplete');
+  }
+  if (!contract.rules || typeof contract.rules !== 'object'
+    || Object.entries(requiredRules).some(([rule, value]) => (
+      JSON.stringify(contract.rules[rule]) !== JSON.stringify(value)
+    ))) {
+    issues.push('docs/control/documentation-policy.json: technicalEvidenceContract.rules is incomplete');
+  }
+}
+
 function outsideCodeFences(text) {
   const output = [];
   let fence = null;
@@ -85,6 +132,7 @@ export async function validateDocumentation(args = {}) {
   const docsRoot = policy.repositoryDocsRoot;
   const markdownFiles = await listFiles(docsRoot, (file) => file.endsWith('.md'));
   const issues = [];
+  validateTechnicalEvidenceContract(policy, issues);
   const titles = new Map();
   const hashes = new Map();
 

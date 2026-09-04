@@ -4,7 +4,7 @@ project: Copiloto WhatsApp Samuel
 area: flujo-de-desarrollo
 status: active
 created: 2026-07-08
-updated: 2026-08-29
+updated: 2026-09-03
 aliases:
   - Flujo de Trabajo - ChatGPT Web + Codex
   - Sistema operativo de desarrollo del Copiloto
@@ -83,6 +83,16 @@ Durante el hito, actualizar la documentación paso a paso, marcar cada checkpoin
 Para cerrar un hito, confirmar el alcance completo; ejecutar pruebas, build, validaciones documentales, formato y `git diff --check`; verificar invariantes de seguridad y ausencia de secretos o datos reales; completar checklists y evidencia; y hacer commit, push, PR y merge sólo con autorización humana explícita. El merge remoto debe usar **Create a merge commit**. Después, actualizar la copia canónica con `git fetch origin` y `git merge --ff-only origin/main`, verificar que `main` esté limpia y exactamente alineada con `origin/main`, y sólo entonces preparar el siguiente hito y crear su nuevo worktree.
 
 Si hay estado ambiguo, cambios locales no explicados, conflictos, pruebas pendientes o documentación desalineada, detenerse y reportarlo.
+
+## Regla transversal: evidencia técnica reproducible
+
+`FD-EVIDENCIA-01` se aplica a toda auditoría, revisión de código, prueba de runtime, validación de Docker, Supabase, pipeline o documentación. Cada ejecución debe dejar una evidencia reproducible, sanitizada y trazable usando la [[Estándar de Evidencia Técnica Reproducible|plantilla estándar]]. El contrato machine-readable vive en `docs/control/documentation-policy.json`, dentro de `technicalEvidenceContract`, y `npm run docs:check` verifica su estructura mínima.
+
+La evidencia debe registrar objetivo, alcance, proyecto, hito, entorno, rama, commit, comando o acción ejecutada, salida original sanitizada, esperado, observado, estado, hallazgos y riesgos, decisión, siguiente checkpoint y autorización requerida cuando aplique. La salida debe ser suficiente para repetir o revisar la acción, pero nunca un log crudo persistido automáticamente.
+
+Los únicos estados permitidos son `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` y `UNKNOWN`. No se inventa evidencia: si falta, se registra `UNKNOWN`, `BLOCKED` o `NOT_RUN`, indicando por qué y qué falta para despejarla. Antes de guardar una salida, eliminar secretos, tokens, contraseñas, datos personales, payloads sensibles y datos de leads reales.
+
+La evidencia generada sólo puede conservar hechos derivados de código, GitHub y validaciones ejecutadas. No autoriza a la automatización a modificar ADR, roadmap, alcance, decisiones humanas o archivo histórico, ni a avanzar de hito: para esto último siempre hace falta aprobación humana explícita. La plantilla no sustituye esa aprobación y no autoriza commit, push, PR ni merge.
 
 ## Regla oficial y estricta del ciclo Git
 
