@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-30",
+  "observedDate": "2026-09-03",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "9787ada5a411eb84fb09e634360787dd10a0fd68",
-    "shortSha": "9787ada",
-    "subject": "fix(docs): allow workflow path in post-merge verification (#87)",
-    "committedAt": "2026-08-30T18:02:49-06:00",
+    "sha": "91d39bd4b6777589fcd1d18220850fb9333252c5",
+    "shortSha": "91d39bd",
+    "subject": "Merge pull request #89 from AnderG0D/docs/evidence-technical-standard",
+    "committedAt": "2026-09-03T22:21:29-06:00",
     "pullRequest": {
-      "number": 87,
-      "title": "fix(docs): allow workflow path in post-merge verification",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/87",
+      "number": 89,
+      "title": "docs: establish reproducible technical evidence standard",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/89",
       "state": "closed",
-      "mergedAt": "2026-08-31T00:02:49Z",
+      "mergedAt": "2026-09-04T04:21:30Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33343397952"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33836508368"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",

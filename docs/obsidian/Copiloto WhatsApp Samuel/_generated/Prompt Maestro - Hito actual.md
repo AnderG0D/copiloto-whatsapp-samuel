@@ -144,6 +144,9 @@ Esta acción identifica el primer checkpoint funcional, pero permanece bloqueada
 > - Do not mark a milestone `DONE` unless its configured acceptance evidence, merge state and required checks are verifiably complete.
 > - Technology reviews create recommendations only. They must not change dependencies, model defaults, ADRs or roadmap items automatically.
 > - Keep exactly one canonical next action in `_generated/Siguiente accion.md`; other Obsidian panels must transclude it instead of copying it.
+> - Apply FD-EVIDENCIA-01: every audit, code review, runtime, Docker, Supabase, pipeline, or documentation validation must produce reproducible, sanitized, traceable evidence according to `docs/control/documentation-policy.json`.
+> - Evidence must record the objective, scope, project, milestone, environment, branch, commit, action, sanitized original output, expected and observed results, status, findings and risks, decision, next checkpoint, and any required authorization. Use only `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN`, or `UNKNOWN`.
+> - Never invent evidence. Missing evidence is `UNKNOWN`, `BLOCKED`, or `NOT_RUN`; never persist raw logs, secrets, tokens, passwords, personal data, sensitive payloads, or real lead data. Automation must not change ADRs, roadmap, scope, human decisions, or archival history, and no milestone may advance without explicit human approval.
 
 ### Validación
 
