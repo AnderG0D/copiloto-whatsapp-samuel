@@ -2,14 +2,14 @@
 type: generated-project-state
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-08-30
+updated: 2026-09-03
 ---
 
 # Estado actual
 
 <!-- AUTO:BEGIN project-state -->
 > [!info] Fuente
-> Estado observado en `main` en `9787ada`, asociado al [PR #87](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/87). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
+> Estado observado en `main` en `91d39bd`, asociado al [PR #89](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/89). Generado desde el código, Git y GitHub; no sustituye decisiones humanas.
 
 ## Hito actual
 
