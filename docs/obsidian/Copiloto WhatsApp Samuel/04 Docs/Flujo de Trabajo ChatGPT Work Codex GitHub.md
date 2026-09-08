@@ -4,7 +4,7 @@ project: Copiloto WhatsApp Samuel
 area: flujo-de-desarrollo
 status: active
 created: 2026-07-08
-updated: 2026-09-04
+updated: 2026-09-08
 aliases:
   - Flujo de Trabajo - ChatGPT Web + Codex
   - Sistema operativo de desarrollo del Copiloto
@@ -129,29 +129,35 @@ git branch --show-current
 git status --short --branch
 git ls-files --others --exclude-standard
 git log --oneline origin/main..main
+git rev-parse HEAD
+git rev-parse origin/main
 git diff --check
 ```
 
-Si cualquiera de las comprobaciones no es inequívocamente correcta, detenerse. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolver el estado de forma explícita y con autorización humana cuando corresponda.
+Los SHA deben coincidir antes de iniciar el ciclo; si no coinciden, sólo se permite el fast-forward seguro descrito a continuación cuando `main` está detrás y no tiene commits locales. Si cualquiera de las comprobaciones no es inequívocamente correcta, detenerse. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolver el estado de forma explícita y con autorización humana cuando corresponda.
 
 ### Sincronización exacta de `main`
 
 Sólo después de superar la puerta anterior, actualizar la copia canónica con estos comandos exactos:
 
 ```powershell
-git fetch origin
+git fetch origin main
 git merge --ff-only origin/main
+git rev-parse HEAD
+git rev-parse origin/main
 ```
 
-No realizar merges automáticos ni usar `git pull` u otro comando ambiguo. Si `git merge --ff-only origin/main` falla, detenerse y resolver explícitamente; no crear worktrees ni ramas desde ese estado.
+Los dos SHA finales deben ser exactamente iguales. Si `main` está atrasada y no hay commits locales, éste es el único método permitido para actualizarla. No realizar merges automáticos ni usar `git pull` u otro comando ambiguo. Si `git merge --ff-only origin/main` falla, o si `main` está adelantada, divergente, sucia o ambigua, detenerse y resolver explícitamente; no crear worktrees ni ramas desde ese estado. Nunca usar `git reset --hard`, `git clean`, force, rebase destructivo ni descartar commits locales.
 
 ### Creación y uso de worktrees
 
 Crear cada worktree y su rama únicamente después de que `main` local esté actualizado, limpio y alineado con `origin/main`:
 
 ```powershell
-git worktree add -b <rama> <ruta-del-worktree> main
+git worktree add -b <rama> <ruta-del-worktree> origin/main
 ```
+
+La rama usa uno de estos prefijos: `feature/`, `fix/`, `test/`, `docs/` o `chore/`. La ruta también es descriptiva, por ejemplo `C:\Users\manzo\Desktop\Freelance\Copilot-feature-<descripcion>`. No desarrollar, editar ni probar el cambio desde la copia canónica de `main`.
 
 Trabajar exclusivamente dentro del worktree correspondiente. El código, las pruebas y la documentación relacionada forman parte del mismo trabajo y deben incluirse y validarse dentro de ese worktree. La copia canónica no se usa para desarrollar, editar ni validar cambios de una tarea.
 
@@ -171,6 +177,10 @@ Antes de declarar `DONE`, comprobar y conservar evidencia de:
 
 La autorización humana explícita es obligatoria antes de cualquier commit, push, creación de PR, merge o rerun de procesos remotos. No se presume por el hecho de que las validaciones locales estén verdes.
 
+Cada checkpoint debe registrar objetivo concreto, alcance y archivos autorizados, comportamiento esperado, validaciones, evidencia sanitizada y reproducible, riesgos y una única siguiente acción. Antes de pasar al siguiente checkpoint, actualizar la documentación fuente y la evidencia correspondiente, ejecutar los checks documentales disponibles, revisar el diff y confirmar que código y documentación describen el mismo estado. La documentación fuente relacionada viaja en el mismo PR; un PR documental automático separado también requiere revisión y validación.
+
+Para cambios documentales, ejecutar los scripts existentes desde la raíz: `npm run test:docs`, `npm run docs:check`, `npm run docs:handoff:check` y `git diff --check`. Para cambios backend, añadir las validaciones unitarias, e2e y build documentadas. No inventar comandos: si falta un script o no puede ejecutarse, registrarlo como `NOT_RUN` o `BLOCKED` con el riesgo restante.
+
 ### Integración remota
 
 El código y la documentación relacionada se integran en `main`. Si la automatización genera un PR de documentación separado, ambos PR deben aprobarse, pasar sus checks y quedar mergeados antes de continuar. Todo merge a `main` debe realizarse usando **Create a merge commit**; no usar squash merge, rebase merge ni una variante automática.
@@ -187,7 +197,35 @@ Después de confirmar que todos los PR relacionados están mergeados y que sus c
 
 Si la copia canónica está sucia, atrasada, adelantada, tiene conflictos, worktrees ambiguos o PRs pendientes, detener el ciclo. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolverlo explícitamente.
 
-No eliminar worktrees históricos automáticamente. Su eliminación requiere revisión y autorización explícita.
+Si una validación local o de CI falla, detener el avance, conservar la salida completa sanitizada y clasificar el fallo como ruta/worktree, configuración, código, documentación, prueba o permisos. Corregir únicamente el alcance del mismo PR, repetir las validaciones relacionadas, revisar de nuevo el diff y esperar los checks verdes. No usar rerun, merge automático ni auto-merge sin autorización explícita.
+
+Un PR documental automático forma parte del mismo ciclo: revisar archivos y alcance, verificar que no sobrescriba ADR, roadmap, archivo u otras decisiones humanas, comprobar sus checks, corregir sus fallos y solicitar autorización separada para su merge. Después, volver a confirmar la sincronización exacta entre `main` remoto y local.
+
+No eliminar worktrees históricos automáticamente. Sólo se puede proponer la limpieza con autorización explícita cuando el PR está fusionado, el worktree está limpio, no hay cambios sin commit, parches únicos ni PR abierto, y se conserva la rama remota. Nunca limpiar `main`, worktrees protegidos, ramas con trabajo único o ramas remotas; nunca usar `--force`, `git reset --hard` o `git clean` como limpieza normal.
+
+### Relevo entre sesiones
+
+Todo reporte de trabajo debe incluir esta información verificable:
+
+```text
+Ruta del worktree:
+Rama:
+HEAD:
+Estado de Git:
+Checkpoint terminado:
+Qué falta:
+Bloqueo:
+Siguiente acción:
+Comando para retomar:
+```
+
+El comando de relevo es siempre exacto, por ejemplo:
+
+```powershell
+Set-Location 'C:\Users\manzo\Desktop\Freelance\Copilot-docs-strict-main-workflow'
+```
+
+No cerrar una sesión con “continuará”: entregar la ruta anterior, rama activa, último checkpoint confirmado y la única siguiente acción.
 
 ### Checklists operativas
 

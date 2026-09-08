@@ -47,6 +47,20 @@
 - Do not commit, push, open a pull request or merge unless the task explicitly requests it.
 - The `npm run lint` script applies automatic fixes. If it is used, inspect every resulting change before keeping it.
 
+## Protected main and worktree lifecycle
+
+- `C:\Users\manzo\Desktop\Freelance\Copilot` is exclusively the clean local mirror of `origin/main`; it is never a development, test or editing checkout.
+- Before and after every cycle, work from that canonical path, confirm branch `main`, a clean worktree and no local commits, run `git fetch origin main`, then compare both `git rev-parse HEAD` and `git rev-parse origin/main`. They must match exactly.
+- If local `main` is behind with no local commits, update only with a safe fast-forward (`git merge --ff-only origin/main`). If it is ahead, divergent, dirty or ambiguous, stop and report the blocker. Never use `git reset --hard`, `git clean`, force, destructive rebase or discard local commits.
+- Every `feature`, `fix`, `test`, `docs` or `chore` change requires a new branch and descriptive worktree created from synchronized `origin/main`. Use branches such as `feature/<description>` and worktrees such as `C:\Users\manzo\Desktop\Freelance\Copilot-feature-<description>`.
+- Each checkpoint records its concrete objective, allowed scope and files, expected behavior, validations, sanitized reproducible evidence, risks and exactly one next action. Before advancing, update the relevant source documentation and evidence, run available documentation checks, review the diff, and confirm code and documentation agree.
+- Before a commit, run the validations applicable to the change. For documentation use only scripts that exist, currently `npm run test:docs`, `npm run docs:check`, `npm run docs:handoff:check`, and `git diff --check`; backend work also requires the documented unit, e2e and build validations.
+- After local validation, inspect `git status` and `git diff`, and confirm only authorized files changed. Commit, push, PR creation, remote reruns and merge each require separate explicit authorization. Do not include secrets, real data, logs, `node_modules` or `dist`.
+- Do not merge until required PR checks are green. On failure, stop, preserve sanitized output, classify it as route/worktree, configuration, code, documentation, test or permissions, correct only the active PR scope, repeat related validation and review the diff. Never use rerun, auto-merge or automatic merge without explicit authorization.
+- After authorized **merge commit** integration, confirm the remote `main` SHA, safely fast-forward the clean canonical checkout, and again prove `HEAD` equals `origin/main`. The cycle remains open until both SHAs match. Review any automatic documentation PR as part of that cycle; it needs its own scope/check review and separate merge authorization.
+- Report every handoff with: worktree path, branch, HEAD, Git status, completed checkpoint, remaining work, blocker, next action, and the exact `Set-Location '<active-worktree-path>'` command. Do not end with an unspecified continuation.
+- Propose cleaning a worktree or local branch only after its PR merged, the worktree is clean, there are no uncommitted or unique patches and no open PR, the remote branch will remain, and explicit authorization exists to remove both local items. Never clean `main`, protected worktrees or branches, remote branches, or anything with unique work; never use `--force`, `git reset --hard` or `git clean` for normal cleanup.
+
 ## Documentation governance
 
 - The repository copy under `docs/obsidian/Copiloto WhatsApp Samuel/` is the source of truth for project documentation.
