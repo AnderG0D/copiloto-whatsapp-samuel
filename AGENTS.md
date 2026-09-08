@@ -36,6 +36,8 @@
   - `git status --short --branch`
 - Read the relevant files and the closest applicable `AGENTS.md` before making changes.
 - Keep each change scoped to one small, reviewable result.
+- Codex is the executor for repository work; the active prompt defines the concrete checkpoint and its allowed scope.
+- Do not touch files outside that checkpoint without explicit authorization.
 - Do not refactor unrelated modules.
 - Preserve existing architecture unless the task explicitly authorizes an architectural change.
 - Add or update tests for behavior changes.
@@ -75,6 +77,17 @@ npm run build
 - If a command cannot run, report the exact command, failure and remaining unverified risk.
 - For documentation-only changes, tests and build may be skipped when clearly reported as not applicable.
 - For documentation automation changes, run `npm run docs:check` from the repository root once that script is available.
+
+## Continuity and ADHD-friendly execution
+
+- Treat the repository documentation as external memory; do not require Hiram to remember the whole project or conversation.
+- At the beginning of each work cycle, identify the current state, completed work, active result, remaining work, blocker and next physical action.
+- Keep one active result and one next action at a time.
+- Execute one command or one physical action per turn, then wait for and inspect the complete output.
+- When a command fails, stop additional changes, classify the failure, apply one scoped correction and repeat the related validation.
+- After each meaningful result, record the checkpoint and update the project state or next action.
+- Do not restart Docker, change branches, edit unrelated files or run destructive cleanup merely because the first attempt failed.
+- Preserve the receive-only and no-send invariants during development.
 
 ## Definition of done
 

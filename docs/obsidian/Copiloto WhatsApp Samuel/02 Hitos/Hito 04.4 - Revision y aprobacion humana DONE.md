@@ -5,7 +5,7 @@ status: done
 fase: Fase 2 — IA de texto segura
 hito: 4.4
 completed: 2026-08-18
-updated: 2026-08-19
+updated: 2026-09-03
 aliases:
   - Hito 4.4 - Revision y aprobacion humana
   - Hito 4.4 - Human review
@@ -53,7 +53,10 @@ Este gate:
 - Pruebas de transiciones, idempotencia y ausencia de envío.
 - `AUTO_SEND_MESSAGES=false` durante todo el hito.
 
-El diseño exacto de persistencia para 4.4-A todavía no está fijado. Primero se inspeccionará el esquema real y se comparará extender `response_drafts` contra una entidad separada de revisiones o decisiones.
+La implementación de 4.4 conserva `response_drafts` como fuente del borrador y
+usa `response_draft_decisions` para registrar la decisión humana de forma
+auditable. El detalle exacto del esquema permanece definido por la migración y
+los tipos del repositorio.
 
 ## Progreso observado
 
@@ -100,6 +103,9 @@ Crear una API interna en NestJS con:
 - identidad del operador obtenida del contexto autenticado;
 - rechazo de identidad enviada únicamente por el body;
 - sin dashboard visual todavía.
+
+El panel web no formó parte del alcance cerrado de este hito. La decisión
+posterior establece que será la superficie principal de revisión del producto.
 
 La inspección actual no encontró módulos de autenticación o guards reutilizables. Su diseño deberá revisarse antes de implementar este checkpoint.
 
@@ -188,6 +194,7 @@ La evidencia de cierre usa el merge `a84206b` como último cambio funcional del 
 
 ## Lo que sigue
 
-**Hito 4.5 — Piloto UX en sombra WhatsApp-first.**
+**Hito 4.5 — Piloto UX en sombra WhatsApp-first**, seguido por el Hito 4.6 de
+validación controlada de Edgar.
 
 > La IA propone. NestJS controla. El humano decide. Aprobar todavía no envía.

@@ -2,7 +2,7 @@
 type: technical-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Flujo WhatsApp a Supabase
@@ -21,6 +21,11 @@ WhatsApp
 → calcular scoring
 → guardar message
 → actualizar lead
+→ construir contexto seguro
+→ generar borrador con Gemini
+→ persistir `response_drafts` como `PROPOSED`
+→ notificar opcionalmente al operador
+→ detenerse sin envío a la lead
 ```
 
 ## Identidad de negocio
@@ -41,16 +46,19 @@ El flujo debe impedir que un duplicado vuelva a sumar score.
 
 La implementación conocida procesa texto y captions. Audio, imágenes y documentos como contenido real pertenecen a hitos futuros.
 
-## Límite actual
+## Límite actual del piloto receive-only
 
 ```text
-Persistencia + scoring
+Persistencia + scoring + contexto + borrador PROPOSED
 ```
 
-No debe existir todavía:
+El piloto puede ejecutar el pipeline técnico de generación y persistencia, pero
+no puede enviar respuestas a leads. El preview por WhatsApp, si se usa, solo se
+dirige al canal autorizado del operador.
 
-- generación automática dentro del webhook;
-- envío;
+Todavía no forman parte de este flujo:
+
+- envío automático a leads;
 - inventario;
 - medios;
 - mutaciones administrativas.

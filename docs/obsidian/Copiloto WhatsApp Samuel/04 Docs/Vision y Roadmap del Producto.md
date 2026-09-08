@@ -2,7 +2,7 @@
 type: product-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Visión y Roadmap del Producto
@@ -30,6 +30,18 @@ El primer negocio es `Autos Samuel Ford`; la base debe poder reutilizarse para b
 - Revisa leads prioritarios.
 - Toma o libera conversaciones.
 - Autoriza acciones delicadas.
+
+### Modelo híbrido de revisión
+
+- El panel web interno es el centro principal para revisar conversaciones y
+  borradores.
+- El panel muestra mensaje, scores, clasificación, razón, señales comerciales,
+  contexto seguro y draft de Gemini.
+- Samuel puede aprobar, editar y aprobar, o rechazar.
+- WhatsApp solo funciona como notificación opcional o atajo para el operador.
+- El frontend se comunica con NestJS; nunca consulta Supabase con claves
+  secretas.
+- Aprobar un borrador no equivale a enviarlo.
 
 ## Principios
 
@@ -70,6 +82,21 @@ El primer negocio es `Autos Samuel Ford`; la base debe poder reutilizarse para b
 - Samuel puede aprobar, editar o rechazar.
 - El sistema registra la decisión.
 - Todavía sin automatización general.
+
+#### Hito 4.5 — Piloto UX en sombra
+
+- Aislamiento por piloto y canal de operador.
+- El cierre histórico fue WhatsApp-first.
+- La decisión vigente para la experiencia principal prioriza el panel web.
+
+#### Hito 4.6 — Piloto real controlado de Edgar
+
+- Recepción y validación técnica en entorno aislado.
+- Persistencia de mensajes, scoring, contexto y `response_drafts.PROPOSED`.
+- Preview opcional únicamente al operador.
+- `SHADOW_ONLY_MODE=edgar`, `SENDER=false`, `AUTO_SEND_MESSAGES=false` y
+  `NO_LEAD_SEND=true`.
+- Sin envío a leads ni activación comercial.
 
 ### Fase 3 — Inventario confiable
 
@@ -141,6 +168,8 @@ El primer negocio es `Autos Samuel Ford`; la base debe poder reutilizarse para b
 ### Fase 6 — Piloto y producción
 
 - Piloto supervisado.
+- Revisión principal mediante panel web autenticado.
+- WhatsApp como notificación o atajo opcional del operador.
 - Métricas de calidad y costo.
 - Automatización de casos seguros.
 - Observabilidad.

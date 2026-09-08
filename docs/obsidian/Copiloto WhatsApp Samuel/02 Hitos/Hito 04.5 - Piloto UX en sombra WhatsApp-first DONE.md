@@ -6,13 +6,20 @@ fase: Fase 2 — IA de texto segura
 hito: 4.5
 activated: 2026-08-19
 completed: 2026-08-25
-updated: 2026-08-25
+updated: 2026-09-03
 aliases:
   - Hito 4.5 - Piloto UX en sombra
   - Hito 4.5 - Shadow WhatsApp-first pilot
 ---
 
 # Hito 4.5 — Piloto UX en sombra WhatsApp-first
+
+> [!note] Alcance histórico y decisión vigente
+> Este hito validó un enfoque **WhatsApp-first** para el canal restringido del
+> operador. Posteriormente se decidió que, para la operación del producto, el
+> **panel web interno** será el centro principal de revisión y WhatsApp quedará
+> como notificación opcional o atajo. Esta nota conserva el alcance histórico
+> del hito y no debe interpretarse como la decisión de canal actual.
 
 ## Objetivo alcanzado
 
@@ -100,9 +107,11 @@ La IA genera candidatos únicamente; NestJS conserva las decisiones y efectos de
 - [x] `test:docs` exitoso.
 - [x] No se introdujeron llamadas a servicios externos, envíos reales ni cambios de infraestructura.
 
-## Estado posterior al cierre
+## Estado posterior al cierre del hito
 
-El proyecto espera aprobación humana explícita antes de definir o activar otro hito. No hay hito activo, rama operativa, checkpoint pendiente ni destino de relevo.
+Al momento de cerrar este hito, el proyecto esperaba aprobación humana
+explícita antes de definir o activar otro hito. Ese estado histórico fue
+reemplazado por la activación del Hito 4.6.
 
 ## Evidencia de cierre
 
@@ -110,6 +119,7 @@ El proyecto espera aprobación humana explícita antes de definir o activar otro
 
 > Cero envío a leads. `sender=false`, `AUTO_SEND_MESSAGES=false` y `noLeadSend=true` permanecen vigentes.
 
-## Lo que sigue
+## Lo que siguió
 
-El proyecto queda en espera de aprobación humana explícita antes de definir o activar cualquier otro hito. No hay hito activo, rama operativa, checkpoint pendiente ni destino de relevo.
+El siguiente hito es [[Hito 04.6 - Piloto real controlado de Edgar]], con
+receive-only y cero envío a leads.

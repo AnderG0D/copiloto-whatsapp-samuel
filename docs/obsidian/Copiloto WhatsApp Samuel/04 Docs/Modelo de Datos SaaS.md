@@ -2,7 +2,7 @@
 type: database-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Modelo de Datos SaaS
@@ -62,21 +62,43 @@ business_id + phone
 - `raw_payload`
 - `created_at`
 
-## Extensión propuesta para borradores
+## Borradores y revisión humana confirmados
 
 ### `response_drafts`
 
-No corresponde al Hito 4.2 aislado; se evaluará en el Hito 4.3.
+Tabla operativa confirmada desde el Hito 4.3. Conserva el borrador generado
+antes de cualquier decisión humana.
 
 - `id`
 - `business_id`
 - `lead_id`
 - `source_message_id`
 - `text`
-- `status`: `PROPOSED`, `APPROVED`, `EDITED`, `REJECTED`, `EXPIRED`
-- `approved_by`
+- `status`: comienza en `PROPOSED`; los estados posteriores dependen de la
+  decisión de revisión implementada.
+- `source_message_id` enlaza el borrador con el mensaje entrante que lo
+  originó.
 - `created_at`
 - `updated_at`
+
+`response_drafts` es la fuente de verdad del borrador y su estado. La decisión
+humana no se infiere desde WhatsApp ni desde el frontend.
+
+### `response_draft_decisions`
+
+Entidad confirmada para auditar la revisión del Hito 4.4. Registra, como
+mínimo, el borrador afectado, la acción humana (`APPROVE`,
+`EDIT_AND_APPROVE` o `REJECT`), el operador autenticado, el texto final cuando
+exista y la fecha de decisión. El esquema exacto permanece definido por la
+migración y los tipos del repositorio.
+
+Reglas:
+
+- `operator_id` proviene del contexto autenticado de NestJS.
+- `EDIT_AND_APPROVE` conserva el texto original y registra el texto editado
+  por separado.
+- Una decisión aprobada no representa un envío.
+- La idempotencia evita duplicar decisiones para la misma operación.
 
 ## Extensión propuesta para operadores
 

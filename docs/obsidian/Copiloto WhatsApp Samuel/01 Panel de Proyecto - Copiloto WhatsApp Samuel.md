@@ -3,9 +3,9 @@ type: project-dashboard
 project: Copiloto WhatsApp Samuel
 system: Pensar-Hacer v1
 status: active
-fase: Fase 2 — IA de texto segura
-hito_actual: Hito 4.4 — Revisión y aprobación humana
-updated: 2026-08-04
+fase: Fase 2 — IA de texto segura / piloto receive-only
+hito_actual: Hito 4.6 — Piloto real controlado de Edgar
+updated: 2026-09-03
 aliases:
   - Panel de Ejecucion - Copiloto WhatsApp Samuel
 ---
@@ -27,26 +27,49 @@ aliases:
 ![[Evidencia tecnica]]
 <!-- AUTO:END dashboard-state -->
 
+## Modelo operativo vigente
+
+El panel web interno es el centro principal para revisar borradores. WhatsApp
+solo puede utilizarse como notificación opcional o atajo para el operador.
+
+El panel debe mostrar:
+
+- mensaje recibido;
+- score del mensaje y de la lead;
+- clasificación y razón;
+- señales comerciales;
+- contexto/historial seguro;
+- draft generado por Gemini.
+
+Las acciones son **Aprobar**, **Editar y aprobar** y **Rechazar**. El frontend
+se comunica únicamente con NestJS; nunca consulta Supabase directamente con
+claves secretas. `response_drafts` conserva la fuente de verdad.
+
+WhatsApp no escribe el draft en la barra de composición. Si se habilita un
+preview, se dirige únicamente al canal autorizado del operador.
+
 ## Hito activo
 
-**Hito 4.4 — Revisión y aprobación humana**
+**Hito 4.6 — Piloto real controlado de Edgar**
 
 Resultado esperado:
 
 ```text
-borrador PROPOSED
-→ operador autenticado
-→ aprobar | editar y aprobar | rechazar
-→ texto original preservado
-→ decisión auditable
-→ sin envío
+mensaje de prueba recibido
+→ scoring y contexto seguro
+→ Gemini genera y persiste response_drafts.PROPOSED
+→ notificación opcional al operador
+→ revisión posterior por NestJS/panel
+→ cero envío a la lead
 ```
 
-### Condición previa al desarrollo funcional
+La validación técnica del pipeline no equivale a activar envío a leads ni a
+cerrar el piloto comercial.
 
-Antes de comenzar técnicamente 4.4-A debe quedar fusionado y validado, en un PR independiente, el sistema determinista de relevo automático entre hitos.
+### Estado de revisión humana
 
-Este gate documental no reemplaza la próxima acción canónica generada ni forma parte de los checkpoints funcionales 4.4-A a 4.4-D.
+El backend de decisiones del Hito 4.4 ya está documentado como cerrado. Falta
+construir o integrar la superficie web del operador conforme al modelo híbrido.
 
 ## Producto final
 
@@ -69,16 +92,21 @@ Este gate documental no reemplaza la próxima acción canónica generada ni form
 
 Riesgos de producto que requieren decisiones humanas:
 
-- No existe todavía un canal administrativo autenticado para Samuel.
+- El panel web de revisión todavía no está construido como superficie principal.
 - No existe todavía un modelo de inventario real confirmado por migraciones.
 
 ## Regla de seguridad
 
 ```text
+SHADOW_ONLY_MODE=edgar
+SENDER=false
 AUTO_SEND_MESSAGES=false
+NO_LEAD_SEND=true
 ```
 
-La IA propone. NestJS valida. Samuel aprueba cuando la acción cambia datos o puede contactar a un lead.
+La IA propone. NestJS valida y controla. Samuel decide en el panel cuando la
+acción puede contactar a un lead. En el piloto Edgar no se permite ningún
+envío a leads.
 
 ## Recordatorio
 

@@ -2,7 +2,7 @@
 type: technical-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Arquitectura y Flujo Principal
@@ -49,6 +49,15 @@ flowchart TD
 
 Durante desarrollo, el flujo termina en el borrador.
 
+En el piloto receive-only de Edgar, el flujo técnico ya puede persistir el
+mensaje, scoring, contexto y `response_drafts.PROPOSED`. La revisión principal
+del operador se diseñará en el panel web interno; WhatsApp solo puede emitir
+una notificación o preview opcional al canal autorizado del operador.
+
+```text
+Panel web → NestJS autenticado → response_drafts / decisiones → sin acceso directo del frontend a Supabase
+```
+
 ## Ruta administrativa
 
 ```mermaid
@@ -70,6 +79,15 @@ flowchart TD
 | Supabase | Persistir datos y archivos | Decidir reglas comerciales |
 | Evolution API | Transportar mensajes y medios | Autorizar acciones de negocio |
 | Samuel | Aprobar, corregir, tomar control | Ser identificado solo porque el texto dice “soy Samuel” |
+
+## Modelo híbrido de revisión
+
+- El panel web interno es la superficie principal para revisar borradores.
+- Debe mostrar mensaje, scores, clasificación, razón, señales, contexto seguro
+  y draft de Gemini.
+- Las acciones son aprobar, editar y aprobar, o rechazar.
+- `response_drafts` conserva la fuente de verdad.
+- La revisión nunca habilita por sí sola el envío a leads.
 
 ## Flujo futuro de respuesta basada en inventario
 

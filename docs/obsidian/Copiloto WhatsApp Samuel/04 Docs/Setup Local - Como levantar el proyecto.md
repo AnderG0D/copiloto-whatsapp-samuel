@@ -2,7 +2,7 @@
 type: setup-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Setup Local — Cómo levantar el proyecto
@@ -32,6 +32,22 @@ Durante la prueba, actualizar la nota del hito con evidencia real y distinguir l
 <!-- AUTO:BEGIN setup-runtime -->
 ![[Evidencia tecnica]]
 <!-- AUTO:END setup-runtime -->
+
+## Piloto Edgar receive-only
+
+Cuando se use el runtime aislado de Edgar, verificar y conservar:
+
+```text
+SHADOW_ONLY_MODE=edgar
+SENDER=false
+AUTO_SEND_MESSAGES=false
+NO_LEAD_SEND=true
+```
+
+El entorno puede recibir mensajes de prueba, persistir scoring, contexto y
+`response_drafts.PROPOSED`, y notificar opcionalmente al operador. No puede
+enviar respuestas a leads. No imprimir secretos, tokens, números completos,
+JIDs completos, payloads ni cuerpos completos de respuestas.
 
 ## Repositorio
 

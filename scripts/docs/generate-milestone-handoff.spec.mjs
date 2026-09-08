@@ -29,6 +29,8 @@ const docsRoot = 'docs/obsidian/Copiloto WhatsApp Samuel';
 const contractPath = 'docs/control/handoff-state.json';
 const milestonesPath = 'docs/control/milestones.json';
 const statePath = 'docs/_generated/project-state.json';
+const frontendAuditPath = 'docs/control/hito-4.6-runtime-evidence.json';
+const adminReadContractEvidencePath = 'docs/control/hito-4.6-admin-read-contract-evidence.json';
 const canonicalActionPath = `${docsRoot}/_state/Siguiente accion.md`;
 const requiredEvidencePath = 'evidence/required-closing-file.txt';
 
@@ -124,6 +126,191 @@ async function createFixture(t, {
   git(root, ['config', 'user.email', 'docs-test@example.invalid']);
 
   await writeFixtureFile(root, requiredEvidencePath, 'verified\n');
+  await writeFixtureJson(root, frontendAuditPath, {
+    objective: 'Cerrar documentalmente la evidencia local del panel administrativo same-origin /admin/panel.',
+    scope: 'Panel administrativo NestJS same-origin y revisión de response_drafts.',
+    project: 'Copiloto WhatsApp Samuel.',
+    milestone: 'Hito 4.6 / preparación de revisión híbrida.',
+    environment: 'Verificación local mediante pruebas Nest.',
+    branch: 'main',
+    commit: 'de762e77d1a17581fa7947725efe28a107e94d71',
+    action: 'Verificación local del panel administrativo same-origin.',
+    expected: 'Confirmar una superficie administrativa autenticada.',
+    observed: 'El panel same-origin /admin/panel está implementado y validado localmente.',
+    status: 'PASS_WITH_WARNINGS',
+    findingsAndRisks: 'El uso real en navegador permanece pendiente de HTTPS por la cookie Secure.',
+    decision: 'No aceptar ADMIN_REVIEW_TOKEN en endpoints administrativos.',
+    nextCheckpoint: 'Realizar una verificación explícitamente autorizada en navegador sobre HTTPS.',
+    requiredAuthorization: 'Autorización explícita para cualquier despliegue o verificación HTTPS real.',
+    panel: {
+      route: '/admin/panel',
+      authentication: 'ADMIN_WEB_PASSWORD_HASH mediante node:crypto/scrypt',
+      session: 'Sesión firmada en cookie HttpOnly',
+      cookie: 'Secure y SameSite=Strict',
+      csrf: 'Obligatorio',
+      authorization: 'Autorización por negocio preservada',
+      cors: 'Restringido al ADMIN_WEB_ORIGIN HTTPS exacto',
+      adminReviewToken: 'No aceptado por los endpoints administrativos',
+      flows: [
+        'login/logout',
+        'Listado paginado de drafts PROPOSED',
+        'Detalle con máximo 10 mensajes de contexto',
+        'Aprobar, editar/aprobar y rechazar',
+      ],
+      client: "credentials: 'include'",
+      browserSecurity: 'Ausencia de Bearer, secretos y almacenamiento web; renderizado seguro con textContent',
+    },
+    observations: [
+      '65 pruebas administrativas PASS',
+      '2 pruebas de lectura de response drafts PASS',
+      '261 pruebas unitarias PASS',
+      '6 pruebas e2e PASS',
+      'npm run build PASS',
+      'git diff --check PASS',
+      'Verificación local mediante pruebas Nest',
+      'Uso real en navegador pendiente de HTTPS por la cookie Secure',
+      'No hubo cambios en .env',
+      'No hubo migraciones, Docker, servicios externos, mensajes WhatsApp ni envíos a leads',
+      'No se modificó receive-only',
+    ],
+    manualPanelHttpsVerification: {
+      id: 'manual-admin-panel-https-local',
+      type: 'manual-browser-checkpoint',
+      status: 'PASS_WITH_WARNINGS',
+      localSupabase: {
+        purpose: 'Instancia local usada únicamente para QA.',
+        appliedMigrations: [
+          '20260807020218_create_response_draft_decisions.sql',
+          '20260903090000_enable_response_draft_review_transitions.sql',
+        ],
+        remoteOrProductionTouched: false,
+      },
+      fixture: {
+        paths: [
+          'scripts/qa/fixtures/local-panel-fixture.sql',
+          'scripts/qa/fixtures/local-panel-fixture.cleanup.sql',
+        ],
+        syntheticUuids: {
+          business: '00000000-0000-4000-8000-000000000001',
+          lead: '00000000-0000-4000-8000-000000000002',
+          messages: [
+            '00000000-0000-4000-8000-000000000003',
+            '00000000-0000-4000-8000-000000000004',
+          ],
+          draft: '00000000-0000-4000-8000-000000000005',
+        },
+        draftState: 'PROPOSED',
+        existingDecisions: 0,
+        verifiedInLocalDatabase: true,
+        cleaned: true,
+        cleanupCounts: { drafts: 1, messages: 2, leads: 1, businesses: 1 },
+      },
+      controlledStartup: {
+        agentCoreAgainstLocalSupabase: 'PASS',
+        administrativeRoutesRegistered: true,
+        httpsProxy: 'https://localhost:3443 hacia http://localhost:3000',
+      },
+      browser: {
+        inbox: 'PASS',
+        detail: 'PASS',
+        reviewActions: 'NOT_RUN',
+        leadSends: 'NOT_RUN',
+        productionAndExternalServices: 'NOT_RUN',
+        productionHttps: 'NOT_RUN',
+      },
+      verifiedFacts: [
+        '/admin/panel cargó mediante https://localhost:3443.',
+        'El aviso Not secure correspondió al certificado local de desarrollo no confiable.',
+        'El login con sesión web local funcionó.',
+        'La bandeja mostró el draft sintético PROPOSED.',
+        'El detalle mostró el texto del borrador, el mensaje de origen, contexto de 2 mensajes, fechas y estado.',
+        'Las acciones Aprobar, Editar y aprobar y Rechazar fueron visibles y no se ejecutó ninguna.',
+        'El fixture se verificó en la base local y se limpió correctamente: 1 draft, 2 mensajes, 1 lead y 1 negocio sintéticos.',
+        'No se enviaron mensajes a leads, WhatsApp ni Evolution.',
+      ],
+      warnings: [
+        'La validación fue únicamente local; no hubo despliegue ni prueba en un dominio HTTPS real.',
+        'El certificado local no fue validado por una autoridad confiable.',
+        'Para exponer el panel se ejecutó temporalmente la composición normal de AppModule sin SHADOW_ONLY_MODE; esto no debe interpretarse como reemplazo del runtime aislado de Edgar.',
+        'Se mantuvieron SENDER=false, AUTO_SEND_MESSAGES=false y NO_LEAD_SEND=true.',
+        'Se usó un placeholder de GEMINI_API_KEY solo en el proceso temporal para permitir el arranque; no se invocó Gemini ni el webhook.',
+        'No se enviaron mensajes de WhatsApp ni a leads.',
+        'No se ejecutaron migraciones.',
+        'No se modificó .env.',
+        'No se iniciaron Docker, Evolution ni servicios externos adicionales.',
+        'Backend y proxy HTTPS temporales fueron detenidos ordenadamente.',
+      ],
+    },
+    reviewActionsCheckpoint: {
+      id: 'manual-admin-review-actions-local',
+      type: 'manual-browser-review-actions-checkpoint',
+      status: 'PASS_WITH_WARNINGS',
+      scope: 'Prueba exclusivamente local con datos sintéticos y UUID v4; sin producción, servicios externos, Evolution, WhatsApp, envíos a leads ni acciones sobre leads reales.',
+      safetyInvariants: { sender: false, autoSendMessages: false, noLeadSend: true },
+      classification: {
+        administrativeActions: 'PASS',
+        approvePersistence: 'PASS',
+        editAndApprovePersistence: 'PASS',
+        rejectPersistence: 'PASS',
+        leadSends: 'NOT_RUN',
+        production: 'NOT_RUN',
+        productionHttps: 'NOT_RUN',
+        whatsappEvolutionIntegration: 'NOT_RUN',
+      },
+      environment: 'Supabase local y navegador mediante panel web local; Supabase local fue detenido después de la prueba.',
+      fixtures: [
+        'scripts/qa/fixtures/local-panel-fixture.sql',
+        'scripts/qa/fixtures/local-panel-fixture.cleanup.sql',
+        'scripts/qa/fixtures/local-review-actions-fixture.sql',
+        'scripts/qa/fixtures/local-review-actions-fixture.cleanup.sql',
+      ],
+      drafts: [
+        { id: '00000000-0000-4000-8000-000000000005', finalState: 'APPROVED', decision: 'APPROVE' },
+        {
+          id: '00000000-0000-4000-8000-000000000008',
+          finalState: 'APPROVED',
+          decision: 'EDIT_AND_APPROVE',
+          finalTextPersisted: true,
+          observedFinalTextLength: 136,
+        },
+        { id: '00000000-0000-4000-8000-000000000009', finalState: 'REJECTED', decision: 'REJECT' },
+      ],
+      manualObservations: [
+        'Login web local exitoso.',
+        'La bandeja y el detalle cargaron correctamente.',
+        'Se probó aprobar, editar y aprobar con texto sintético y rechazar.',
+        'Las tarjetas procesadas dejaron de aparecer en la bandeja PROPOSED.',
+        'No se ejecutaron envíos ni acciones sobre leads reales.',
+      ],
+      cleanup: {
+        reviewFixtureCleanup: 'NOT_RUN',
+        reason: 'El script aborta de forma segura porque existen decisiones y no debe borrar historial.',
+        localSupabaseStopped: true,
+        localVolumeDeleted: false,
+      },
+      warnings: [
+        'La validación fue local y manual.',
+        'El proxy HTTPS local mostró advertencia de certificado/no seguridad del navegador.',
+        'Esto no es validación de HTTPS productivo, despliegue ni producción.',
+        'No documentar contraseñas, hashes, claves, URLs de conexión ni valores de variables.',
+      ],
+    },
+  });
+  await writeFixtureJson(root, adminReadContractEvidencePath, {
+    evidenceId: 'FD-EVIDENCIA-01-4.6-ADMIN-READ-CONTRACT',
+    type: 'documentary-checkpoint',
+    project: 'Copiloto WhatsApp Samuel',
+    milestone: 'Hito 4.6',
+    date: '2026-09-06',
+    status: 'PASS_WITH_WARNINGS',
+    designApproved: true,
+    implementationAuthorized: false,
+    sourceDocument: 'docs/obsidian/Copiloto WhatsApp Samuel/04 Docs/Contrato administrativo de lectura y autenticacion del panel interno.md',
+    observed: 'El contrato administrativo de lectura y el modelo provisional de autenticación fueron aprobados documentalmente.',
+    warnings: 'La migración local de transición permanece NOT_VERIFIED.',
+    runtime: { receiveOnly: true, leadSends: 0, changed: false },
+    nextCheckpoint: 'Implementar únicamente después de revisar nuevamente este diseño documentado y obtener autorización explícita.',
+  });
   const mergeCommit = commitAll(root, 'feat: close functional work');
 
   const activeMilestone = {
@@ -559,6 +746,40 @@ test('generates the valid 4.3 to 4.4 transition', async (t) => {
     /`AUTO_SEND_MESSAGES=false`\./,
     /Aprobar un borrador no envía mensajes\./,
     /No existe envío automático dentro de este alcance\./,
+    /Panel \| `\/admin\/panel`/,
+    /ADMIN_WEB_PASSWORD_HASH mediante node:crypto\/scrypt/,
+    /Sesión firmada en cookie HttpOnly/,
+    /Secure y SameSite=Strict/,
+    /ADMIN_REVIEW_TOKEN \| No aceptado por los endpoints administrativos/,
+    /65 pruebas administrativas PASS/,
+    /Uso real en navegador pendiente de HTTPS por la cookie Secure/,
+    /Contrato administrativo de lectura aprobado/,
+    /Diseño aprobado \| sí/,
+    /Implementación autorizada \| no/,
+    /Endpoints GET \| `NOT_IMPLEMENTED`/,
+    /Checkpoint manual de verificación HTTPS local del panel/,
+    /Estado: `PASS_WITH_WARNINGS`/,
+    /Bandeja del panel \| `PASS`/,
+    /Detalle del panel \| `PASS`/,
+    /Acciones de revisión \| `NOT_RUN`/,
+    /Envíos a leads \| `NOT_RUN` \(prohibidos en este alcance\)/,
+    /Producción y servicios externos \| `NOT_RUN`/,
+    /Fixture sintético aislado/,
+    /fixture limpiado: `YES`/,
+    /La bandeja mostró el draft sintético PROPOSED\./,
+    /Las acciones Aprobar, Editar y aprobar y Rechazar fueron visibles y no se ejecutó ninguna\./,
+    /No se enviaron mensajes a leads, WhatsApp ni Evolution\./,
+    /Checkpoint local de acciones de revisión/,
+    /Estado general: `PASS_WITH_WARNINGS`/,
+    /Acciones administrativas locales \| `PASS`/,
+    /Persistencia de APPROVE \| `PASS`/,
+    /Persistencia de EDIT_AND_APPROVE \| `PASS`/,
+    /Persistencia de REJECT \| `PASS`/,
+    /00000000-0000-4000-8000-000000000005.*APPROVED.*APPROVE/s,
+    /00000000-0000-4000-8000-000000000008.*APPROVED.*EDIT_AND_APPROVE.*sí.*136/s,
+    /00000000-0000-4000-8000-000000000009.*REJECTED.*REJECT/s,
+    /Cleanup del fixture de revisión: `NOT_RUN`/,
+    /No se afirma que el volumen local haya sido eliminado\./,
   ];
   for (const [name, content] of Object.entries(outputs)) {
     const text = content.toString('utf8');
@@ -571,6 +792,10 @@ test('generates the valid 4.3 to 4.4 transition', async (t) => {
       `${name} does not place the gate before the first functional action`,
     );
   }
+  const audit = await readFixtureJson(fixture.root, frontendAuditPath);
+  assert.equal(audit.manualPanelHttpsVerification.browser.reviewActions, 'NOT_RUN');
+  assert.equal(audit.reviewActionsCheckpoint.status, 'PASS_WITH_WARNINGS');
+  assert.equal(audit.reviewActionsCheckpoint.drafts[1].observedFinalTextLength, 136);
   assert.match(outputs.masterPrompt.toString('utf8'), /Prompt maestro — Hito 4\.4/);
   assert.match(outputs.historicalHandoff.toString('utf8'), /4\.3-to-4\.4/);
   assert.ok(Object.values(outputs).every((content) => !content.includes('\r')));

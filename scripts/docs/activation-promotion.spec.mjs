@@ -163,7 +163,7 @@ test('workflow filters include isolated handoff-state changes and the closed 4.5
     readFile('.github/workflows/backend-ci.yml', 'utf8'),
   ]);
   assert.match(closedMilestone, /^status: done$/m);
-  assert.match(closedMilestone, /espera aprobación humana explícita/);
+  assert.match(closedMilestone, /esperaba aprobación humana\s+explícita/);
   assert.match(closedMilestone, /noLeadSend=true/);
   assert.match(syncWorkflow, /'docs\/control\/handoff-state\.json'/);
   assert.match(backendWorkflow, /--await-promotion --source-sha/);

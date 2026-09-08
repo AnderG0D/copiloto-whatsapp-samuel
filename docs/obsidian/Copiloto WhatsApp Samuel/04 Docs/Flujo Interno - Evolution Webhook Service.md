@@ -2,14 +2,17 @@
 type: technical-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-07-31
+updated: 2026-09-03
 ---
 
 # Flujo Interno — Evolution Webhook Service
 
 ## Responsabilidad actual
 
-Orquestar la entrada de mensajes válidos hasta su persistencia y scoring.
+Orquestar la entrada de mensajes válidos desde su persistencia y scoring hasta
+la construcción de contexto, la generación segura de un borrador y su
+persistencia como `PROPOSED`. En el piloto Edgar, la notificación opcional solo
+puede dirigirse al operador.
 
 ## Secuencia conocida
 
@@ -27,7 +30,11 @@ Orquestar la entrada de mensajes válidos hasta su persistencia y scoring.
 12. Guardar mensaje.
 13. Evitar duplicado.
 14. Actualizar lead.
-15. Responder resultado técnico al webhook.
+15. Construir contexto seguro.
+16. Generar borrador mediante `AiProvider`/Gemini.
+17. Persistir `response_drafts` como `PROPOSED`.
+18. Notificar opcionalmente al operador.
+19. Responder resultado técnico al webhook sin enviar a la lead.
 
 ## Diagrama
 
@@ -46,16 +53,17 @@ flowchart TD
 
 ## Lo que no debe hacer todavía
 
-- Construir prompts.
-- Instanciar Gemini.
 - Consultar inventario.
-- Enviar WhatsApp.
+- Enviar respuestas a leads.
 - Autorizar a Samuel.
 - Ejecutar reportes.
 
 ## Dirección futura
 
-Después del Hito 4.2, la generación de borradores podrá ser llamada por una capa de orquestación. Evitar convertir el webhook en un servicio gigante.
+La generación de borradores ya forma parte del pipeline validado desde el Hito
+4.3. Debe mantenerse encapsulada en sus servicios y no convertir el webhook en
+un servicio gigante. La decisión humana se persiste por el flujo de revisión;
+aprobar no equivale a enviar.
 
 ## Seguridad
 

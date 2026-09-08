@@ -5,7 +5,7 @@ status: active
 importance: critical
 review: daily-until-paid-pilot
 created: 2026-08-07
-updated: 2026-08-07
+updated: 2026-09-03
 aliases:
   - Camino al piloto UX con Samuel
   - Puente entre desarrollo y piloto pagado
@@ -51,15 +51,22 @@ Mientras el piloto pagado no haya comenzado, revisar estas cinco preguntas al in
 
 ## 📍 Dónde estamos realmente
 
-Al crear esta nota, el proyecto se encuentra en el **Hito 4.4 — Revisión y aprobación humana**.
+El proyecto se encuentra en el **Hito 4.6 — Piloto real controlado de Edgar**.
 
-La siguiente pieza es `4.4-A`, basada en una entidad separada llamada `response_draft_decisions`, para conservar el borrador original y registrar de forma auditable si un operador:
+Los Hitos 4.4 y 4.5 ya están cerrados. El runtime aislado de Edgar ya validó
+recepción, scoring, contexto, generación con Gemini, persistencia de
+`response_drafts.PROPOSED` y preview opcional al operador. El cierre completo
+del piloto y la secuencia posterior con Samuel siguen pendientes.
+
+La base de revisión usa `response_draft_decisions` para conservar el borrador
+original y registrar de forma auditable si un operador:
 
 - aprueba;
 - edita y aprueba;
 - rechaza.
 
-Durante todo el Hito 4.4, la IA propone, Samuel decide y la decisión queda auditada, pero todavía no se envía nada.
+Durante el piloto, la IA propone, NestJS controla y Samuel decide; todavía no
+se envía nada a leads.
 
 Invariantes actuales:
 
@@ -67,7 +74,19 @@ Invariantes actuales:
 - Aprobar un borrador **no equivale a enviarlo**.
 - `sender=false`.
 - `AUTO_SEND_MESSAGES=false`.
-- No hay envío automático ni manual desde el nuevo flujo de revisión.
+- `NO_LEAD_SEND=true`.
+- No hay envío automático ni manual a leads desde el flujo de revisión.
+
+### Decisión de canal para la revisión
+
+- El **panel web interno** es el centro principal de revisión.
+- WhatsApp es únicamente una notificación opcional o atajo para el operador.
+- El panel debe mostrar mensaje recibido, scores, clasificación, razón, señales
+  comerciales, contexto/historial seguro y draft de Gemini.
+- El frontend se comunica exclusivamente con NestJS y nunca consulta Supabase
+  directamente con claves secretas.
+- WhatsApp no escribe el draft en la barra de composición.
+- El preview de WhatsApp, si se usa, solo se envía al canal del operador.
 
 > [!warning] No confundir “cerca del final”
 > Cerrar 4.4 no significa que toda la producción esté terminada. Significa que estará terminada la **base segura de texto y decisión humana**. Ahí comienza lo más valioso: poner el producto frente a Samuel, aprender de su uso real y convertirlo en un servicio pagado.
@@ -98,22 +117,24 @@ flowchart TD
     F --> G["Automatización híbrida gradual"]
 ```
 
-### Etapa 1 — Cerrar Hito 4.4
+### Etapa 1 — Cerrar Hito 4.4 [completada]
 
-Completar en orden:
+Se completó en orden:
 
 - **4.4-A:** persistencia auditable de decisiones humanas;
 - **4.4-B:** servicio de revisión humana;
 - **4.4-C:** API administrativa con identidad confiable;
 - **4.4-D:** pruebas, idempotencia y demostración de ausencia de envío.
 
-Resultado:
+Resultado alcanzado:
 
 > Samuel puede decidir sobre un borrador, pero el sistema todavía no contacta al lead.
 
-### Etapa 2 — Construir el piloto UX en sombra
+### Etapa 2 — Construir y validar el piloto UX en sombra
 
-Después de cerrar 4.4, crear una interfaz mínima para que Samuel pueda usar el flujo sin afectar WhatsApp.
+Después de cerrar 4.4, la experiencia se valida sin afectar a las leads. El
+panel web es la superficie principal; WhatsApp solo puede notificar al
+operador como atajo opcional.
 
 La pantalla mínima debe mostrar:
 
@@ -126,8 +147,8 @@ La pantalla mínima debe mostrar:
 - historial de decisiones;
 - aviso muy visible: **“Esta acción todavía no envía mensajes”**.
 
-> [!note] Bloque recomendado, todavía no canónico
-> Puede manejarse como un pequeño hito de preparación del piloto —por ejemplo, `4.5`—, pero el número y alcance deben fijarse en el roadmap antes de implementarlo. No debe mezclarse dentro de 4.4-A.
+> [!note] Estado de esta etapa
+> El Hito 4.5 ya fue definido y cerrado. Su alcance histórico fue el piloto WhatsApp-first para el canal restringido; la superficie principal actual de revisión es el panel web interno.
 
 ### Etapa 3 — Invitar a Samuel al modo sombra
 
@@ -174,9 +195,15 @@ Después de una demostración y una ronda pequeña de feedback:
 5. recibir aceptación y el pago o anticipo acordado;
 6. solamente entonces preparar el despliegue vivo.
 
-### Etapa 6 — Desplegar la versión supervisada
+### Etapa 6 — Desplegar la versión supervisada [futura y condicionada]
 
-El primer despliegue debe activar este flujo: el lead escribe; el Copiloto analiza y consulta datos reales; propone texto y medios; Samuel revisa y aprueba; el sistema envía una sola vez; y todo queda auditado.
+Solo después de completar la validación, acordar el alcance y recibir el pago o
+anticipo pactado con Samuel podrá prepararse este flujo: el lead escribe; el
+Copiloto analiza y consulta datos reales; propone texto y medios; Samuel revisa
+y aprueba; un sender autorizado envía una sola vez; y todo queda auditado.
+
+Esta etapa no está activa. Edgar permanece en receive-only y ninguna decisión
+documental actual autoriza el envío a leads.
 
 El hosting inicial puede ser económico, pero debe elegirse después de medir los recursos reales del stack. El piloto no debe convertirse en una prueba de fallos provocados por falta de memoria, almacenamiento o respaldo.
 
@@ -220,13 +247,13 @@ El objetivo no es impresionarlo con una pantalla grande. Es comprobar que el Cop
 
 Mostrarle un recorrido corto:
 
-1. llega un mensaje real o de prueba;
-2. aparece el lead y su clasificación;
-3. se muestra el contexto;
-4. aparece el borrador;
-5. Samuel aprueba, edita o rechaza;
-6. se registra la decisión;
-7. se comprueba que WhatsApp no recibió nada.
+1. llega un mensaje de prueba controlado;
+2. aparece la lead y su clasificación en el panel;
+3. se muestra el contexto seguro, los scores y las señales;
+4. aparece el borrador de Gemini;
+5. Samuel aprueba, edita y aprueba, o rechaza;
+6. NestJS registra la decisión en la fuente de verdad;
+7. se comprueba que la lead no recibió nada.
 
 ### Preguntas que debo hacerle
 

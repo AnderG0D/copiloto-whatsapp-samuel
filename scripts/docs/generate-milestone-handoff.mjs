@@ -16,6 +16,8 @@ const contractPath = 'docs/control/handoff-state.json';
 const milestonesPath = 'docs/control/milestones.json';
 const policyPath = 'docs/control/documentation-policy.json';
 const observedStatePath = 'docs/_generated/project-state.json';
+const frontendAuditPath = 'docs/control/hito-4.6-runtime-evidence.json';
+const adminReadContractEvidencePath = 'docs/control/hito-4.6-admin-read-contract-evidence.json';
 const agentsPath = 'AGENTS.md';
 
 function validationError(message) {
@@ -344,6 +346,161 @@ function safetyInvariantText(context) {
 - No existe envío automático dentro de este alcance.`;
 }
 
+function frontendAuditText(frontendAudit) {
+  const panel = frontendAudit.panel;
+  return `## Panel administrativo same-origin
+
+Fuente FD-EVIDENCIA-01: \`${frontendAuditPath}\`.
+
+| Dato | Resultado |
+| --- | --- |
+| Panel | \`${panel.route}\` |
+| Estado | \`${frontendAudit.status}\` |
+| Autenticación | ${panel.authentication} |
+| Sesión | ${panel.session} |
+| Cookie | ${panel.cookie} |
+| CSRF | ${panel.csrf} |
+| Autorización | ${panel.authorization} |
+| CORS | ${panel.cors} |
+| ADMIN_REVIEW_TOKEN | ${panel.adminReviewToken} |
+
+### Capacidades verificadas
+
+${panel.flows.map((item) => `- ${item}.`).join('\n')}
+- Cliente: \`${panel.client}\`.
+- Seguridad del navegador: ${panel.browserSecurity}.
+
+### Observaciones
+
+${frontendAudit.observations.map((item) => `- ${item}.`).join('\n')}
+
+- Riesgo pendiente: ${frontendAudit.findingsAndRisks}
+- Siguiente checkpoint: ${frontendAudit.nextCheckpoint}
+- Autorización requerida: ${frontendAudit.requiredAuthorization}`;
+}
+
+function manualPanelHttpsVerificationText(frontendAudit) {
+  const checkpoint = frontendAudit.manualPanelHttpsVerification;
+  const { localSupabase, fixture, controlledStartup, browser } = checkpoint;
+  return `## Checkpoint manual de verificación HTTPS local del panel
+
+- Identificador: \`${checkpoint.id}\`.
+- Estado: \`${checkpoint.status}\`.
+
+### Clasificación
+
+| Área | Estado |
+| --- | --- |
+| Bandeja del panel | \`${browser.inbox}\` |
+| Detalle del panel | \`${browser.detail}\` |
+| Acciones de revisión | \`${browser.reviewActions}\` |
+| Envíos a leads | \`${browser.leadSends}\` (prohibidos en este alcance) |
+| Producción y servicios externos | \`${browser.productionAndExternalServices}\` |
+| HTTPS productivo | \`${browser.productionHttps}\` |
+
+### Entorno local aislado
+
+- Supabase: ${localSupabase.purpose}
+- Migraciones aplicadas solo localmente: ${localSupabase.appliedMigrations.map((item) => `\`${item}\``).join(', ')}.
+- Producción o base remota tocada: \`${localSupabase.remoteOrProductionTouched ? 'YES' : 'NO'}\`.
+- Arranque de \`agent-core\` contra Supabase local: \`${controlledStartup.agentCoreAgainstLocalSupabase}\`.
+- Rutas administrativas registradas: \`${controlledStartup.administrativeRoutesRegistered ? 'YES' : 'NO'}\`.
+- Proxy HTTPS local: ${controlledStartup.httpsProxy}.
+
+### Fixture sintético aislado
+
+- Archivos: ${fixture.paths.map((item) => `\`${item}\``).join(' y ')}.
+- UUIDs sintéticos: negocio \`${fixture.syntheticUuids.business}\`, lead \`${fixture.syntheticUuids.lead}\`, mensajes ${fixture.syntheticUuids.messages.map((item) => `\`${item}\``).join(' y ')}, draft \`${fixture.syntheticUuids.draft}\`.
+- Draft observado: \`${fixture.draftState}\`; decisiones existentes: \`${fixture.existingDecisions}\`.
+- Verificado en base local: \`${fixture.verifiedInLocalDatabase ? 'YES' : 'NO'}\`; fixture limpiado: \`${fixture.cleaned ? 'YES' : 'NO'}\`.
+- Limpieza: \`${fixture.cleanupCounts.drafts}\` draft, \`${fixture.cleanupCounts.messages}\` mensajes, \`${fixture.cleanupCounts.leads}\` lead y \`${fixture.cleanupCounts.businesses}\` negocio sintéticos.
+
+### Hechos comprobados
+
+${checkpoint.verifiedFacts.map((item) => `- ${item}`).join('\n')}
+
+### Advertencias
+
+${checkpoint.warnings.map((item) => `- ${item}`).join('\n')}`;
+}
+
+function reviewActionsCheckpointText(frontendAudit) {
+  const checkpoint = frontendAudit.reviewActionsCheckpoint;
+  const { classification, safetyInvariants, cleanup } = checkpoint;
+  const draftRows = checkpoint.drafts.map((draft) => (
+    `| \`${draft.id}\` | \`${draft.finalState}\` | \`${draft.decision}\` | ${draft.finalTextPersisted ? 'sí' : 'no'} | ${draft.observedFinalTextLength ?? '—'} |`
+  )).join('\n');
+  return `## Checkpoint local de acciones de revisión
+
+- Identificador: \`${checkpoint.id}\`.
+- Estado general: \`${checkpoint.status}\`.
+- Alcance: ${checkpoint.scope}
+- Entorno: ${checkpoint.environment}
+
+### Clasificación
+
+| Área | Estado |
+| --- | --- |
+| Acciones administrativas locales | \`${classification.administrativeActions}\` |
+| Persistencia de APPROVE | \`${classification.approvePersistence}\` |
+| Persistencia de EDIT_AND_APPROVE | \`${classification.editAndApprovePersistence}\` |
+| Persistencia de REJECT | \`${classification.rejectPersistence}\` |
+| Envíos a leads | \`${classification.leadSends}\` |
+| Producción | \`${classification.production}\` |
+| HTTPS productivo | \`${classification.productionHttps}\` |
+| Integración real con WhatsApp/Evolution | \`${classification.whatsappEvolutionIntegration}\` |
+
+### Invariantes de seguridad
+
+- \`SENDER=${safetyInvariants.sender ? 'true' : 'false'}\`.
+- \`AUTO_SEND_MESSAGES=${safetyInvariants.autoSendMessages ? 'true' : 'false'}\`.
+- \`NO_LEAD_SEND=${safetyInvariants.noLeadSend ? 'true' : 'false'}\`.
+- No hubo envíos a leads ni acciones sobre leads reales.
+
+### Acciones confirmadas
+
+| Draft | Estado final | Decisión | final_text persistido | Longitud observada |
+| --- | --- | --- | --- | --- |
+${draftRows}
+
+### Fixtures y cleanup
+
+- Fixtures usados: ${checkpoint.fixtures.map((item) => `\`${item}\``).join(', ')}.
+- Cleanup del fixture de revisión: \`${cleanup.reviewFixtureCleanup}\`; ${cleanup.reason}
+- Supabase local detenido después de la prueba: \`${cleanup.localSupabaseStopped ? 'YES' : 'NO'}\`.
+- No se afirma que el volumen local haya sido eliminado.
+
+### Observaciones manuales
+
+${checkpoint.manualObservations.map((item) => `- ${item}`).join('\n')}
+
+### Advertencias
+
+${checkpoint.warnings.map((item) => `- ${item}`).join('\n')}`;
+}
+
+function adminReadContractText(evidence) {
+  return `## Contrato administrativo de lectura aprobado
+
+Fuente FD-EVIDENCIA-01: \`${adminReadContractEvidencePath}\`.
+
+| Dato | Resultado |
+| --- | --- |
+| Evidencia documental | \`${evidence.status}\` |
+| Diseño aprobado | ${evidence.designApproved ? 'sí' : 'no'} |
+| Implementación autorizada | ${evidence.implementationAuthorized ? 'sí' : 'no'} |
+| Frontend | \`NOT_CREATED\` |
+| Endpoints GET | \`NOT_IMPLEMENTED\` |
+| Autenticación web | \`NOT_IMPLEMENTED\` |
+| Migración local de transición | \`NOT_VERIFIED\` |
+
+- Contrato canónico: \`${evidence.sourceDocument}\`.
+- ${evidence.observed}
+- Advertencias: ${evidence.warnings}
+- Runtime: receive-only=\`${evidence.runtime.receiveOnly}\`, envíos a leads=\`${evidence.runtime.leadSends}\`, cambios runtime=\`${evidence.runtime.changed}\`.
+- Siguiente checkpoint: ${evidence.nextCheckpoint}`;
+}
+
 function renderMasterPrompt(context) {
   const {
     active,
@@ -355,6 +512,8 @@ function renderMasterPrompt(context) {
     project,
     sources,
     state,
+    frontendAudit,
+    adminReadContractEvidence,
   } = context;
 
   const sourceLines = sources.map((source) => `- \`${source}\`.`).join('\n');
@@ -443,6 +602,14 @@ ${quoteMarkdown(markdownSection(active.document, activeNote, 'Reglas de segurida
 
 ${safetyInvariantText(context)}
 
+${frontendAuditText(frontendAudit)}
+
+${manualPanelHttpsVerificationText(frontendAudit)}
+
+${reviewActionsCheckpointText(frontendAudit)}
+
+${adminReadContractText(adminReadContractEvidence)}
+
 ## Instrucción de arranque
 
 Antes de editar, verifica la rama y el árbol de trabajo, confirma que la revisión congelada pertenece al historial actual y contrasta el primer checkpoint incompleto con el estado observado. Completa primero el gate de transición y no implementes la primera acción funcional hasta que el generador haya sido validado y fusionado. Detente ante cualquier discrepancia de evidencia o alcance.
@@ -457,6 +624,8 @@ function renderPortablePrompt(context) {
     policy,
     project,
     state,
+    frontendAudit,
+    adminReadContractEvidence,
   } = context;
 
   return `${generatedFrontmatter(
@@ -483,6 +652,14 @@ ${canonicalActionText(state.nextAction)}
 
 ${safetyInvariantText(context)}
 
+${frontendAuditText(frontendAudit)}
+
+${manualPanelHttpsVerificationText(frontendAudit)}
+
+${reviewActionsCheckpointText(frontendAudit)}
+
+${adminReadContractText(adminReadContractEvidence)}
+
 Respeta el alcance y las reglas de seguridad de \`${active.document}\`. No inventes información, no uses servicios externos ni credenciales y no avances a la primera acción funcional mientras el gate permanezca abierto.
 `;
 }
@@ -495,6 +672,8 @@ function renderHistoricalHandoff(context) {
     policy,
     project,
     state,
+    frontendAudit,
+    adminReadContractEvidence,
   } = context;
   const evidence = lastClosed.evidence;
   const checks = ['unit', 'e2e', 'build'].map((name) => (
@@ -561,6 +740,14 @@ ${canonicalActionText(state.nextAction)}
 ## Invariantes de ausencia de envío
 
 ${safetyInvariantText(context)}
+
+${frontendAuditText(frontendAudit)}
+
+${manualPanelHttpsVerificationText(frontendAudit)}
+
+${reviewActionsCheckpointText(frontendAudit)}
+
+${adminReadContractText(adminReadContractEvidence)}
 
 ## Salidas de este relevo
 
@@ -977,12 +1164,14 @@ async function validateActivationPendingContract({
 }
 
 async function validateAndBuild(root, statePath = observedStatePath) {
-  const [contract, milestones, policy, liveState, agents] = await Promise.all([
+  const [contract, milestones, policy, liveState, agents, frontendAudit, adminReadContractEvidence] = await Promise.all([
     readJson(root, contractPath),
     readJson(root, milestonesPath),
     readJson(root, policyPath),
     readJson(root, statePath),
     readText(root, agentsPath),
+    readJson(root, frontendAuditPath),
+    readJson(root, adminReadContractEvidencePath),
   ]);
 
   if (contract.schemaVersion === 2) {
@@ -1015,6 +1204,18 @@ async function validateAndBuild(root, statePath = observedStatePath) {
   ensure(
     contract.safetyInvariants?.noLeadSend === true,
     'handoff contract must require noLeadSend=true',
+  );
+  ensure(
+    adminReadContractEvidence.status === 'PASS_WITH_WARNINGS'
+      && adminReadContractEvidence.designApproved === true
+      && adminReadContractEvidence.implementationAuthorized === false,
+    'admin read contract evidence must record approved design without implementation authorization',
+  );
+  ensure(
+    adminReadContractEvidence.runtime?.receiveOnly === true
+      && adminReadContractEvidence.runtime?.leadSends === 0
+      && adminReadContractEvidence.runtime?.changed === false,
+    'admin read contract evidence must preserve receive-only runtime with zero lead sends',
   );
   const safetyAndPrivacy = markdownSection(agentsPath, agents, 'Safety and privacy');
   ensure(
@@ -1301,6 +1502,8 @@ async function validateAndBuild(root, statePath = observedStatePath) {
     active.document,
     policyPath,
     policy.canonicalNextAction,
+    frontendAuditPath,
+    adminReadContractEvidencePath,
   ];
   const context = {
     active,
@@ -1315,6 +1518,8 @@ async function validateAndBuild(root, statePath = observedStatePath) {
     project: activeFrontmatter.project,
     sources,
     state: historicalState,
+    frontendAudit,
+    adminReadContractEvidence,
   };
 
   return {

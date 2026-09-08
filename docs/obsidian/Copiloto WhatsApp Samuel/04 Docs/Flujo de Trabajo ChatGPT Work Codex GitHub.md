@@ -4,7 +4,7 @@ project: Copiloto WhatsApp Samuel
 area: flujo-de-desarrollo
 status: active
 created: 2026-07-08
-updated: 2026-08-29
+updated: 2026-09-04
 aliases:
   - Flujo de Trabajo - ChatGPT Web + Codex
   - Sistema operativo de desarrollo del Copiloto
@@ -754,6 +754,94 @@ El MOC ya contiene el único enlace del índice principal hacia esta nota. No cr
 > **confirmar `main` → crear worktree → definir → programar → probar → revisar → autorizar → commit → push → PR → CI → Create a merge commit → actualizar `main` → documentar**
 
 Para una mente TDAH, la clave no es sostener todo el proyecto en la cabeza. La clave es que cada herramienta conserve una parte del sistema y que siempre exista una siguiente acción física pequeña.
+
+---
+
+## 14. Estándar operativo ChatGPT Work → Codex CLI → PowerShell
+
+Este estándar convierte el objetivo de un chat en una ejecución controlada. ChatGPT decide la vía antes de pedir trabajo; Codex CLI ejecuta los cambios dentro del repositorio; PowerShell observa, diagnostica y valida. No se sustituye la evidencia por una suposición.
+
+### Selector de vía
+
+| Situación | Vía | Regla de uso |
+| --- | --- | --- |
+| Crear o modificar código, pruebas, configuración, documentación técnica o archivos del repositorio | Prompt para Codex CLI | ChatGPT delimita el checkpoint y entrega un prompt listo; Hiram no crea ni pega manualmente el código. |
+| Varias acciones del mismo checkpoint, mismo repositorio, rama y worktree, con orden y validaciones conocidos | Prompt multi-paso para Codex CLI | Puede seguir `inspeccionar → implementar → actualizar pruebas → validar → revisar diff → reportar`. |
+| Confirmar rutas, rama, worktree, Docker, puertos, Evolution API, NestJS, Supabase, runtime, errores o estado desconocido | PowerShell | Observar o diagnosticar antes de decidir una modificación. |
+| Hay objetivos independientes, ramas o hitos distintos, migraciones y despliegues, envío real, merge, eliminación de datos o una acción irreversible | Separar fases por riesgo | No se permite un prompt multi-paso que los mezcle. Se requiere una decisión y autorización explícita por separado. |
+| La salida puede alterar la siguiente decisión, existe un error o el estado es ambiguo | Esperar salida | No indicar el bloque siguiente hasta revisar la salida completa, sanitizada y sin comandos añadidos. |
+
+Un prompt multi-paso sólo cubre un checkpoint coherente: mismo repositorio, rama y worktree; alcance definido; orden claro; y validaciones conocidas. Codex no amplía el checkpoint por iniciativa propia.
+
+### Regla de creación y modificación
+
+- ChatGPT diseña, delimita y entrega el prompt; Codex CLI crea y modifica los archivos del repositorio.
+- Hiram no debe crear ni pegar manualmente código para sustituir el trabajo de Codex.
+- Las reglas permanentes del repositorio viven en `AGENTS.md`; el objetivo concreto del ciclo vive en el prompt actual.
+- Se preservan los límites del Copiloto: no leer, imprimir ni modificar `.env`; no usar credenciales reales en pruebas; mantener `AUTO_SEND_MESSAGES=false`, `sender=false` y `NO_LEAD_SEND=true` cuando correspondan; no enviar mensajes reales; no conectar IA, webhook o envío real sin autorización expresa; no inventar datos de negocio; no editar tipos generados ni migraciones aplicadas; y conservar el aislamiento por `business_id`.
+- No se ejecutan acciones destructivas de Git, Docker o Supabase sin autorización explícita.
+
+### Regla de PowerShell y relevo entre bloques
+
+El valor predeterminado de PowerShell es **un comando o una acción por turno**. Se usa para observar y diagnosticar. Un bloque de varios comandos sólo se permite si es exclusivamente de lectura o validación segura, determinista, sin modificación de datos y con un objetivo único.
+
+Cada bloque debe indicar directorio, objetivo, comandos exactos, resultado esperado y la salida que debe devolverse. La instrucción operativa obligatoria es:
+
+```text
+Ejecuta solamente este bloque.
+
+Devuelve la salida completa, sanitizada y sin agregar otros comandos.
+
+No avances al siguiente bloque hasta que ChatGPT revise el resultado.
+```
+
+### Fases obligatorias y formato de respuesta
+
+Cada trabajo se divide en cinco fases, anunciando el cambio de fase y entregando sólo el bloque que corresponde:
+
+1. Alcance y enrutamiento.
+2. Trabajo o implementación.
+3. Validación.
+4. Auditoría.
+5. Checkpoint y reanudación.
+
+Las respuestas técnicas de ChatGPT usan siempre este formato:
+
+```text
+Estado actual:
+Qué ya está terminado:
+Qué estamos haciendo:
+Qué falta:
+Bloqueo o riesgo:
+Acción de este turno:
+Resultado esperado:
+Fase actual:
+Vía:
+```
+
+### Protocolo de fallo y evidencia
+
+Ante un fallo: detener cambios adicionales, conservar la salida completa, clasificarlo como ruta/worktree, entorno, configuración, código, prueba o permisos, corregir una sola cosa y repetir la validación relacionada. Registrar qué se confirmó y qué sigue pendiente.
+
+Toda validación y auditoría conserva `FD-EVIDENCIA-01`: objetivo, alcance, proyecto, hito, entorno, rama, commit, comando o acción, salida original sanitizada, resultado esperado, resultado observado, estado, hallazgos, riesgos, decisión, siguiente checkpoint y autorización requerida. Los únicos estados permitidos son `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` y `UNKNOWN`.
+
+### Plantilla de prompt estándar para Codex CLI
+
+```text
+Checkpoint: [identificador único]
+Objetivo: [resultado verificable]
+Contexto confirmado: [hechos, decisiones y evidencia disponible]
+Repositorio: [ruta exacta]
+Rama y worktree: [rama y ruta confirmadas]
+Alcance permitido: [qué puede cambiar]
+Archivos relevantes: [rutas o áreas]
+Orden de trabajo: inspeccionar → implementar → actualizar pruebas → validar → revisar diff → reportar
+Restricciones: [archivos fuera de alcance, seguridad, no envíos, no secretos y no acciones irreversibles]
+Validaciones: [comandos exactos y resultado esperado]
+Condición de terminado: [criterios verificables]
+Protocolo de fallo: detener, conservar salida, clasificar, corregir una cosa y repetir la validación relacionada
+Formato de reporte: archivos tocados, validaciones y salida, diff revisado, estado FD-EVIDENCIA-01, riesgos, bloqueos y siguiente checkpoint
+```
 
 ---
 

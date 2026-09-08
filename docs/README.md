@@ -7,6 +7,7 @@ Esta carpeta convierte la documentación del Copiloto WhatsApp Samuel en una par
 - `obsidian/Copiloto WhatsApp Samuel/`: notas que se abren desde Obsidian.
 - `control/`: política y criterios humanos que gobiernan la automatización.
 - `obsidian/Copiloto WhatsApp Samuel/_generated/`: hechos derivados del código y GitHub.
+- [Guía operativa ChatGPT Work → Codex CLI → PowerShell](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Flujo%20de%20Trabajo%20ChatGPT%20Work%20Codex%20GitHub.md): reglas específicas de ejecución del Copiloto.
 
 El código y GitHub prueban qué existe. Los ADR, el alcance, la visión y el roadmap expresan decisiones humanas.
 

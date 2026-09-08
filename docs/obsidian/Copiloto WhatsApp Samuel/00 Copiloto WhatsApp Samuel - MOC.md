@@ -3,7 +3,7 @@ type: project-moc
 project: Copiloto WhatsApp Samuel
 system: Pensar-Hacer v1
 status: active
-updated: 2026-08-04
+updated: 2026-09-03
 aliases:
   - Copiloto WhatsApp Samuel
   - Proyecto Copiloto Samuel
@@ -34,10 +34,12 @@ aliases:
 - [[Hito 04.1 - Abstraccion IA y Gemini DONE]]
 - [[Hito 04.2 - Contexto y borradores seguros de respuesta DONE]]
 - [[Hito 04.3 - Persistencia e integracion de borradores sin envio DONE]]
-
-### Actual
-
 - [[Hito 04.4 - Revision y aprobacion humana DONE]]
+- [[Hito 04.5 - Piloto UX en sombra WhatsApp-first DONE]]
+
+### Activo
+
+- [[Hito 04.6 - Piloto real controlado de Edgar]]
 
 ## Decisiones
 
@@ -57,6 +59,7 @@ aliases:
 - [[Arquitectura y Flujo Principal]]
 - [[Modelo de Datos SaaS]]
 - [[Copiloto WhatsApp IA Multimodal e Inventario]]
+- [[Modelo operativo hibrido - Automatizacion y relevo humano]]
 
 ## Operación de Samuel
 
@@ -85,7 +88,12 @@ aliases:
 
 ## Estrategia
 
+- [[Nota clave - Camino al piloto UX con Samuel]]
 - [[Plan Desarrollo Piloto y Produccion Copiloto WhatsApp]]
+
+## Handoffs
+
+- [[Hito 04.5 a 04.6]]
 
 ## Trazabilidad documental
 

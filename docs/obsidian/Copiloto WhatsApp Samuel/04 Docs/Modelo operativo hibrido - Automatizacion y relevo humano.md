@@ -2,7 +2,7 @@
 type: product-doc
 project: Copiloto WhatsApp Samuel
 status: active
-updated: 2026-08-07
+updated: 2026-09-03
 aliases:
   - Modelo operativo hibrido del Copiloto
   - Automatizacion y relevo humano
@@ -17,11 +17,61 @@ aliases:
 > [!important] Resultado buscado
 > **La IA atiende el volumen; Samuel interviene en los momentos importantes y cierra la venta.**
 
+## Decisión de producto vigente
+
+El modelo híbrido queda definido con una separación clara entre revisión y
+notificación:
+
+- El **panel web interno** es el centro principal de revisión.
+- **WhatsApp** funciona únicamente como notificación opcional o atajo para el
+  operador; no es la superficie principal de revisión.
+- El panel muestra el mensaje recibido, score del mensaje y de la lead,
+  clasificación, razón, señales comerciales, contexto/historial seguro y el
+  draft generado por Gemini.
+- El operador puede aprobar sin cambios, editar y aprobar, o rechazar.
+- `response_drafts` permanece como fuente de verdad del borrador y su estado.
+- El frontend nunca consulta Supabase directamente con claves secretas; se
+  comunica exclusivamente con NestJS mediante una API autenticada.
+- WhatsApp no intenta escribir el draft en la barra de composición.
+- Si se usa preview por WhatsApp, solo se envía al canal autorizado del
+  operador, nunca al chat de la lead.
+
+Esta decisión describe el producto objetivo y no afirma que el panel web ya
+esté construido.
+
+## Gobernanza documental
+
+La documentación canónica de producto, seguridad y operación vive en las
+notas mantenidas de este proyecto. Los archivos de `_generated` son snapshots
+automáticos: sirven como apoyo operativo, pero no sustituyen las decisiones
+vigentes ni la evidencia más reciente. Cuando cambie el estado técnico deben
+regenerarse desde las fuentes de control del repositorio antes de usarse como
+handoff.
+
+## Estado técnico separado de la decisión de producto
+
+En el piloto controlado de Edgar ya se verificó un flujo receive-only que puede
+recibir mensajes de prueba, guardar mensaje y scoring, construir contexto,
+generar con Gemini y persistir un `response_drafts` en `PROPOSED`. También se
+verificó un preview opcional dirigido únicamente al operador.
+
+Durante este piloto permanecen obligatorias estas invariantes:
+
+```text
+SHADOW_ONLY_MODE=edgar
+SENDER=false
+AUTO_SEND_MESSAGES=false
+NO_LEAD_SEND=true
+```
+
+La validación técnica del pipeline no equivale a activar envío a leads ni a
+declarar terminado el piloto comercial.
+
 ## En pocas palabras
 
 El Copiloto debe evolucionar gradualmente:
 
-1. Primero propone respuestas y Samuel las revisa.
+1. Primero propone respuestas y Samuel las revisa en el panel.
 2. Después se miden aprobaciones, ediciones y rechazos.
 3. Los casos repetitivos y seguros se autorizan para respuesta automática.
 4. Los casos sensibles o comerciales se transfieren a Samuel.
@@ -29,7 +79,21 @@ El Copiloto debe evolucionar gradualmente:
 
 La meta no es que Samuel apruebe eternamente cada saludo. La revisión inicial sirve para calibrar el sistema antes de activar el piloto automático por niveles.
 
-## Flujo operativo objetivo
+## Flujo operativo actual del piloto receive-only
+
+```mermaid
+flowchart TD
+    A["Mensaje de prueba"] --> B["Evolution + NestJS"]
+    B --> C["Guardar, scorear y construir contexto"]
+    C --> D["Gemini + response_drafts PROPOSED"]
+    D --> E["Panel web / preview opcional al operador"]
+    E --> F["Revisión en NestJS; cero envío a la lead"]
+```
+
+Este es el flujo vigente para Edgar. El panel web es la superficie principal
+definida para el producto; el preview de WhatsApp es solo un atajo operativo.
+
+## Flujo operativo objetivo futuro
 
 ```mermaid
 flowchart TD
@@ -41,7 +105,7 @@ flowchart TD
     F --> G["Samuel resuelve y libera"]
 ```
 
-Este es el flujo objetivo futuro. Durante el Hito 4.4, el proceso termina en la decisión humana y **todavía no envía mensajes**.
+Este es el flujo objetivo del producto. El Hito 4.4 preparó la revisión humana y la persistencia del draft; la API autenticada de revisión en NestJS ya fue implementada y validada, mientras que el panel web queda como siguiente implementación.
 
 ## Los tres modos de operación
 
@@ -140,6 +204,8 @@ Esto permitirá reconstruir qué ocurrió y evitar que el bot se reactive accide
 | Etapa | Qué aporta al modelo híbrido |
 | --- | --- |
 | **Hito 4.4 — Revisión humana** | Aprobar, editar, rechazar, preservar el original y auditar la decisión. Sin envío. |
+| **Hito 4.5 — Piloto UX en sombra** | Validar aislamiento y canal de operador. El enfoque WhatsApp-first pertenece al histórico de este hito; la decisión vigente prioriza el panel web. |
+| **Hito 4.6 — Piloto controlado de Edgar** | Validar recepción, persistencia, scoring, Gemini, `PROPOSED` y preview opcional al operador, siempre sin envío a leads. |
 | **Hitos 5.x — Inventario confiable** | Proporcionar vehículos, precios, colores, disponibilidad, medios y documentos reales. |
 | **Hito 6.2 — Transferencia y pausa** | Permitir tomar, pausar y liberar conversaciones de manera auditable. |
 | **Piloto supervisado** | Medir la calidad con tráfico real controlado. |
@@ -182,7 +248,7 @@ Una categoría debería automatizarse solamente cuando:
 
 - Se generan y persisten borradores.
 - Samuel revisa decisiones.
-- Es el estado correspondiente al Hito 4.4.
+- Es el estado técnico vigente del piloto Edgar receive-only.
 
 ### Nivel 1 — Piloto supervisado
 
@@ -217,9 +283,12 @@ Una categoría debería automatizarse solamente cuando:
 ## Estado actual y siguiente paso
 
 > [!todo] Ahora
-> Completar el Hito 4.4 empezando por 4.4-A: persistencia auditable de decisiones humanas mediante `response_draft_decisions`.
+> Construir el panel web interno para listar drafts `PROPOSED` y consumir la
+> API autenticada de NestJS para `APPROVE`, `EDIT_AND_APPROVE` y `REJECT`.
 
-El modo híbrido descrito aquí **no debe mezclarse dentro de 4.4-A**. Esta nota conserva la dirección del producto para construir cada base en el orden correcto.
+El envío a leads sigue fuera de alcance. Edgar permanece en receive-only hasta
+que la validación técnica y operativa sea suficiente y exista un acuerdo
+comercial explícito con Samuel.
 
 ## Frase guía
 

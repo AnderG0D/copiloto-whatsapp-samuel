@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "9787ada5a411eb84fb09e634360787dd10a0fd68",
-    "shortSha": "9787ada",
-    "subject": "fix(docs): allow workflow path in post-merge verification (#87)",
-    "committedAt": "2026-08-30T18:02:49-06:00",
+    "sha": "de762e77d1a17581fa7947725efe28a107e94d71",
+    "shortSha": "de762e7",
+    "subject": "docs: sync project state for 9787ada (#88)",
+    "committedAt": "2026-08-30T18:04:28-06:00",
     "pullRequest": {
-      "number": 87,
-      "title": "fix(docs): allow workflow path in post-merge verification",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/87",
+      "number": 88,
+      "title": "docs: sync project state for 9787ada (#88)",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/88",
       "state": "closed",
-      "mergedAt": "2026-08-31T00:02:49Z",
-      "source": "github-api"
+      "mergedAt": null,
+      "source": "commit-subject"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/33343397952"
+    "ciUrl": null
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -33,12 +33,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "passed",
-    "e2e": "passed",
-    "build": "passed",
+    "unit": "not_run",
+    "e2e": "not_run",
+    "build": "not_run",
     "discoveredTests": {
-      "unit": 242,
-      "e2e": 6
+      "unit": 131,
+      "e2e": 3
     }
   },
   "architecture": {
@@ -96,7 +96,8 @@
       "supabase/migrations/20260713050133_initial_remote_schema.sql",
       "supabase/migrations/20260713052850_add_lead_scoring_columns.sql",
       "supabase/migrations/20260802111346_create_response_drafts.sql",
-      "supabase/migrations/20260807020218_create_response_draft_decisions.sql"
+      "supabase/migrations/20260807020218_create_response_draft_decisions.sql",
+      "supabase/migrations/20260903090000_enable_response_draft_review_transitions.sql"
     ]
   },
   "milestones": [

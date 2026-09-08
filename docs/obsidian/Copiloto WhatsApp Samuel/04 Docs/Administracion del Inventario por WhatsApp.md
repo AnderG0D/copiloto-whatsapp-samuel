@@ -31,7 +31,8 @@ Ventajas:
 
 - Identidad simple de allowlist.
 - Conversación separada de los clientes.
-- No requiere panel web inicial.
+- No requiere panel web inicial para las mutaciones de inventario; esto no
+  sustituye el panel web principal de revisión de borradores.
 
 El backend consulta `business_operators` antes de interpretar el mensaje como comando.
 

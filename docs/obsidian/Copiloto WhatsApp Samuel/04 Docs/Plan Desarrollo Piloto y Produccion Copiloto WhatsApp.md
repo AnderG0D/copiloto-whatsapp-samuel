@@ -3,7 +3,7 @@ type: strategy-doc
 project: Copiloto WhatsApp Samuel
 status: active
 created: 2026-07-29
-updated: 2026-07-31
+updated: 2026-09-03
 aliases:
   - Estrategia de costos y despliegue del Copiloto
   - Plan de desarrollo gratuito del Copiloto
@@ -38,6 +38,8 @@ Resultado actual:
 - Contrato neutral de IA.
 - Gemini de texto fusionado mediante el PR #6.
 - Modelo predeterminado actualizado mediante el PR #7.
+- Pipeline receive-only validado con contexto, borradores `PROPOSED` y preview
+  opcional al operador en el piloto Edgar.
 
 Prioridades:
 
@@ -50,13 +52,18 @@ Prioridades:
 ## Piloto supervisado
 
 - Inventario real validado.
-- Samuel aprueba respuestas.
+- El panel web interno es el centro principal de revisión.
+- Samuel aprueba, edita y aprueba, o rechaza respuestas.
+- WhatsApp queda como notificación o atajo opcional para el operador.
 - Presupuesto y límites.
 - Registro de ediciones.
 - Transferencia y pausa.
 - Medición de costo por conversación.
 
-No activar respuestas automáticas generales durante el piloto inicial.
+El piloto Edgar actual permanece en receive-only: no envía respuestas a leads,
+aunque puede persistir mensajes, scoring, contexto y borradores técnicos para
+validación. No activar respuestas automáticas generales durante el piloto
+inicial.
 
 ## Producción inicial
 
@@ -142,6 +149,7 @@ Estas mediciones permiten fijar precios con evidencia y detectar consumos anóma
 ## Criterios Desarrollo → Piloto
 
 - [ ] Hitos de texto cerrados.
+- [ ] Panel web autenticado integrado como superficie principal de revisión.
 - [ ] Inventario consultado por backend.
 - [ ] Revisión humana implementada.
 - [ ] Transferencia y pausa probadas.

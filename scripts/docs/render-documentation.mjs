@@ -9,8 +9,10 @@ import {
 
 const args = parseArguments(process.argv.slice(2));
 const inputPath = args.input || 'docs/_generated/project-state.json';
+const frontendAuditPath = 'docs/control/hito-4.6-runtime-evidence.json';
 const dryRun = args['dry-run'] === true;
 const state = await readJson(inputPath);
+const frontendAudit = await readJson(frontendAuditPath);
 const projectRoot = 'docs/obsidian/Copiloto WhatsApp Samuel';
 
 function generatedDocument(type, title, blockName, body) {
@@ -106,6 +108,106 @@ function verificationLines() {
   return values.map(([label, status, detail]) => (
     `- **${label}:** \`${markdownStatus(status)}\` — ${detail}.`
   )).join('\n');
+}
+
+function manualPanelHttpsVerificationText(frontendAudit) {
+  const checkpoint = frontendAudit.manualPanelHttpsVerification;
+  const { localSupabase, fixture, controlledStartup, browser } = checkpoint;
+  return `## Checkpoint manual de verificación HTTPS local del panel
+
+- Identificador: \`${checkpoint.id}\`.
+- Estado: \`${checkpoint.status}\`.
+
+### Clasificación
+
+| Área | Estado |
+| --- | --- |
+| Bandeja del panel | \`${browser.inbox}\` |
+| Detalle del panel | \`${browser.detail}\` |
+| Acciones de revisión | \`${browser.reviewActions}\` |
+| Envíos a leads | \`${browser.leadSends}\` (prohibidos en este alcance) |
+| Producción y servicios externos | \`${browser.productionAndExternalServices}\` |
+| HTTPS productivo | \`${browser.productionHttps}\` |
+
+### Entorno local aislado
+
+- Supabase: ${localSupabase.purpose}
+- Migraciones aplicadas solo localmente: ${localSupabase.appliedMigrations.map((item) => `\`${item}\``).join(', ')}.
+- Producción o base remota tocada: \`${localSupabase.remoteOrProductionTouched ? 'YES' : 'NO'}\`.
+- Arranque de \`agent-core\` contra Supabase local: \`${controlledStartup.agentCoreAgainstLocalSupabase}\`.
+- Rutas administrativas registradas: \`${controlledStartup.administrativeRoutesRegistered ? 'YES' : 'NO'}\`.
+- Proxy HTTPS local: ${controlledStartup.httpsProxy}.
+
+### Fixture sintético aislado
+
+- Archivos: ${fixture.paths.map((item) => `\`${item}\``).join(' y ')}.
+- UUIDs sintéticos: negocio \`${fixture.syntheticUuids.business}\`, lead \`${fixture.syntheticUuids.lead}\`, mensajes ${fixture.syntheticUuids.messages.map((item) => `\`${item}\``).join(' y ')}, draft \`${fixture.syntheticUuids.draft}\`.
+- Draft observado: \`${fixture.draftState}\`; decisiones existentes: \`${fixture.existingDecisions}\`.
+- Verificado en base local: \`${fixture.verifiedInLocalDatabase ? 'YES' : 'NO'}\`; fixture limpiado: \`${fixture.cleaned ? 'YES' : 'NO'}\`.
+- Limpieza: \`${fixture.cleanupCounts.drafts}\` draft, \`${fixture.cleanupCounts.messages}\` mensajes, \`${fixture.cleanupCounts.leads}\` lead y \`${fixture.cleanupCounts.businesses}\` negocio sintéticos.
+
+### Hechos comprobados
+
+${checkpoint.verifiedFacts.map((item) => `- ${item}`).join('\n')}
+
+### Advertencias
+
+${checkpoint.warnings.map((item) => `- ${item}`).join('\n')}`;
+}
+
+function reviewActionsCheckpointText(frontendAudit) {
+  const checkpoint = frontendAudit.reviewActionsCheckpoint;
+  const { classification, safetyInvariants, cleanup } = checkpoint;
+  const draftRows = checkpoint.drafts.map((draft) => (
+    `| \`${draft.id}\` | \`${draft.finalState}\` | \`${draft.decision}\` | ${draft.finalTextPersisted ? 'sí' : 'no'} | ${draft.observedFinalTextLength ?? '—'} |`
+  )).join('\n');
+  return `## Checkpoint local de acciones de revisión
+
+- Identificador: \`${checkpoint.id}\`.
+- Estado general: \`${checkpoint.status}\`.
+- Alcance: ${checkpoint.scope}
+- Entorno: ${checkpoint.environment}
+
+### Clasificación
+
+| Área | Estado |
+| --- | --- |
+| Acciones administrativas locales | \`${classification.administrativeActions}\` |
+| Persistencia de APPROVE | \`${classification.approvePersistence}\` |
+| Persistencia de EDIT_AND_APPROVE | \`${classification.editAndApprovePersistence}\` |
+| Persistencia de REJECT | \`${classification.rejectPersistence}\` |
+| Envíos a leads | \`${classification.leadSends}\` |
+| Producción | \`${classification.production}\` |
+| HTTPS productivo | \`${classification.productionHttps}\` |
+| Integración real con WhatsApp/Evolution | \`${classification.whatsappEvolutionIntegration}\` |
+
+### Invariantes de seguridad
+
+- \`SENDER=${safetyInvariants.sender ? 'true' : 'false'}\`.
+- \`AUTO_SEND_MESSAGES=${safetyInvariants.autoSendMessages ? 'true' : 'false'}\`.
+- \`NO_LEAD_SEND=${safetyInvariants.noLeadSend ? 'true' : 'false'}\`.
+- No hubo envíos a leads ni acciones sobre leads reales.
+
+### Acciones confirmadas
+
+| Draft | Estado final | Decisión | final_text persistido | Longitud observada |
+| --- | --- | --- | --- | --- |
+${draftRows}
+
+### Fixtures y cleanup
+
+- Fixtures usados: ${checkpoint.fixtures.map((item) => `\`${item}\``).join(', ')}.
+- Cleanup del fixture de revisión: \`${cleanup.reviewFixtureCleanup}\`; ${cleanup.reason}
+- Supabase local detenido después de la prueba: \`${cleanup.localSupabaseStopped ? 'YES' : 'NO'}\`.
+- No se afirma que el volumen local haya sido eliminado.
+
+### Observaciones manuales
+
+${checkpoint.manualObservations.map((item) => `- ${item}`).join('\n')}
+
+### Advertencias
+
+${checkpoint.warnings.map((item) => `- ${item}`).join('\n')}`;
 }
 
 function architectureDiagram() {
@@ -206,7 +308,37 @@ ${state.architecture.modules.map((item) => `- \`${item.name}\` — \`${item.path
 
 ## Migraciones detectadas
 
-${state.architecture.migrations.map((item) => `- \`${item}\``).join('\n')}`;
+${state.architecture.migrations.map((item) => `- \`${item}\``).join('\n')}
+
+## Panel administrativo same-origin
+
+- Fuente FD-EVIDENCIA-01: \`${frontendAuditPath}\`.
+- Estado: \`${frontendAudit.status}\`.
+- Ruta: \`${frontendAudit.panel.route}\`.
+- Autenticación: ${frontendAudit.panel.authentication}.
+- Sesión: ${frontendAudit.panel.session}; cookie ${frontendAudit.panel.cookie}.
+- CSRF: ${frontendAudit.panel.csrf}.
+- ${frontendAudit.panel.authorization}.
+- CORS: ${frontendAudit.panel.cors}.
+- \`ADMIN_REVIEW_TOKEN\`: ${frontendAudit.panel.adminReviewToken.toLowerCase()}.
+
+## Capacidades verificadas
+
+${frontendAudit.panel.flows.map((item) => `- ${item}.`).join('\n')}
+- Cliente: \`${frontendAudit.panel.client}\`.
+- Seguridad del navegador: ${frontendAudit.panel.browserSecurity}.
+
+## Observaciones
+
+${frontendAudit.observations.map((item) => `- ${item}.`).join('\n')}
+
+${manualPanelHttpsVerificationText(frontendAudit)}
+
+${reviewActionsCheckpointText(frontendAudit)}
+
+- Riesgo pendiente: ${frontendAudit.findingsAndRisks}
+- Siguiente checkpoint: ${frontendAudit.nextCheckpoint}
+- Autorización requerida: ${frontendAudit.requiredAuthorization}`;
 
 const nextAction = state.nextAction;
 const nextActionBody = `- [ ] ${nextAction.text}

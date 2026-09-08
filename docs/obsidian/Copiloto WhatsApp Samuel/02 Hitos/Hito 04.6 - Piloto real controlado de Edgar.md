@@ -5,7 +5,7 @@ status: active
 fase: Fase 2 — IA de texto segura
 hito: 4.6
 activated: 2026-08-29
-updated: 2026-08-29
+updated: 2026-09-03
 aliases:
   - Hito 4.6 - Piloto real controlado de Edgar
   - Hito 4.6 - Controlled real Edgar pilot
@@ -15,7 +15,11 @@ aliases:
 
 ## Objetivo
 
-Ejecutar un piloto operativo controlado con Edgar como operador de prueba y, después, recorrer la secuencia controlada Edgar → Samuel. El objetivo es obtener evidencia de conexión, recepción y experiencia operativa sin enviar mensajes a leads ni afirmar que la operación real ya fue exitosa.
+Ejecutar un piloto operativo controlado con Edgar como operador de prueba y,
+después, recorrer la secuencia controlada Edgar → Samuel. El objetivo es
+obtener evidencia de conexión, recepción, persistencia, scoring, contexto,
+generación de borradores y experiencia operativa sin enviar mensajes a leads ni
+afirmar que la operación comercial real ya fue exitosa.
 
 ## Gate técnico previo
 
@@ -25,7 +29,14 @@ La implementación del piloto ya está mergeada en `main`. PR #76 y PR #78, con 
 
 - Preparar y ejecutar una prueba controlada de Edgar con la instancia y cuenta de prueba dedicadas.
 - Confirmar el estado de Docker y Compose, la instancia Evolution, el QR, la conexión, el webhook y la recepción de mensajes de prueba.
-- Confirmar que el flujo permanece receive-only y no persiste mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; tampoco realiza generación de IA ni envío a leads durante la prueba.
+- Confirmar que el flujo permanece receive-only respecto a los mensajes salientes
+  a leads. La validación técnica aislada puede persistir el mensaje entrante,
+  scoring, contexto y `response_drafts.PROPOSED`; no puede enviar respuestas a
+  leads.
+- Confirmar que la generación con Gemini y la persistencia del borrador ocurren
+  únicamente dentro del backend autorizado y con contexto seguro.
+- Confirmar que el preview opcional, si se habilita, se dirige únicamente al
+  canal autorizado del operador y no a la lead.
 - Repetir la secuencia operativa controlada con Samuel, sin mezclar cuentas, sesiones, espacios de datos o evidencias.
 - Revisar el feedback de Edgar y Samuel y registrar los hallazgos antes de ampliar el alcance.
 - Acordar con Samuel el pago y el alcance posterior antes de tratar el piloto como trabajo comercial ampliado.
@@ -35,7 +46,9 @@ La implementación del piloto ya está mergeada en `main`. PR #76 y PR #78, con 
 - No declarar clientes reales, leads reales, datos reales ni una operación real exitosa.
 - No enviar mensajes a leads, contactos externos o números no autorizados.
 - No conectar el piloto a inventario, precios, vehículos, archivos o datos comerciales no provistos por una fuente confiable.
-- No habilitar envío automático, campañas, persistencia de conversaciones ni generación de respuestas para el piloto.
+- No habilitar envío automático, campañas ni respuestas salientes a leads. La
+  persistencia técnica de mensajes entrantes, scoring, contexto y borradores
+  `PROPOSED` sí forma parte de la validación aislada.
 - No modificar backend funcional fuera del receive-only aislado ni configuración productiva, migraciones o infraestructura remota; los Compose del piloto deben permanecer limitados a sus runtimes aislados.
 - No cerrar el Hito 4.6 ni crear un documento `DONE` en esta fase.
 
@@ -53,9 +66,33 @@ La implementación observable incluye rutas aisladas para Edgar y pruebas automa
 
 Estas rutas demuestran la preparación técnica; no demuestran por sí solas que se haya ejecutado una operación real con Edgar o Samuel.
 
+## Validación técnica observada
+
+La validación runtime posterior confirmó parcialmente el pipeline de Edgar, sin
+convertir el hito en una operación comercial ni autorizar envíos:
+
+- Compose y API aislados ejecutándose correctamente.
+- `SHADOW_ONLY_MODE=edgar`, `SENDER=false`, `AUTO_SEND_MESSAGES=false` y
+  `NO_LEAD_SEND=true` verificados.
+- Mensaje de prueba recibido y persistido con scoring, clasificación e historial
+  seguro.
+- Gemini generó un borrador que quedó enlazado al mensaje como
+  `response_drafts.PROPOSED`.
+- Preview aceptado por Evolution únicamente hacia el canal del operador.
+- Candidatos y evidencia de envío a la lead: `0`.
+- Build: `0`; pruebas: `19` suites y `254` tests aprobados.
+
+Estos resultados son evidencia técnica del pipeline receive-only. El cierre del
+hito todavía requiere la secuencia con Samuel, feedback revisable y acuerdo
+comercial explícito.
+
 ## Validación operativa pendiente
 
-La validación aún no está completada. El estado activo representa una prueba pendiente, no un cierre. No se deben registrar como hechos la conexión efectiva, la recepción efectiva, el feedback de Edgar o Samuel, ni un acuerdo comercial hasta contar con evidencia explícita, revisada y sin datos sensibles.
+La validación operativa completa aún no está terminada. Ya existe evidencia
+técnica parcial del runtime receive-only de Edgar; el estado activo representa
+que siguen pendientes la secuencia con Samuel, el feedback revisable y el
+acuerdo comercial. No se debe inferir ninguno de esos puntos a partir del
+código o de la validación técnica parcial.
 
 ## Secuencia de prueba Edgar → Samuel
 
@@ -64,23 +101,25 @@ La validación aún no está completada. El estado activo representa una prueba 
 3. Levantar y revisar únicamente el entorno aislado autorizado cuando exista aprobación operativa separada.
 4. Confirmar la instancia `evolution-shadow-edgar`, la cuenta de prueba dedicada y el QR sin guardar imágenes, tokens, números completos o payloads reales.
 5. Confirmar la conexión de Edgar y enviar sólo el mensaje de prueba autorizado al canal receive-only; verificar webhook y recepción.
-6. Confirmar que no hubo persistencia operativa de mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; sólo puede permanecer la persistencia técnica mínima de sesión/instancia que Evolution necesita, sin payloads operativos.
+6. Confirmar que no hubo envío a leads ni contactos externos. La persistencia
+   técnica de mensajes de prueba, scoring, contexto y borradores debe quedar
+   aislada, trazable y sin exponer payloads en logs.
 7. Detener, aislar y revisar la evidencia de Edgar; no reutilizar la sesión ni sus datos.
 8. Repetir la misma secuencia para Samuel con `evolution-shadow-samuel`, sus identificadores y su espacio controlado.
 9. Comparar feedback y bloqueos sin copiar datos personales; registrar sólo conclusiones mínimas y trazables.
 
 ## Checklist de preparación y prueba
 
-- [ ] Docker y Compose revisados; no se ejecuta Docker como parte de esta actualización documental.
-- [ ] Instancia `evolution-shadow-edgar` confirmada como destino aislado.
+- [x] Docker y Compose revisados; no se ejecuta Docker como parte de esta actualización documental.
+- [x] Instancia `evolution-shadow-edgar` confirmada como destino aislado.
 - [ ] QR de la cuenta de prueba revisado sin almacenar el QR ni secretos.
-- [ ] Conexión de la cuenta de prueba confirmada con evidencia segura y mínima.
-- [ ] Webhook receive-only configurado para la instancia aislada.
+- [x] Conexión de la cuenta de prueba confirmada con evidencia segura y mínima.
+- [x] Webhook receive-only configurado para la instancia aislada.
 - [ ] QR habilitado explícitamente en el manifiesto y en Compose para vincular la cuenta de prueba; no se conserva la imagen ni el contenido del QR.
-- [ ] Mensaje de prueba recibido por el webhook, sin conservar payload personal.
-- [ ] Persistencia operativa deshabilitada para mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas y leads; la persistencia técnica de sesión/instancia, si se requiere, permanece aislada y sin datos operativos.
-- [ ] `sender=false`, `AUTO_SEND_MESSAGES=false` y `noLeadSend=true` verificados.
-- [ ] Ausencia de envío a leads y contactos externos verificada.
+- [x] Mensaje de prueba recibido por el webhook, sin conservar payload personal.
+- [x] Persistencia técnica de mensajes de prueba, scoring, contexto y borradores `PROPOSED` verificada dentro del runtime aislado; no hay persistencia ni envío operativo hacia leads.
+- [x] `SENDER=false`, `AUTO_SEND_MESSAGES=false`, `NO_LEAD_SEND=true` y `SHADOW_ONLY_MODE=edgar` verificados.
+- [x] Ausencia de envío a leads y contactos externos verificada.
 - [ ] Compose Samuel disponible con instancia, red, volúmenes, puertos, allowlist y variables `SHADOW_SAMUEL_*` independientes.
 - [ ] Secuencia Edgar → Samuel completada sin mezclar identidades o datos.
 
@@ -89,7 +128,10 @@ La validación aún no está completada. El estado activo representa una prueba 
 - Registro de fecha, alcance y aprobación de la prueba, sin secretos ni datos personales innecesarios.
 - Identificación de la instancia y cuenta de prueba mediante identificadores controlados, no números completos.
 - Evidencia segura de conexión, webhook y recepción.
-- Resultado explícito de ausencia de envío, persistencia operativa, generación de IA y contacto con leads; cualquier persistencia técnica de sesión/instancia debe quedar identificada como tal.
+- Resultado explícito de ausencia de envío a leads y contactos externos. La
+  evidencia debe distinguir la persistencia técnica autorizada de mensajes de
+  prueba, scoring, contexto y borradores `PROPOSED` de cualquier efecto
+  operativo o comercial.
 - Registro separado del feedback de Edgar y Samuel.
 - Checkpoint comercial con el acuerdo de pago y alcance posterior documentado por Samuel.
 - Pruebas automatizadas relevantes, `npm run docs:check`, `npm run test:docs`, `npm run docs:handoff:check` y `git diff --check`, con su resultado real.
@@ -115,12 +157,17 @@ El checkpoint 4.6-D sólo se marca cuando Samuel acuerde explícitamente el pago
 
 - `sender=false`.
 - `AUTO_SEND_MESSAGES=false`.
-- `noLeadSend=true`: cero envío a leads.
+- `NO_LEAD_SEND=true`: cero envío a leads.
 - Edgar y Samuel son operadores de prueba; no son leads ni destinatarios de mensajes.
 - Las cuentas, sesiones, instancias, identificadores y espacios de datos de Edgar y Samuel permanecen aislados.
-- Evolution no persiste mensajes nuevos, actualizaciones, chats, contactos, historial, etiquetas ni leads; sólo puede persistir estado técnico mínimo de sesión/instancia, aislado y sin payloads operativos.
+- El runtime puede persistir mensajes de prueba, scoring, contexto y borradores
+  `PROPOSED` de forma aislada; no debe producir persistencia ni efectos
+  operativos hacia leads o contactos externos.
 - No usar credenciales reales en pruebas automatizadas ni registrar secretos, QR, números completos o payloads reales.
-- No conectar generación de IA ni servicios externos al webhook sin autorización explícita.
+- La generación con Gemini forma parte del pipeline técnico autorizado y debe
+  permanecer limitada a contexto seguro, persistencia de `PROPOSED` y ausencia
+  de efectos de envío. No conectar proveedores ni efectos adicionales sin
+  autorización explícita.
 - Detenerse ante cualquier identidad no allowlisted, instancia inesperada, conflicto, dato real no autorizado o estado ambiguo.
 
 No se permite ningún envío a leads.
@@ -131,4 +178,8 @@ El Hito 4.6 sólo podrá pasar a `DONE` cuando todo el alcance aprobado esté co
 
 ## Estado y siguiente acción
 
-Estado actual: `active`, con validación operativa pendiente. La siguiente acción canónica es ejecutar la prueba controlada de Edgar dentro del alcance aprobado. Cualquier discrepancia documental, cambio local no explicado, conflicto o evidencia faltante bloquea el avance y debe reportarse.
+Estado actual: `active`, con validación técnica de Edgar observada y validación
+operativa/comercial pendiente. La siguiente acción es completar la secuencia
+controlada Edgar → Samuel después de revisar esta documentación. Cualquier
+discrepancia documental, cambio local no explicado, conflicto o evidencia
+faltante bloquea el avance y debe reportarse.
