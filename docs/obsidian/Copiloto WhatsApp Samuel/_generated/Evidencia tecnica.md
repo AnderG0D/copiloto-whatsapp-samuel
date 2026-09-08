@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-09-07
+updated: 2026-09-08
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-09-07
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `b6fbceb`.
-- Commit completo: `b6fbceb05adf397ad568f1a8124b0623391479ba`.
-- Mensaje: Merge origin/main: adopt reproducible technical evidence standard.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34185240797).
+- Fuente: `main` en `254c9f0`, asociado al [PR #92](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/92).
+- Commit completo: `254c9f0cc9faa0a6433667a46320dbc3d87c6460`.
+- Mensaje: Merge pull request #92 from AnderG0D/docs/strict-main-worktree-flow.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34237295139).
 
 ## Validación
 
