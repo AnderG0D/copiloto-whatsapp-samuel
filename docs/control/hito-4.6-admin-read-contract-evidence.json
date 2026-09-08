@@ -1,0 +1,22 @@
+{
+  "evidenceId": "FD-EVIDENCIA-01-4.6-ADMIN-READ-CONTRACT",
+  "type": "documentary-checkpoint",
+  "project": "Copiloto WhatsApp Samuel",
+  "milestone": "Hito 4.6",
+  "date": "2026-09-06",
+  "status": "PASS_WITH_WARNINGS",
+  "lifecycle": "historical-superseded",
+  "currentStateSource": "docs/control/hito-4.6-runtime-evidence.json",
+  "supersededReason": "Este checkpoint conserva el diseño aprobado antes de la implementación actual del panel administrativo; no representa el estado runtime vigente.",
+  "designApproved": true,
+  "implementationAuthorized": false,
+  "sourceDocument": "docs/obsidian/Copiloto WhatsApp Samuel/04 Docs/Contrato administrativo de lectura y autenticacion del panel interno.md",
+  "observed": "El contrato administrativo de lectura y el modelo provisional de autenticación fueron aprobados documentalmente. No se creó frontend, rutas GET, autenticación web, CORS, BFF/proxy, migraciones ni cambios runtime.",
+  "warnings": "La migración local de transición permanece NOT_VERIFIED. La identidad real, membresías y SSO siguen fuera de alcance. La implementación requiere un checkpoint posterior con autorización explícita.",
+  "runtime": {
+    "receiveOnly": true,
+    "leadSends": 0,
+    "changed": false
+  },
+  "nextCheckpoint": "Implementar únicamente después de revisar nuevamente este diseño documentado y obtener autorización explícita."
+}

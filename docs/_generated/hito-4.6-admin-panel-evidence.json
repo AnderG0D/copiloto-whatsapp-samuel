@@ -1,0 +1,32 @@
+{
+  "checkpoint": "admin-panel-same-origin",
+  "date": "2026-09-06",
+  "scope": [
+    "GET /admin/panel",
+    "POST /admin/auth/login",
+    "GET /admin/auth/me",
+    "POST /admin/auth/logout",
+    "response draft administrative read and review endpoints"
+  ],
+  "security": {
+    "cookieAuthentication": true,
+    "csrfFromMe": true,
+    "bearerTokensFromBrowser": false,
+    "browserStorageForCredentials": false,
+    "externalContentRenderedWithTextContent": true,
+    "sensitiveFieldsRendered": false
+  },
+  "validation": [
+    "admin-web-session.controller.spec.ts",
+    "admin-panel.controller.spec.ts",
+    "response-draft-read.controller.spec.ts",
+    "response-draft-review.controller.spec.ts",
+    "npm run test:e2e -- --runInBand",
+    "npm run build"
+  ],
+  "operations": {
+    "messageSending": false,
+    "externalServices": false,
+    "migrations": false
+  }
+}
