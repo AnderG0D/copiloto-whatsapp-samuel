@@ -1,23 +1,16 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-08-30",
+  "observedDate": "2026-09-07",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "de762e77d1a17581fa7947725efe28a107e94d71",
-    "shortSha": "de762e7",
-    "subject": "docs: sync project state for 9787ada (#88)",
-    "committedAt": "2026-08-30T18:04:28-06:00",
-    "pullRequest": {
-      "number": 88,
-      "title": "docs: sync project state for 9787ada (#88)",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/88",
-      "state": "closed",
-      "mergedAt": null,
-      "source": "commit-subject"
-    },
-    "ciUrl": null
+    "sha": "b6fbceb05adf397ad568f1a8124b0623391479ba",
+    "shortSha": "b6fbceb",
+    "subject": "Merge origin/main: adopt reproducible technical evidence standard",
+    "committedAt": "2026-09-07T21:43:44-06:00",
+    "pullRequest": null,
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34185240797"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -33,12 +26,12 @@
     "defaultGeminiModel": "gemini-3.1-flash-lite"
   },
   "verification": {
-    "unit": "not_run",
-    "e2e": "not_run",
-    "build": "not_run",
+    "unit": "passed",
+    "e2e": "passed",
+    "build": "passed",
     "discoveredTests": {
-      "unit": 131,
-      "e2e": 3
+      "unit": 261,
+      "e2e": 6
     }
   },
   "architecture": {
