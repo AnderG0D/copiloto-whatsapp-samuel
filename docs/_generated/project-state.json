@@ -1,16 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-09-07",
+  "observedDate": "2026-09-08",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "b6fbceb05adf397ad568f1a8124b0623391479ba",
-    "shortSha": "b6fbceb",
-    "subject": "Merge origin/main: adopt reproducible technical evidence standard",
-    "committedAt": "2026-09-07T21:43:44-06:00",
-    "pullRequest": null,
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34185240797"
+    "sha": "254c9f0cc9faa0a6433667a46320dbc3d87c6460",
+    "shortSha": "254c9f0",
+    "subject": "Merge pull request #92 from AnderG0D/docs/strict-main-worktree-flow",
+    "committedAt": "2026-09-08T08:17:14-06:00",
+    "pullRequest": {
+      "number": 92,
+      "title": "docs: formalize main and worktree workflow",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/92",
+      "state": "closed",
+      "mergedAt": "2026-09-08T14:17:14Z",
+      "source": "github-api"
+    },
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34237295139"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
