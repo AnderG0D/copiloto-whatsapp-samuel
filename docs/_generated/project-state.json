@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "254c9f0cc9faa0a6433667a46320dbc3d87c6460",
-    "shortSha": "254c9f0",
-    "subject": "Merge pull request #92 from AnderG0D/docs/strict-main-worktree-flow",
-    "committedAt": "2026-09-08T08:17:14-06:00",
+    "sha": "756e1ad4927a0d5d2eac7e6f21d98b263280234d",
+    "shortSha": "756e1ad",
+    "subject": "Merge pull request #94 from AnderG0D/docs/gh-cli-enforcement-workflow",
+    "committedAt": "2026-09-08T14:32:49-06:00",
     "pullRequest": {
-      "number": 92,
-      "title": "docs: formalize main and worktree workflow",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/92",
+      "number": 94,
+      "title": "docs: enforce GitHub CLI workflow",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/94",
       "state": "closed",
-      "mergedAt": "2026-09-08T14:17:14Z",
+      "mergedAt": "2026-09-08T20:32:50Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34237295139"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34275437818"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",

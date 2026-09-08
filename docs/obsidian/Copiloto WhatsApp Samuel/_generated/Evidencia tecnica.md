@@ -10,10 +10,10 @@ updated: 2026-09-08
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `254c9f0`, asociado al [PR #92](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/92).
-- Commit completo: `254c9f0cc9faa0a6433667a46320dbc3d87c6460`.
-- Mensaje: Merge pull request #92 from AnderG0D/docs/strict-main-worktree-flow.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34237295139).
+- Fuente: `main` en `756e1ad`, asociado al [PR #94](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/94).
+- Commit completo: `756e1ad4927a0d5d2eac7e6f21d98b263280234d`.
+- Mensaje: Merge pull request #94 from AnderG0D/docs/gh-cli-enforcement-workflow.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34275437818).
 
 ## Validación
 
