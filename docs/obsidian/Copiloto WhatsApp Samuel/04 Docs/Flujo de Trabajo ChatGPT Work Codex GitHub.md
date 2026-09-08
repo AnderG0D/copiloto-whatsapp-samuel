@@ -177,23 +177,28 @@ Antes de declarar `DONE`, comprobar y conservar evidencia de:
 
 La autorización humana explícita es obligatoria antes de cualquier commit, push, creación de PR, merge o rerun de procesos remotos. No se presume por el hecho de que las validaciones locales estén verdes.
 
-Cada checkpoint debe registrar objetivo concreto, alcance y archivos autorizados, comportamiento esperado, validaciones, evidencia sanitizada y reproducible, riesgos y una única siguiente acción. Antes de pasar al siguiente checkpoint, actualizar la documentación fuente y la evidencia correspondiente, ejecutar los checks documentales disponibles, revisar el diff y confirmar que código y documentación describen el mismo estado. La documentación fuente relacionada viaja en el mismo PR; un PR documental automático separado también requiere revisión y validación.
+Cada checkpoint debe registrar objetivo concreto, alcance y archivos autorizados, comportamiento esperado, validaciones, evidencia sanitizada y reproducible, riesgos y una única siguiente acción. Después de cada checkpoint, actualizar primero la documentación fuente y la evidencia correspondiente; sólo después ejecutar los checks documentales disponibles, revisar el diff y confirmar que código y documentación describen el mismo estado. La documentación fuente relacionada viaja en el mismo PR; un PR documental automático separado también requiere revisión y validación.
 
 Para cambios documentales, ejecutar los scripts existentes desde la raíz: `npm run test:docs`, `npm run docs:check`, `npm run docs:handoff:check` y `git diff --check`. Para cambios backend, añadir las validaciones unitarias, e2e y build documentadas. No inventar comandos: si falta un script o no puede ejecutarse, registrarlo como `NOT_RUN` o `BLOCKED` con el riesgo restante.
 
 ### Integración remota
 
-El código y la documentación relacionada se integran en `main`. Si la automatización genera un PR de documentación separado, ambos PR deben aprobarse, pasar sus checks y quedar mergeados antes de continuar. Todo merge a `main` debe realizarse usando **Create a merge commit**; no usar squash merge, rebase merge ni una variante automática.
+El código y la documentación relacionada se integran en `main` únicamente desde una rama y worktree nuevos creados a partir de `origin/main` sincronizado. Nunca se desarrolla directamente en `main`.
 
-Después de confirmar que todos los PR relacionados están mergeados y que sus checks están verdes:
+La rama se publica con `git push`, porque GitHub CLI no tiene un comando oficial equivalente a `gh push`. Desde la publicación de la rama, toda interacción con GitHub se controla mediante GitHub CLI: `gh pr create` crea el PR, `gh pr checks --watch` revisa y espera los checks, `gh api` aprueba o activa workflows pendientes cuando sea necesario, `gh run rerun` sólo se usa con autorización explícita y `gh pr merge --merge` integra mediante merge commit. No usar squash, rebase, auto-merge ni merge manual desde la interfaz web.
 
-1. regresar a la copia canónica `C:\Users\manzo\Desktop\Freelance\Copilot`;
-2. confirmar que sigue en `main` y supera de nuevo la puerta de limpieza;
-3. ejecutar `git fetch origin`;
-4. ejecutar `git merge --ff-only origin/main`;
-5. verificar con `git rev-parse HEAD` y `git rev-parse origin/main` que ambos valores coincidan;
-6. verificar con `git status --porcelain` que `main` local esté limpia;
-7. sólo entonces crear el siguiente worktree o rama.
+Commit, push, creación de PR, aprobación o activación de workflows, rerun y merge requieren autorización humana explícita e independiente. No se presume ninguna de ellas porque las validaciones locales o los checks estén verdes. No mergear hasta que todos los checks requeridos sean exitosos.
+
+Después de cada merge autorizado con `gh pr merge --merge`:
+
+1. verificar el SHA del merge commit y los checks post-merge mediante `gh`;
+2. detectar y revisar el PR automático de documentación, si existe;
+3. validar ese PR documental con `gh pr checks --watch` y fusionarlo sólo con checks exitosos y una autorización humana separada, usando `gh pr merge --merge`;
+4. regresar a la copia canónica `C:\Users\manzo\Desktop\Freelance\Copilot` y confirmar que sigue en `main` y supera de nuevo la puerta de limpieza;
+5. ejecutar `git fetch origin main` y `git merge --ff-only origin/main`;
+6. verificar con `git rev-parse HEAD` y `git rev-parse origin/main` que ambos valores coincidan;
+7. verificar con `git status --porcelain` que `main` local esté limpia;
+8. sólo entonces crear el siguiente worktree o rama.
 
 Si la copia canónica está sucia, atrasada, adelantada, tiene conflictos, worktrees ambiguos o PRs pendientes, detener el ciclo. No ejecutar `reset`, `restore`, `clean`, `pull`, cambio de rama ni creación de worktree hasta resolverlo explícitamente.
 
@@ -259,13 +264,17 @@ No cerrar una sesión con “continuará”: entregar la ruta anterior, rama act
 
 #### Integración remota
 
-- [ ] Existe autorización humana explícita para commit, push, PR y merge.
-- [ ] Código y documentación relacionada están integrados en `main`.
-- [ ] Si hay PR documental separado, ambos PR están aprobados, verdes y mergeados.
-- [ ] El merge se realizó con **Create a merge commit**.
+- [ ] Publiqué la rama con `git push`; desde entonces todas las interacciones con GitHub se hicieron con `gh`.
+- [ ] Tengo autorizaciones humanas explícitas e independientes para commit, push, PR, aprobación o activación de workflows, rerun y merge.
+- [ ] Creé el PR con `gh pr create` y esperé los checks con `gh pr checks --watch`.
+- [ ] Los workflows pendientes, si existieron, se aprobaron o activaron con `gh api`; `gh run rerun` sólo se usó con autorización explícita.
+- [ ] Todos los checks requeridos son exitosos antes del merge.
+- [ ] El merge se realizó con `gh pr merge --merge`, sin squash, rebase, auto-merge ni interfaz web.
 
 #### Actualización posterior de `main` local
 
+- [ ] Verifiqué con `gh` el SHA del merge commit y los checks post-merge.
+- [ ] Detecté y revisé el PR automático de documentación; si existe, tiene checks exitosos y autorización separada antes de fusionarse con `gh pr merge --merge`.
 - [ ] Todos los PR relacionados están mergeados y sus checks están verdes.
 - [ ] Regresé a `C:\Users\manzo\Desktop\Freelance\Copilot`.
 - [ ] Confirmé rama `main`, árbol limpio, ausencia de no rastreados, conflictos y estado ambiguo.
@@ -515,10 +524,11 @@ Un commit pequeño debe:
 
 ### Paso 9 — Subir la rama y abrir un Pull Request, con autorización
 
-El push y la creación del Pull Request también requieren autorización humana explícita.
+El push y la creación del Pull Request también requieren autorización humana explícita e independiente. Publicar la rama con `git push`, porque GitHub CLI no tiene un comando oficial equivalente a `gh push`; desde ese momento, toda interacción con GitHub se realiza mediante `gh`.
 
 ```powershell
 git push --set-upstream origin feature/hito-4-1-ai-provider
+gh pr create
 ```
 
 En el Pull Request anotar:
@@ -539,6 +549,8 @@ GitHub Actions debe confirmar:
 - build;
 - cualquier otro check obligatorio que se agregue después.
 
+Esperar y revisar los checks con `gh pr checks --watch`. Si hace falta aprobar o activar un workflow pendiente, usar `gh api` únicamente con autorización humana explícita. `gh run rerun` también exige una autorización explícita e independiente.
+
 > [!warning]
 > Que funcione en la PC es necesario, pero CI comprueba que también funciona desde una instalación limpia y reproducible.
 
@@ -558,16 +570,17 @@ ChatGPT Work debe revisar información publicada o compartida. No se debe asumir
 
 ### Paso 12 — Hacer merge y actualizar el estado
 
-Cuando el PR esté aprobado, los checks estén verdes y exista autorización humana explícita:
+Cuando el PR esté aprobado, todos los checks requeridos estén verdes y exista autorización humana explícita e independiente para el merge:
 
-1. hacer merge a `main` usando **Create a merge commit**;
-2. confirmar que todos los PR relacionados, incluido cualquier PR documental separado, estén aprobados, verdes y mergeados;
-3. regresar a la copia canónica y actualizarla con `git fetch origin` y `git merge --ff-only origin/main`;
-4. verificar que `HEAD` local coincida con `origin/main` y que `main` esté limpia;
-5. marcar la evidencia real en la nota del hito;
-6. actualizar la próxima acción física;
-7. registrar un ADR solamente si hubo una decisión arquitectónica;
-8. sólo entonces iniciar el siguiente ciclo en un worktree y rama nuevos.
+1. hacer merge a `main` con `gh pr merge --merge`; no usar squash, rebase, auto-merge ni merge manual desde la interfaz web;
+2. verificar con `gh` el SHA del merge commit y los checks post-merge;
+3. detectar y revisar el PR automático de documentación; validarlo con `gh pr checks --watch` y fusionarlo con `gh pr merge --merge` sólo si sus checks están verdes y existe una autorización humana separada;
+4. regresar a la copia canónica y actualizarla con `git fetch origin main` y `git merge --ff-only origin/main`;
+5. verificar que `HEAD` local coincida con `origin/main` y que `main` esté limpia;
+6. marcar la evidencia real en la nota del hito;
+7. actualizar la próxima acción física;
+8. registrar un ADR solamente si hubo una decisión arquitectónica;
+9. sólo entonces iniciar el siguiente ciclo en un worktree y rama nuevos.
 
 ---
 
