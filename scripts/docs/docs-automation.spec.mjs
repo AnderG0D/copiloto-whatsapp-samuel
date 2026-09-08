@@ -20,6 +20,7 @@ import {
   readNormalizedTextFile,
   validateFrontmatter,
   validateGeneratedDeclaration,
+  validateTechnicalEvidenceContract,
 } from './validate-documentation.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -517,6 +518,38 @@ test('generated true is accepted after CRLF frontmatter normalization', async (t
   );
 
   assert.deepEqual(issues, []);
+});
+
+test('the technical evidence contract has the required reproducibility safeguards', async () => {
+  const policy = JSON.parse(await readFile(
+    path.join(repositoryRoot, 'docs/control/documentation-policy.json'), 'utf8',
+  ));
+  const issues = [];
+
+  validateTechnicalEvidenceContract(policy, issues);
+
+  assert.deepEqual(issues, []);
+});
+
+test('an incomplete technical evidence contract is rejected', () => {
+  const issues = [];
+  const policy = {
+    technicalEvidenceContract: {
+      id: 'FD-EVIDENCIA-01',
+      version: 1,
+      requiredFields: ['objective'],
+      allowedStatuses: ['PASS'],
+      rules: {},
+    },
+  };
+
+  validateTechnicalEvidenceContract(policy, issues);
+
+  assert.deepEqual(issues, [
+    'docs/control/documentation-policy.json: technicalEvidenceContract.requiredFields is incomplete',
+    'docs/control/documentation-policy.json: technicalEvidenceContract.allowedStatuses is incomplete',
+    'docs/control/documentation-policy.json: technicalEvidenceContract.rules is incomplete',
+  ]);
 });
 
 test('line-ending normalization handles CRLF and lone CR without changing content', () => {

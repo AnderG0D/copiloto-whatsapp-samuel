@@ -84,6 +84,16 @@ Para cerrar un hito, confirmar el alcance completo; ejecutar pruebas, build, val
 
 Si hay estado ambiguo, cambios locales no explicados, conflictos, pruebas pendientes o documentación desalineada, detenerse y reportarlo.
 
+## Regla transversal: evidencia técnica reproducible
+
+`FD-EVIDENCIA-01` se aplica a toda auditoría, revisión de código, prueba de runtime, validación de Docker, Supabase, pipeline o documentación. Cada ejecución debe dejar una evidencia reproducible, sanitizada y trazable usando la [[Estándar de Evidencia Técnica Reproducible|plantilla estándar]]. El contrato machine-readable vive en `docs/control/documentation-policy.json`, dentro de `technicalEvidenceContract`, y `npm run docs:check` verifica su estructura mínima.
+
+La evidencia debe registrar objetivo, alcance, proyecto, hito, entorno, rama, commit, comando o acción ejecutada, salida original sanitizada, esperado, observado, estado, hallazgos y riesgos, decisión, siguiente checkpoint y autorización requerida cuando aplique. La salida debe ser suficiente para repetir o revisar la acción, pero nunca un log crudo persistido automáticamente.
+
+Los únicos estados permitidos son `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` y `UNKNOWN`. No se inventa evidencia: si falta, se registra `UNKNOWN`, `BLOCKED` o `NOT_RUN`, indicando por qué y qué falta para despejarla. Antes de guardar una salida, eliminar secretos, tokens, contraseñas, datos personales, payloads sensibles y datos de leads reales.
+
+La evidencia generada sólo puede conservar hechos derivados de código, GitHub y validaciones ejecutadas. No autoriza a la automatización a modificar ADR, roadmap, alcance, decisiones humanas o archivo histórico, ni a avanzar de hito: para esto último siempre hace falta aprobación humana explícita. La plantilla no sustituye esa aprobación y no autoriza commit, push, PR ni merge.
+
 ## Regla oficial y estricta del ciclo Git
 
 Esta sección es la única fuente de verdad del ciclo Git del proyecto. Sus reglas son obligatorias para cualquier hito, fix, reparación, experimento o tarea independiente. Si otra guía contiene una instrucción distinta, prevalece esta sección y la otra guía debe remitirse aquí.

@@ -37,5 +37,44 @@
     "rejectHumanChanges": true,
     "requireReviewPullRequest": true
   },
+  "technicalEvidenceContract": {
+    "id": "FD-EVIDENCIA-01",
+    "version": 1,
+    "requiredFields": [
+      "objective",
+      "scope",
+      "project",
+      "milestone",
+      "environment",
+      "branch",
+      "commit",
+      "action",
+      "sanitizedOriginalOutput",
+      "expected",
+      "observed",
+      "status",
+      "findingsAndRisks",
+      "decision",
+      "nextCheckpoint",
+      "requiredAuthorization"
+    ],
+    "allowedStatuses": [
+      "PASS",
+      "PASS_WITH_WARNINGS",
+      "FAIL",
+      "BLOCKED",
+      "NOT_RUN",
+      "UNKNOWN"
+    ],
+    "rules": {
+      "forbidInventedEvidence": true,
+      "missingEvidenceStatuses": ["UNKNOWN", "BLOCKED", "NOT_RUN"],
+      "requireSanitizedOutput": true,
+      "forbidRawLogPersistence": true,
+      "forbidSensitiveData": true,
+      "automationPreservesHumanGovernance": true,
+      "requireExplicitHumanApprovalToAdvanceMilestone": true
+    }
+  },
   "canonicalNextAction": "docs/obsidian/Copiloto WhatsApp Samuel/_generated/Siguiente accion.md"
 }
