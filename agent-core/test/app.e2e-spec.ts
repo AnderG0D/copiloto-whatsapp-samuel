@@ -12,7 +12,9 @@ import { SupabaseService } from './../src/supabase/supabase.service';
 
 describe('EvolutionWebhookController (e2e)', () => {
   let app: INestApplication<App>;
-  const adminToken = 'dummy-e2e-admin-review-token-32-characters-minimum';
+  const adminWebPassword = 'dummy-web-password';
+  const adminWebPasswordHash =
+    'scrypt$ZHVtbXktYWRtaW4td2ViLXNhbHQ$kHoMptv_cnuzbkUPYVY8j2eycE0kei7bBK2RYw4YPhJd9PqrYn8wKQc1qZehHl4YuDP0HZRctqmTHJVHWqcWDQ';
   const operatorId = 'dummy-e2e-operator';
   const businessId = '123e4567-e89b-42d3-a456-426614174000';
   const responseDraftId = '323e4567-e89b-42d3-a456-426614174000';
@@ -27,6 +29,8 @@ describe('EvolutionWebhookController (e2e)', () => {
     final_text: string | null;
     decided_at: string;
   } | null = null;
+  let sessionCookie: string;
+  let csrfToken: string;
   const reviewMock: jest.MockedFunction<ResponseDraftReviewService['review']> =
     jest.fn(async (command) => {
       if (persistedDecision) {
@@ -64,7 +68,9 @@ describe('EvolutionWebhookController (e2e)', () => {
       .useValue({
         get: (key: string) =>
           ({
-            ADMIN_REVIEW_TOKEN: adminToken,
+            ADMIN_WEB_PASSWORD_HASH: adminWebPasswordHash,
+            ADMIN_WEB_SESSION_SECRET:
+              'dummy-e2e-admin-web-session-secret-with-32-plus-characters',
             ADMIN_REVIEW_OPERATOR_ID: operatorId,
             ADMIN_REVIEW_BUSINESS_IDS: businessId,
             AUTO_SEND_MESSAGES: false,
@@ -78,10 +84,20 @@ describe('EvolutionWebhookController (e2e)', () => {
     await app.init();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     generateTextMock.mockClear();
     reviewMock.mockClear();
     persistedDecision = null;
+    const response = await request(app.getHttpServer())
+      .post('/admin/auth/login')
+      .send({ password: adminWebPassword })
+      .expect(201);
+    sessionCookie = response.headers['set-cookie'][0].split(';')[0];
+    const me = await request(app.getHttpServer())
+      .get('/admin/auth/me')
+      .set('Cookie', sessionCookie)
+      .expect(200);
+    csrfToken = me.body.csrfToken;
   });
 
   it('POST /webhooks/evolution ignores unrelated events', async () => {
@@ -102,7 +118,7 @@ describe('EvolutionWebhookController (e2e)', () => {
   describe('authenticated admin response draft review API', () => {
     const endpoint = `/admin/businesses/${businessId}/response-drafts/${responseDraftId}/reviews`;
 
-    it('returns 401 unauthorized without an admin credential', async () => {
+    it('returns 401 unauthorized without an admin session', async () => {
       await request(app.getHttpServer())
         .post(endpoint)
         .send({ decision: 'APPROVE' })
@@ -110,7 +126,7 @@ describe('EvolutionWebhookController (e2e)', () => {
         .expect({
           statusCode: 401,
           error: 'Unauthorized',
-          message: 'Invalid admin credential.',
+          message: 'Invalid admin session.',
         });
 
       expect(reviewMock).not.toHaveBeenCalled();
@@ -184,7 +200,8 @@ describe('EvolutionWebhookController (e2e)', () => {
       async ({ firstRequest, firstCommand, firstResponse, secondRequest }) => {
         await request(app.getHttpServer())
           .post(endpoint)
-          .set('Authorization', `Bearer ${adminToken}`)
+          .set('Cookie', sessionCookie)
+          .set('X-CSRF-Token', csrfToken)
           .send(firstRequest)
           .expect(201)
           .expect(firstResponse);
@@ -193,7 +210,8 @@ describe('EvolutionWebhookController (e2e)', () => {
 
         await request(app.getHttpServer())
           .post(endpoint)
-          .set('Authorization', `Bearer ${adminToken}`)
+          .set('Cookie', sessionCookie)
+          .set('X-CSRF-Token', csrfToken)
           .send(secondRequest)
           .expect(409)
           .expect({
@@ -212,7 +230,8 @@ describe('EvolutionWebhookController (e2e)', () => {
     it('rejects a client-supplied operatorId before calling the service', async () => {
       await request(app.getHttpServer())
         .post(endpoint)
-        .set('Authorization', `Bearer ${adminToken}`)
+        .set('Cookie', sessionCookie)
+        .set('X-CSRF-Token', csrfToken)
         .send({ decision: 'APPROVE', operatorId: 'client-operator' })
         .expect(400)
         .expect({

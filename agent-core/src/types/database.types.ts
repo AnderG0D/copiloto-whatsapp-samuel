@@ -286,7 +286,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      review_response_draft: {
+        Args: {
+          p_business_id: string
+          p_decision: string
+          p_final_text?: string | null
+          p_operator_id: string
+          p_response_draft_id: string
+        }
+        Returns: {
+          business_id: string
+          decided_at: string
+          decision: string
+          final_text: string | null
+          id: string
+          operator_id: string
+          response_draft_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

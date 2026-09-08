@@ -4,6 +4,7 @@ import type { Database } from '../../types/database.types';
 
 const responseDraftDecisionDuplicateConstraint =
   'response_draft_decisions_response_draft_id_key';
+const reviewResponseDraftFunction = 'review_response_draft' as const;
 
 function extractUniqueConstraintName(message: string): string | undefined {
   return message.match(/duplicate key value violates unique constraint "([^"]+)"/)?.[1];
@@ -74,17 +75,13 @@ export class ResponseDraftDecisionRepository {
     validateDecisionInput(input);
 
     const { data, error } = await this.supabaseService.client
-      .from('response_draft_decisions')
-      .insert({
-        business_id: input.businessId,
-        response_draft_id: input.responseDraftId,
-        operator_id: input.operatorId,
-        decision: input.decision,
-        final_text: input.finalText ?? null,
+      .rpc(reviewResponseDraftFunction, {
+        p_business_id: input.businessId,
+        p_response_draft_id: input.responseDraftId,
+        p_operator_id: input.operatorId,
+        p_decision: input.decision,
+        p_final_text: input.finalText ?? null,
       })
-      .select(
-        'id, business_id, response_draft_id, operator_id, decision, final_text, decided_at',
-      )
       .single();
 
     if (error) {

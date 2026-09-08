@@ -10,18 +10,11 @@ import {
 
 type ResponseDraftDecisionRow =
   Database['public']['Tables']['response_draft_decisions']['Row'];
-type ResponseDraftDecisionInsert =
-  Database['public']['Tables']['response_draft_decisions']['Insert'];
 
 describe('ResponseDraftDecisionRepository', () => {
   let repository: ResponseDraftDecisionRepository;
-  let fromMock: jest.Mock;
-  let insertMock: jest.Mock;
-  let selectMock: jest.Mock;
+  let rpcMock: jest.Mock;
   let singleMock: jest.Mock;
-  let upsertMock: jest.Mock;
-  let updateMock: jest.Mock;
-  let deleteMock: jest.Mock;
 
   const baseInput = {
     businessId: 'business-1',
@@ -46,23 +39,7 @@ describe('ResponseDraftDecisionRepository', () => {
 
   beforeEach(async () => {
     singleMock = jest.fn();
-    selectMock = jest.fn().mockReturnValue({ single: singleMock });
-    insertMock = jest.fn().mockReturnValue({ select: selectMock });
-    upsertMock = jest.fn();
-    updateMock = jest.fn();
-    deleteMock = jest.fn();
-    fromMock = jest.fn((table: string) => {
-      if (table !== 'response_draft_decisions') {
-        throw new Error(`Unexpected Supabase table access: ${table}`);
-      }
-
-      return {
-        insert: insertMock,
-        upsert: upsertMock,
-        update: updateMock,
-        delete: deleteMock,
-      };
-    });
+    rpcMock = jest.fn().mockReturnValue({ single: singleMock });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -71,7 +48,7 @@ describe('ResponseDraftDecisionRepository', () => {
           provide: SupabaseService,
           useValue: {
             client: {
-              from: fromMock,
+              rpc: rpcMock,
             },
           },
         },
@@ -81,40 +58,28 @@ describe('ResponseDraftDecisionRepository', () => {
     repository = module.get(ResponseDraftDecisionRepository);
   });
 
-  function expectInsertOnly(): void {
-    expect(upsertMock).not.toHaveBeenCalled();
-    expect(updateMock).not.toHaveBeenCalled();
-    expect(deleteMock).not.toHaveBeenCalled();
-  }
-
-  function expectSingleDecisionInsert(
-    payload: ResponseDraftDecisionInsert,
+  function expectAtomicReview(
+    input: CreateResponseDraftDecisionInput,
   ): void {
-    expect(fromMock).toHaveBeenCalledTimes(1);
-    expect(fromMock).toHaveBeenCalledWith('response_draft_decisions');
-    expect(insertMock).toHaveBeenCalledTimes(1);
-    expect(insertMock).toHaveBeenCalledWith(payload);
-    expectInsertOnly();
+    expect(rpcMock).toHaveBeenCalledTimes(1);
+    expect(rpcMock).toHaveBeenCalledWith('review_response_draft', {
+      p_business_id: input.businessId,
+      p_response_draft_id: input.responseDraftId,
+      p_operator_id: input.operatorId,
+      p_decision: input.decision,
+      p_final_text: input.finalText ?? null,
+    });
+    expect(singleMock).toHaveBeenCalledTimes(1);
   }
 
-  it('inserts APPROVE with the trusted operator and matching business id', async () => {
+  it('applies APPROVE through the atomic review function', async () => {
     singleMock.mockResolvedValue({ data: approveRow, error: null });
 
     await expect(repository.create(approveInput)).resolves.toEqual(approveRow);
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-    expect(selectMock).toHaveBeenCalledWith(
-      'id, business_id, response_draft_id, operator_id, decision, final_text, decided_at',
-    );
-    expect(singleMock).toHaveBeenCalledTimes(1);
+    expectAtomicReview(approveInput);
   });
 
-  it('inserts EDIT_AND_APPROVE with a non-blank final text', async () => {
+  it('applies EDIT_AND_APPROVE with a non-blank final text', async () => {
     const input: CreateResponseDraftDecisionInput = {
       ...baseInput,
       decision: 'EDIT_AND_APPROVE',
@@ -128,16 +93,10 @@ describe('ResponseDraftDecisionRepository', () => {
     singleMock.mockResolvedValue({ data: row, error: null });
 
     await expect(repository.create(input)).resolves.toEqual(row);
-    expectSingleDecisionInsert({
-      business_id: input.businessId,
-      response_draft_id: input.responseDraftId,
-      operator_id: input.operatorId,
-      decision: 'EDIT_AND_APPROVE',
-      final_text: input.finalText,
-    });
+    expectAtomicReview(input);
   });
 
-  it('inserts REJECT without final text', async () => {
+  it('applies REJECT without final text', async () => {
     const input: CreateResponseDraftDecisionInput = {
       ...baseInput,
       decision: 'REJECT',
@@ -149,13 +108,7 @@ describe('ResponseDraftDecisionRepository', () => {
     singleMock.mockResolvedValue({ data: row, error: null });
 
     await expect(repository.create(input)).resolves.toEqual(row);
-    expectSingleDecisionInsert({
-      business_id: input.businessId,
-      response_draft_id: input.responseDraftId,
-      operator_id: input.operatorId,
-      decision: 'REJECT',
-      final_text: null,
-    });
+    expectAtomicReview(input);
   });
 
   it('rejects a blank operator id before calling Supabase', async () => {
@@ -169,7 +122,7 @@ describe('ResponseDraftDecisionRepository', () => {
         'Response draft decision operatorId must not be blank',
       ),
     );
-    expect(fromMock).not.toHaveBeenCalled();
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
   it('rejects blank final text for EDIT_AND_APPROVE before calling Supabase', async () => {
@@ -184,7 +137,7 @@ describe('ResponseDraftDecisionRepository', () => {
         'EDIT_AND_APPROVE requires a non-blank finalText',
       ),
     );
-    expect(fromMock).not.toHaveBeenCalled();
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
   it.each(['APPROVE', 'REJECT'] as const)(
@@ -201,7 +154,7 @@ describe('ResponseDraftDecisionRepository', () => {
           `${decision} requires finalText to be null`,
         ),
       );
-      expect(fromMock).not.toHaveBeenCalled();
+      expect(rpcMock).not.toHaveBeenCalled();
     },
   );
 
@@ -223,34 +176,10 @@ describe('ResponseDraftDecisionRepository', () => {
     );
 
     expect(firstDecision).toEqual(approveRow);
-    expect(fromMock).toHaveBeenCalledTimes(2);
-    expect(fromMock).toHaveBeenNthCalledWith(
-      1,
-      'response_draft_decisions',
-    );
-    expect(fromMock).toHaveBeenNthCalledWith(
-      2,
-      'response_draft_decisions',
-    );
-    expect(insertMock).toHaveBeenCalledTimes(2);
-    expect(insertMock).toHaveBeenNthCalledWith(1, {
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-    expect(insertMock).toHaveBeenNthCalledWith(2, {
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-    expectInsertOnly();
+    expect(rpcMock).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps a primary-key 23505 as a generic Supabase error', async () => {
+  it('keeps an unidentified unique violation as a generic Supabase error', async () => {
     const message =
       'duplicate key value violates unique constraint "response_draft_decisions_pkey"';
     singleMock.mockResolvedValue({
@@ -261,52 +190,7 @@ describe('ResponseDraftDecisionRepository', () => {
     await expect(repository.create(approveInput)).rejects.toThrow(
       `Failed to create response draft decision: ${message}`,
     );
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-  });
-
-  it('keeps a similarly named unique constraint as a generic Supabase error', async () => {
-    const message =
-      'duplicate key value violates unique constraint "response_draft_decisions_response_draft_id_key_shadow"';
-    singleMock.mockResolvedValue({
-      data: null,
-      error: { code: '23505', message },
-    });
-
-    await expect(repository.create(approveInput)).rejects.toThrow(
-      `Failed to create response draft decision: ${message}`,
-    );
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-  });
-
-  it('keeps an unidentified 23505 as a generic Supabase error', async () => {
-    const message = 'duplicate key value violates unique constraint';
-    singleMock.mockResolvedValue({
-      data: null,
-      error: { code: '23505', message },
-    });
-
-    await expect(repository.create(approveInput)).rejects.toThrow(
-      `Failed to create response draft decision: ${message}`,
-    );
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
+    expectAtomicReview(approveInput);
   });
 
   it('throws a descriptive error when Supabase returns another error', async () => {
@@ -318,13 +202,7 @@ describe('ResponseDraftDecisionRepository', () => {
     await expect(repository.create(approveInput)).rejects.toThrow(
       'Failed to create response draft decision: permission denied',
     );
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
+    expectAtomicReview(approveInput);
   });
 
   it('throws a descriptive error when Supabase returns no data', async () => {
@@ -333,34 +211,17 @@ describe('ResponseDraftDecisionRepository', () => {
     await expect(repository.create(approveInput)).rejects.toThrow(
       'Failed to create response draft decision: Supabase returned no data',
     );
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
+    expectAtomicReview(approveInput);
   });
 
-  it('creates only a decision row and does not send or persist elsewhere', async () => {
+  it('uses only the atomic review RPC and does not access tables or outbound channels', async () => {
     singleMock.mockResolvedValue({ data: approveRow, error: null });
 
     await expect(repository.create(approveInput)).resolves.toEqual(approveRow);
-    expectSingleDecisionInsert({
-      business_id: baseInput.businessId,
-      response_draft_id: baseInput.responseDraftId,
-      operator_id: baseInput.operatorId,
-      decision: 'APPROVE',
-      final_text: null,
-    });
-    expect(fromMock).not.toHaveBeenCalledWith('messages');
-    expect(fromMock).not.toHaveBeenCalledWith('outbox');
-    expect(fromMock).not.toHaveBeenCalledWith('response_drafts');
+    expectAtomicReview(approveInput);
     expect(
       Object.getOwnPropertyNames(ResponseDraftDecisionRepository.prototype),
     ).toEqual(['constructor', 'create']);
-    expect(
-      (repository as unknown as { send?: unknown }).send,
-    ).toBeUndefined();
+    expect((repository as unknown as { send?: unknown }).send).toBeUndefined();
   });
 });

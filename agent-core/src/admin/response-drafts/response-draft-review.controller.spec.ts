@@ -17,6 +17,10 @@ import {
 import type { Database } from '../../types/database.types';
 import { AdminResponseDraftReviewGuard } from './admin-response-draft-review.guard';
 import {
+  AdminWebSessionGuard,
+} from './admin-web-session.guard';
+import { AdminWebSessionService } from './admin-web-session.service';
+import {
   AdminResponseDraftReviewBadRequestFilter,
   ResponseDraftReviewController,
 } from './response-draft-review.controller';
@@ -29,8 +33,10 @@ describe('ResponseDraftReviewController', () => {
   let app: INestApplication<App>;
   let configuration: Record<string, unknown>;
   let reviewMock: jest.MockedFunction<ResponseDraftReviewService['review']>;
+  let sessions: AdminWebSessionService;
+  let sessionCookie: string;
+  let csrfToken: string;
 
-  const adminToken = 'dummy-admin-review-token-with-32-plus-characters';
   const operatorId = 'dummy-operator-samuel';
   const businessId = '123e4567-e89b-42d3-a456-426614174000';
   const otherBusinessId = '223e4567-e89b-42d3-a456-426614174000';
@@ -39,7 +45,9 @@ describe('ResponseDraftReviewController', () => {
   const decidedAt = '2026-08-11T23:00:00.000Z';
 
   const validConfiguration = () => ({
-    ADMIN_REVIEW_TOKEN: adminToken,
+    ADMIN_WEB_PASSWORD_HASH:
+      'scrypt$ZHVtbXktYWRtaW4td2ViLXNhbHQ$kHoMptv_cnuzbkUPYVY8j2eycE0kei7bBK2RYw4YPhJd9PqrYn8wKQc1qZehHl4YuDP0HZRctqmTHJVHWqcWDQ',
+    ADMIN_WEB_SESSION_SECRET: 'dummy-admin-web-session-secret-with-32-plus-characters',
     ADMIN_REVIEW_OPERATOR_ID: operatorId,
     ADMIN_REVIEW_BUSINESS_IDS: businessId,
   });
@@ -70,7 +78,8 @@ describe('ResponseDraftReviewController', () => {
   ) =>
     request(app.getHttpServer())
       .post(endpoint(routeBusinessId, routeResponseDraftId))
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Cookie', sessionCookie)
+      .set('X-CSRF-Token', csrfToken);
 
   beforeAll(async () => {
     configuration = validConfiguration();
@@ -80,6 +89,8 @@ describe('ResponseDraftReviewController', () => {
       controllers: [ResponseDraftReviewController],
       providers: [
         AdminResponseDraftReviewGuard,
+        AdminWebSessionGuard,
+        AdminWebSessionService,
         ReviewResponseDraftBodyPipe,
         {
           provide: ConfigService,
@@ -94,22 +105,31 @@ describe('ResponseDraftReviewController', () => {
       ],
     }).compile();
 
+    sessions = moduleFixture.get(AdminWebSessionService);
+
     app = moduleFixture.createNestApplication();
     app.useGlobalFilters(new AdminResponseDraftReviewBadRequestFilter());
     await app.init();
   });
 
-  beforeEach(() => {
+  const issueSession = async () => {
+    const session = await sessions.create('dummy-web-password');
+    sessionCookie = `admin_web_session=${session.token}`;
+    csrfToken = session.csrfToken;
+  };
+
+  beforeEach(async () => {
     configuration = validConfiguration();
     reviewMock.mockReset();
     reviewMock.mockResolvedValue(decisionRow('APPROVE'));
+    await issueSession();
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('returns 401 unauthorized without Authorization', async () => {
+  it('returns 401 unauthorized without an admin session', async () => {
     await request(app.getHttpServer())
       .post(endpoint())
       .send({ decision: 'APPROVE' })
@@ -117,59 +137,54 @@ describe('ResponseDraftReviewController', () => {
       .expect({
         statusCode: 401,
         error: 'Unauthorized',
-        message: 'Invalid admin credential.',
+        message: 'Invalid admin session.',
       });
 
     expect(reviewMock).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ['Basic credential'],
-    [`bearer ${adminToken}`],
-    ['Bearer'],
-    [`Bearer  ${adminToken}`],
-  ])(
-    'returns the same 401 for invalid authorization scheme %p',
-    async (header) => {
+  it('does not accept a bearer credential in place of a session', async () => {
       await request(app.getHttpServer())
         .post(endpoint())
-        .set('Authorization', header)
+        .set('Authorization', 'Bearer dummy-admin-review-token')
         .send({ decision: 'APPROVE' })
         .expect(401)
         .expect({
           statusCode: 401,
           error: 'Unauthorized',
-          message: 'Invalid admin credential.',
+          message: 'Invalid admin session.',
         });
+
+    expect(reviewMock).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, 'incorrect-csrf-token'])(
+    'requires a matching CSRF token for a review',
+    async (token) => {
+      const requestBuilder = request(app.getHttpServer())
+        .post(endpoint())
+        .set('Cookie', sessionCookie);
+
+      if (token) {
+        requestBuilder.set('X-CSRF-Token', token);
+      }
+
+      await requestBuilder.send({ decision: 'APPROVE' }).expect(403).expect({
+        statusCode: 403,
+        error: 'Forbidden',
+        message: 'Invalid admin CSRF token.',
+      });
 
       expect(reviewMock).not.toHaveBeenCalled();
     },
   );
 
   it.each([
-    ['wrong-token-with-different-length'],
-    ['x'.repeat(adminToken.length)],
-  ])('returns the same 401 for invalid Bearer token %p', async (token) => {
-    await request(app.getHttpServer())
-      .post(endpoint())
-      .set('Authorization', `Bearer ${token}`)
-      .send({ decision: 'APPROVE' })
-      .expect(401)
-      .expect({
-        statusCode: 401,
-        error: 'Unauthorized',
-        message: 'Invalid admin credential.',
-      });
-
-    expect(reviewMock).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ['missing token', { ADMIN_REVIEW_TOKEN: undefined }],
-    ['short token', { ADMIN_REVIEW_TOKEN: 'too-short' }],
+    ['missing password hash', { ADMIN_WEB_PASSWORD_HASH: undefined }],
+    ['invalid password hash', { ADMIN_WEB_PASSWORD_HASH: 'too-short' }],
     [
-      'token containing whitespace',
-      { ADMIN_REVIEW_TOKEN: `${'x'.repeat(32)} ` },
+      'short session secret',
+      { ADMIN_WEB_SESSION_SECRET: 'too-short' },
     ],
     ['missing operator', { ADMIN_REVIEW_OPERATOR_ID: undefined }],
     ['blank operator', { ADMIN_REVIEW_OPERATOR_ID: '   ' }],
@@ -192,10 +207,10 @@ describe('ResponseDraftReviewController', () => {
       .expect({
         statusCode: 500,
         error: 'Internal Server Error',
-        message: 'Unable to review response draft.',
+        message: 'Unable to authenticate admin session.',
       });
 
-    expect(JSON.stringify(response.body)).not.toContain(adminToken);
+    expect(JSON.stringify(response.body)).not.toContain('scrypt');
     expect(reviewMock).not.toHaveBeenCalled();
   });
 
@@ -205,6 +220,7 @@ describe('ResponseDraftReviewController', () => {
       ADMIN_REVIEW_OPERATOR_ID: `  ${operatorId}  `,
       ADMIN_REVIEW_BUSINESS_IDS: ` ${otherBusinessId}, ${businessId} `,
     };
+    await issueSession();
     reviewMock.mockResolvedValue(decisionRow('APPROVE'));
 
     await postWithCredential().send({ decision: 'APPROVE' }).expect(201);
@@ -416,6 +432,7 @@ describe('ResponseDraftReviewController', () => {
       ...validConfiguration(),
       ADMIN_REVIEW_BUSINESS_IDS: `${businessId},${otherBusinessId}`,
     };
+    await issueSession();
     reviewMock.mockRejectedValue(
       new ResponseDraftNotFoundError(responseDraftId),
     );
