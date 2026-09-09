@@ -5,19 +5,19 @@
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "756e1ad4927a0d5d2eac7e6f21d98b263280234d",
-    "shortSha": "756e1ad",
-    "subject": "Merge pull request #94 from AnderG0D/docs/gh-cli-enforcement-workflow",
-    "committedAt": "2026-09-08T14:32:49-06:00",
+    "sha": "c4f3a798cb95f73c5f34a1e3087bf1778891f978",
+    "shortSha": "c4f3a79",
+    "subject": "Merge pull request #96 from AnderG0D/feature/mvp-demo-authorized-flow",
+    "committedAt": "2026-09-08T21:06:20-06:00",
     "pullRequest": {
-      "number": 94,
-      "title": "docs: enforce GitHub CLI workflow",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/94",
+      "number": 96,
+      "title": "feat(admin): add authorized leads and mobile-first review panel",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/96",
       "state": "closed",
-      "mergedAt": "2026-09-08T20:32:50Z",
+      "mergedAt": "2026-09-09T03:06:20Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34275437818"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34305820473"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
@@ -37,7 +37,7 @@
     "e2e": "passed",
     "build": "passed",
     "discoveredTests": {
-      "unit": 261,
+      "unit": 272,
       "e2e": 6
     }
   },
@@ -97,7 +97,8 @@
       "supabase/migrations/20260713052850_add_lead_scoring_columns.sql",
       "supabase/migrations/20260802111346_create_response_drafts.sql",
       "supabase/migrations/20260807020218_create_response_draft_decisions.sql",
-      "supabase/migrations/20260903090000_enable_response_draft_review_transitions.sql"
+      "supabase/migrations/20260903090000_enable_response_draft_review_transitions.sql",
+      "supabase/migrations/20260908090000_create_authorized_leads.sql"
     ]
   },
   "milestones": [

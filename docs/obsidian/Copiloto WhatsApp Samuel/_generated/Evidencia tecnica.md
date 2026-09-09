@@ -10,14 +10,14 @@ updated: 2026-09-08
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `756e1ad`, asociado al [PR #94](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/94).
-- Commit completo: `756e1ad4927a0d5d2eac7e6f21d98b263280234d`.
-- Mensaje: Merge pull request #94 from AnderG0D/docs/gh-cli-enforcement-workflow.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34275437818).
+- Fuente: `main` en `c4f3a79`, asociado al [PR #96](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/96).
+- Commit completo: `c4f3a798cb95f73c5f34a1e3087bf1778891f978`.
+- Mensaje: Merge pull request #96 from AnderG0D/feature/mvp-demo-authorized-flow.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34305820473).
 
 ## Validación
 
-- **Unitarias:** `APROBADO` — 261 casos ejecutados.
+- **Unitarias:** `APROBADO` — 272 casos ejecutados.
 - **E2E:** `APROBADO` — 6 casos ejecutados.
 - **Build:** `APROBADO` — compilación del backend.
 
@@ -46,6 +46,7 @@ updated: 2026-09-08
 - `supabase/migrations/20260802111346_create_response_drafts.sql`
 - `supabase/migrations/20260807020218_create_response_draft_decisions.sql`
 - `supabase/migrations/20260903090000_enable_response_draft_review_transitions.sql`
+- `supabase/migrations/20260908090000_create_authorized_leads.sql`
 
 ## Panel administrativo same-origin
 
