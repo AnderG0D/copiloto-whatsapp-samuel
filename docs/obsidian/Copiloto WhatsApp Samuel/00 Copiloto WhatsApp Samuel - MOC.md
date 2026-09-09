@@ -21,6 +21,8 @@ aliases:
 <!-- AUTO:BEGIN operational-links -->
 - [[Estado actual]]
 - [[Evidencia tecnica]]
+- [[MVP-1 - Leads autorizados]]
+- [[MVP-2 - Panel mobile-first]]
 - [[Siguiente accion]]
 <!-- AUTO:END operational-links -->
 
