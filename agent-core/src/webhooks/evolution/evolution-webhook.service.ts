@@ -5,6 +5,7 @@ import type {
   SafeHistoryMessage,
   SafeHistoryRole,
 } from '../../ai/response-drafts/response-draft.types';
+import { AuthorizedLeadsService } from '../../leads/authorized-leads.service';
 import { SupabaseService } from '../../supabase/supabase.service';
 import { ShadowReceiveOnlyGuard } from '../../shadow-pilot/shadow-receive-only.guard';
 import {
@@ -51,6 +52,7 @@ export class EvolutionWebhookService {
 
   constructor(
     private readonly supabaseService: SupabaseService,
+    private readonly authorizedLeadsService: AuthorizedLeadsService,
     private readonly leadScoringService: LeadScoringService,
     private readonly responseDraftService: ResponseDraftService,
     private readonly responseDraftRepository: ResponseDraftRepository,
@@ -185,6 +187,15 @@ export class EvolutionWebhookService {
       return null;
     }
 
+    const phone = this.extractPhoneFromJid(remoteJid);
+
+    if (!phone) {
+      this.logger.warn(
+        'Mensaje ignorado porque no trae una identidad individual válida',
+      );
+      return null;
+    }
+
     const text = this.extractTextFromMessage(messageData?.message);
 
     if (!text) {
@@ -202,7 +213,7 @@ export class EvolutionWebhookService {
 
     return {
       instanceName,
-      phone: this.extractPhoneFromJid(remoteJid),
+      phone,
       customerName: messageData?.pushName ?? null,
       messageId: messageData?.key?.id ?? null,
       text,
@@ -232,6 +243,16 @@ export class EvolutionWebhookService {
         ].join(' | '),
       );
 
+      return null;
+    }
+
+    const isAuthorized = await this.authorizedLeadsService.isAuthorized(
+      business.id,
+      message.phone,
+    );
+
+    if (!isAuthorized) {
+      this.logger.warn('Lead no autorizado para el negocio');
       return null;
     }
 
@@ -501,7 +522,8 @@ export class EvolutionWebhookService {
     ).trim();
   }
 
-  private extractPhoneFromJid(remoteJid: string): string {
-    return remoteJid.split('@')[0];
+  private extractPhoneFromJid(remoteJid: string): string | null {
+    const match = /^(\d+)@(s\.whatsapp\.net|c\.us)$/.exec(remoteJid);
+    return match?.[1] ?? null;
   }
 }

@@ -10,9 +10,13 @@ import {
 const args = parseArguments(process.argv.slice(2));
 const inputPath = args.input || 'docs/_generated/project-state.json';
 const frontendAuditPath = 'docs/control/hito-4.6-runtime-evidence.json';
+const mvp1AuthorizedLeadsEvidencePath = 'docs/control/mvp-1-authorized-leads-evidence.json';
+const mvp2MobileFirstPanelEvidencePath = 'docs/control/mvp-2-mobile-first-panel-evidence.json';
 const dryRun = args['dry-run'] === true;
 const state = await readJson(inputPath);
 const frontendAudit = await readJson(frontendAuditPath);
+const mvp1AuthorizedLeadsEvidence = await readJson(mvp1AuthorizedLeadsEvidencePath);
+const mvp2MobileFirstPanelEvidence = await readJson(mvp2MobileFirstPanelEvidencePath);
 const projectRoot = 'docs/obsidian/Copiloto WhatsApp Samuel';
 
 function generatedDocument(type, title, blockName, body) {
@@ -210,6 +214,117 @@ ${checkpoint.manualObservations.map((item) => `- ${item}`).join('\n')}
 ${checkpoint.warnings.map((item) => `- ${item}`).join('\n')}`;
 }
 
+function mvp1AuthorizedLeadsEvidenceText(evidence) {
+  const { contract, validation, safety } = evidence;
+  return `## Estado del checkpoint
+
+- Estado: \`${evidence.status}\`; validación exclusivamente local, no operativa.
+- Fuente FD-EVIDENCIA-01: \`${mvp1AuthorizedLeadsEvidencePath}\`.
+- Base observada: rama \`${evidence.branch}\`, commit \`${evidence.commit}\`.
+
+## Contrato de \`authorized_leads\`
+
+- Propósito: ${contract.purpose}
+- Aislamiento: ${contract.businessIsolation}
+- Teléfono: ${contract.phone}
+- JIDs rechazados: ${contract.rejectedJids}
+- Fail-closed: ${contract.failClosed}
+- Posición del gate: ${contract.gatePosition}
+- Distinción de allowlists: ${contract.allowlistDistinction}
+- Entrega: ${contract.delivery}
+
+## Validación declarada
+
+- \`authorized-leads.service.spec.ts\`: ${validation.authorizedLeadsUnit}.
+- \`evolution-webhook.service.spec.ts\`: ${validation.evolutionWebhookUnit}.
+- \`npm run build\`: ${validation.build}.
+- \`git diff --check\`: ${validation.diffCheck}.
+- Validación operativa: \`${validation.operational}\`.
+
+## Invariantes y siguiente checkpoint
+
+- Servicios iniciados: \`${safety.runtimeStarted ? 'YES' : 'NO'}\`; servicios externos usados: \`${safety.externalServicesUsed ? 'YES' : 'NO'}\`.
+- Números reales: \`${safety.realNumbersUsed ? 'YES' : 'NO'}\`; secretos: \`${safety.secretsUsed ? 'YES' : 'NO'}\`; mensajes enviados: \`${safety.messagesSent ? 'YES' : 'NO'}\`.
+- Runtime cambiado por esta actualización documental: \`${safety.runtimeChangedByDocumentation ? 'YES' : 'NO'}\`.
+- Siguiente checkpoint: ${evidence.nextCheckpoint}
+- Autorización requerida: ${evidence.requiredAuthorization}`;
+}
+
+function mvp2MobileFirstPanelEvidenceText(evidence) {
+  const { design, panelBehavior, editorPreservationFix, validation, limits, safety } = evidence;
+  const designRows = Object.entries(design)
+    .map(([area, detail]) => `| ${area} | ${detail} |`)
+    .join('\n');
+  const behaviorRows = Object.entries(panelBehavior)
+    .map(([area, detail]) => `- **${area}:** ${detail}`)
+    .join('\n');
+  const fixRows = Object.entries(editorPreservationFix)
+    .map(([area, detail]) => `- **${area}:** ${detail}`)
+    .join('\n');
+  return `## Estado del checkpoint
+
+- Estado: \`${evidence.status}\`; validación exclusivamente local, no operativa.
+- Fuente FD-EVIDENCIA-01: \`${mvp2MobileFirstPanelEvidencePath}\`.
+- Base observada: rama \`${evidence.branch}\`, commit \`${evidence.commit}\`.
+
+## Diseño mobile-first
+
+| Área | Observación |
+| --- | --- |
+${designRows}
+
+## Comportamiento y seguridad del panel
+
+${behaviorRows}
+
+## Fix de preservación de texto
+
+${fixRows}
+
+## Validación separada
+
+### Base MVP-2
+
+- Suites focalizadas: ${validation.mvp2Base.focusedSuites}.
+- Suites unitarias: ${validation.mvp2Base.unitSuites}.
+- E2E: ${validation.mvp2Base.e2e}.
+- Build: ${validation.mvp2Base.build}.
+
+### Validación posterior al fix
+
+- Suite focalizada: ${validation.postFix.focusedSuite}.
+- Build: ${validation.postFix.build}.
+- \`git diff --check\`: ${validation.postFix.diffCheck}.
+- Suite completa repetida después del fix: \`${validation.postFix.fullSuiteRepeated}\`.
+
+${validation.dynamicCoverage}
+
+- Navegador real: \`${validation.realBrowser}\`.
+- Viewport móvil, teclado, sticky scrolling y clicks: \`${validation.mobileBrowserDetails}\`.
+- CSP antes de producción: \`${validation.csp}\`.
+
+## Límites e invariantes
+
+${Object.values(limits).map((item) => `- ${item}`).join('\n')}
+
+- \`SENDER=${safety.sender ? 'true' : 'false'}\`.
+- \`AUTO_SEND_MESSAGES=${safety.autoSendMessages ? 'true' : 'false'}\`.
+- \`NO_LEAD_SEND=${safety.noLeadSend ? 'true' : 'false'}\`.
+- Servicios/runtime iniciados: \`${safety.runtimeStarted ? 'YES' : 'NO'}\`; servicios externos usados: \`${safety.externalServicesUsed ? 'YES' : 'NO'}\`.
+- Números reales: \`${safety.realNumbersUsed ? 'YES' : 'NO'}\`; secretos: \`${safety.secretsUsed ? 'YES' : 'NO'}\`; mensajes enviados: \`${safety.messagesSent ? 'YES' : 'NO'}\`.
+- Runtime cambiado por esta actualización documental: \`${safety.runtimeChangedByDocumentation ? 'YES' : 'NO'}\`.
+
+## Decisión y siguiente checkpoint
+
+- ${evidence.decision}
+- Siguiente checkpoint: ${evidence.nextCheckpoint}
+- Autorización requerida: ${evidence.requiredAuthorization}
+
+## Hallazgos y riesgos
+
+${evidence.findingsAndRisks}`;
+}
+
 function architectureDiagram() {
   const components = state.architecture.components;
   const lines = [
@@ -391,6 +506,14 @@ const generatedFiles = {
   [`${projectRoot}/_generated/Evidencia tecnica.md`]: generatedDocument(
     'generated-technical-evidence', 'Evidencia técnica', 'technical-evidence', evidenceBody,
   ),
+  [`${projectRoot}/_generated/MVP-1 - Leads autorizados.md`]: generatedDocument(
+    'generated-mvp-1-authorized-leads-evidence', 'MVP-1 — Leads autorizados',
+    'mvp-1-authorized-leads', mvp1AuthorizedLeadsEvidenceText(mvp1AuthorizedLeadsEvidence),
+  ),
+  [`${projectRoot}/_generated/MVP-2 - Panel mobile-first.md`]: generatedDocument(
+    'generated-mvp-2-mobile-first-panel-evidence', 'MVP-2 — Panel mobile-first',
+    'mvp-2-mobile-first-panel', mvp2MobileFirstPanelEvidenceText(mvp2MobileFirstPanelEvidence),
+  ),
   [`${projectRoot}/_generated/Siguiente accion.md`]: generatedDocument(
     'generated-next-action', 'Siguiente acción — Copiloto WhatsApp Samuel', 'next-action', nextActionBody,
   ),
@@ -417,7 +540,7 @@ const mixedBlocks = [
   {
     path: `${projectRoot}/00 Copiloto WhatsApp Samuel - MOC.md`,
     name: 'operational-links',
-    body: '- [[Estado actual]]\n- [[Evidencia tecnica]]\n- [[Siguiente accion]]',
+    body: '- [[Estado actual]]\n- [[Evidencia tecnica]]\n- [[MVP-1 - Leads autorizados]]\n- [[MVP-2 - Panel mobile-first]]\n- [[Siguiente accion]]',
   },
   {
     path: `${projectRoot}/01 Panel de Proyecto - Copiloto WhatsApp Samuel.md`,

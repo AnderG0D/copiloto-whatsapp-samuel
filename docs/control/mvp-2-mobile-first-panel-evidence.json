@@ -1,0 +1,96 @@
+{
+  "evidenceId": "FD-EVIDENCIA-01-MVP-2-MOBILE-FIRST-PANEL",
+  "type": "local-implementation-checkpoint",
+  "date": "2026-09-08",
+  "objective": "Documentar MVP-2: panel administrativo mobile-first y fix de preservación del texto editado ante 401.",
+  "scope": "Panel administrativo same-origin para revisar response_drafts, sus estados de interfaz, acciones APPROVE/EDIT_AND_APPROVE/REJECT y preservación de texto por draft. No incluye navegador real, despliegue, servicios externos, sender, outbox ni envíos.",
+  "project": "Copiloto WhatsApp Samuel",
+  "milestone": "MVP-2 — panel administrativo mobile-first",
+  "environment": "Worktree local feature/mvp-demo-authorized-flow; implementación y pruebas locales sobre el commit base 697653850247da2737e944b5b5391ab1ad315e46. No se inició Docker, Supabase, Evolution API ni runtime.",
+  "branch": "feature/mvp-demo-authorized-flow",
+  "commit": "697653850247da2737e944b5b5391ab1ad315e46",
+  "action": "Registrar la implementación local del panel y la validación base de MVP-2, separada de la validación posterior del fix de preservación.",
+  "sanitizedOriginalOutput": [
+    "MVP-2 base: 7 suites focalizadas, 97 tests PASS",
+    "MVP-2 base: 24 suites unitarias, 269 tests PASS",
+    "MVP-2 base: 1 suite E2E, 6 tests PASS",
+    "MVP-2 base: build PASS",
+    "Fix posterior: 1 suite focalizada, 6 tests PASS",
+    "Fix posterior: build PASS",
+    "git diff --check: PASS_WITH_WARNINGS; avisos CRLF preexistentes",
+    "Revisión final: APTO PARA DOCUMENTAR Y SOLICITAR AUTORIZACIÓN DE COMMIT"
+  ],
+  "expected": "Ofrecer una superficie de revisión usable primero en móvil, segura y receive-only, con acciones administrativas dirigidas únicamente a /reviews y sin perder el texto editado si la sesión devuelve 401.",
+  "observed": "El panel inicia en una columna y adapta el detalle móvil, cambia a dos columnas desde 780 px, usa controles de al menos 46 px, safe-area-inset-bottom, barra sticky y estados explícitos. La paginación acumula y deduplica. APPROVE, EDIT_AND_APPROVE y REJECT usan únicamente /reviews. Ante 401 se preserva el texto asociado al draft actual y se restaura sólo para ese draft; una revisión exitosa limpia el estado preservado.",
+  "status": "PASS_WITH_WARNINGS",
+  "findingsAndRisks": "La validación posterior al fix fue focalizada y no repitió la suite completa de MVP-2. No existe prueba real de navegador: viewport móvil, teclado, sticky scrolling y clicks no fueron validados en un navegador real. CSP sigue pendiente de verificación antes de producción. La evidencia es local y no operativa.",
+  "decision": "Mantener el panel same-origin, receive-only y sin credenciales en el navegador; conservar el texto únicamente en memoria y ligado al draft, y solicitar autorización humana antes de commit, despliegue, servicios externos o cualquier envío.",
+  "nextCheckpoint": "Revisar y autorizar el commit documental/implementación de MVP-2; después, si se aprueba por separado, planificar validación de navegador real y verificación de CSP antes de producción.",
+  "requiredAuthorization": "Autorización explícita para commit, despliegue, navegador contra servicios reales, verificación productiva de CSP, activación de sender, automatización o cualquier envío.",
+  "design": {
+    "defaultLayout": "Una columna por defecto.",
+    "mobileDetail": "Detalle móvil apilado con navegación Volver.",
+    "touchTargets": "Botones, inputs y select con mínimo de 46 px.",
+    "safeArea": "safe-area-inset-bottom en scroll, barra de acciones y confirmación.",
+    "stickyActions": "Barra de acciones sticky al fondo del detalle.",
+    "wideLayout": "Layout de dos columnas desde @media(min-width:780px).",
+    "horizontalOverflow": "body con overflow-x:hidden y contenido con overflow-wrap:anywhere.",
+    "keyboardEditor": "Textarea adaptable: altura automática y scrollIntoView para acompañar el teclado.",
+    "states": "Estados de carga, vacío, éxito y error explícitos.",
+    "rejectConfirmation": "REJECT requiere confirmación visible antes de ejecutar.",
+    "httpErrors": "Mensajes específicos para 400, 401, 403 y 409."
+  },
+  "panelBehavior": {
+    "reviewRoutes": "APPROVE, EDIT_AND_APPROVE y REJECT publican únicamente en /admin/businesses/{businessId}/response-drafts/{draftId}/reviews.",
+    "pagination": "La paginación usa cursor, acumula páginas y deduplica por id con appendUnique.",
+    "safeRendering": "Los valores externos se crean y renderizan con APIs seguras como textContent; no se usa innerHTML.",
+    "browserCredentials": "No hay Bearer tokens, localStorage ni sessionStorage.",
+    "session": "Se preservan sesión autenticada mediante cookies HttpOnly, credentials: include y protección CSRF."
+  },
+  "editorPreservationFix": {
+    "pageFunction": "preserveEditorText() captura el valor actual del textarea o del estado en memoria.",
+    "helper": "preserveDraftEditorText() devuelve { draftId, text } cuando existe un draft activo.",
+    "sameDraftRestoration": "resolveDraftEditorText() restaura el texto preservado únicamente cuando preservedText.draftId coincide con el draft solicitado.",
+    "draftIsolation": "El texto de un draft no se reutiliza en otro draft.",
+    "unauthorizedResponse": "El texto editado se preserva antes de mostrar login cuando la revisión devuelve 401.",
+    "successfulReviewCleanup": "Después de una revisión exitosa se limpia el estado preservado con clearPreservedDraftEditorText()."
+  },
+  "validation": {
+    "mvp2Base": {
+      "focusedSuites": "PASS — 7 suites focalizadas, 97 tests",
+      "unitSuites": "PASS — 24 suites unitarias, 269 tests",
+      "e2e": "PASS — 1 suite E2E, 6 tests",
+      "build": "PASS"
+    },
+    "postFix": {
+      "focusedSuite": "PASS — 1 suite focalizada, 6 tests",
+      "build": "PASS",
+      "diffCheck": "PASS_WITH_WARNINGS — avisos CRLF preexistentes",
+      "fullSuiteRepeated": "NOT_RUN — no se afirma que la suite completa haya sido repetida después del último fix"
+    },
+    "dynamicCoverage": "Las pruebas dinámicas posteriores cubren el helper y el contrato de preservación: asociación por draftId, restauración del mismo draft, aislamiento entre drafts, preservación ante 401 y limpieza después del éxito.",
+    "realBrowser": "NOT_RUN — no existe todavía una prueba real de navegador.",
+    "mobileBrowserDetails": "NOT_RUN — viewport móvil, teclado, sticky scrolling y clicks no fueron validados con navegador real.",
+    "csp": "UNKNOWN — CSP queda pendiente de verificación antes de producción."
+  },
+  "limits": {
+    "sender": "No existe sender.",
+    "outbox": "No existe outbox.",
+    "realSending": "No existe envío real.",
+    "automation": "No existe automatización.",
+    "adminAllowlist": "No existe allowlist administrativa individual.",
+    "realNumbers": "No se probaron números reales.",
+    "mvp1Separation": "MVP-1 y sus cambios de allowlist de leads autorizados son trabajo separado y permanecen documentados en MVP-1 — Leads autorizados."
+  },
+  "safety": {
+    "sender": false,
+    "autoSendMessages": false,
+    "noLeadSend": true,
+    "runtimeStarted": false,
+    "externalServicesUsed": false,
+    "realNumbersUsed": false,
+    "secretsUsed": false,
+    "messagesSent": false,
+    "runtimeChangedByDocumentation": false
+  }
+}

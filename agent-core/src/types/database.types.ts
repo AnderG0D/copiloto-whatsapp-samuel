@@ -39,6 +39,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      authorized_leads: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorized_leads_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           active: boolean | null

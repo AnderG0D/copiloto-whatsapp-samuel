@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import type { ResponseDraftRepository } from '../../ai/response-drafts/response-draft.repository';
 import type { ResponseDraftService } from '../../ai/response-drafts/response-draft.service';
 import type { ResponseDraft } from '../../ai/response-drafts/response-draft.types';
+import type { AuthorizedLeadsService } from '../../leads/authorized-leads.service';
 import type {
   LeadScoringResult,
   LeadScoringService,
@@ -21,6 +22,9 @@ type MessageError = {
 describe('EvolutionWebhookService', () => {
   let service: EvolutionWebhookService;
   let fromMock: jest.Mock;
+  let isAuthorizedMock: jest.MockedFunction<
+    AuthorizedLeadsService['isAuthorized']
+  >;
   let scoreMessageMock: jest.MockedFunction<LeadScoringService['scoreMessage']>;
   let generateDraftMock: jest.MockedFunction<ResponseDraftService['generate']>;
   let createDraftMock: jest.MockedFunction<ResponseDraftRepository['create']>;
@@ -99,12 +103,16 @@ describe('EvolutionWebhookService', () => {
 
   beforeEach(() => {
     fromMock = jest.fn();
+    isAuthorizedMock = jest.fn().mockResolvedValue(true);
     scoreMessageMock = jest.fn().mockReturnValue(scoringResult);
     generateDraftMock = jest.fn().mockResolvedValue(generatedDraft);
     createDraftMock = jest.fn().mockResolvedValue(draftRow);
 
     service = new EvolutionWebhookService(
       { client: { from: fromMock } } as unknown as SupabaseService,
+      {
+        isAuthorized: isAuthorizedMock,
+      } as unknown as AuthorizedLeadsService,
       { scoreMessage: scoreMessageMock } as unknown as LeadScoringService,
       { generate: generateDraftMock } as unknown as ResponseDraftService,
       { create: createDraftMock } as unknown as ResponseDraftRepository,
@@ -399,6 +407,50 @@ describe('EvolutionWebhookService', () => {
     expect(fromMock).not.toHaveBeenCalled();
     expect(generateDraftMock).not.toHaveBeenCalled();
     expect(createDraftMock).not.toHaveBeenCalled();
+  });
+
+  it('fails closed for a lead that is not authorized before persistence, scoring, history, or AI', async () => {
+    const queries = configureSupabase();
+    isAuthorizedMock.mockResolvedValue(false);
+
+    await expect(service.handleIncomingWebhook(payload)).resolves.toEqual({
+      ok: true,
+      ignored: true,
+      reason: 'message_not_saved',
+    });
+    expect(isAuthorizedMock).toHaveBeenCalledWith(business.id, lead.phone);
+    expect(fromMock.mock.calls.map(([table]) => table)).toEqual(['businesses']);
+    expect(queries.leadUpsertQuery.upsert).not.toHaveBeenCalled();
+    expect(queries.messageInsertQuery.insert).not.toHaveBeenCalled();
+    expect(scoreMessageMock).not.toHaveBeenCalled();
+    expect(queries.historyQuery.select).not.toHaveBeenCalled();
+    expect(generateDraftMock).not.toHaveBeenCalled();
+    expect(createDraftMock).not.toHaveBeenCalled();
+    expect(fromMock).not.toHaveBeenCalledWith('outbox');
+  });
+
+  it('ignores an invalid incoming identity before business lookup or authorization', async () => {
+    const invalidIdentityPayload = {
+      ...payload,
+      data: {
+        ...payload.data,
+        key: {
+          ...payload.data.key,
+          remoteJid: 'not-a-phone@s.whatsapp.net',
+        },
+      },
+    };
+
+    await expect(
+      service.handleIncomingWebhook(invalidIdentityPayload),
+    ).resolves.toEqual({
+      ok: true,
+      ignored: true,
+    });
+    expect(fromMock).not.toHaveBeenCalled();
+    expect(isAuthorizedMock).not.toHaveBeenCalled();
+    expect(scoreMessageMock).not.toHaveBeenCalled();
+    expect(generateDraftMock).not.toHaveBeenCalled();
   });
 
   it('rejects a shadow event before Supabase, scoring, AI, drafts, or outbox work', async () => {

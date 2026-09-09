@@ -1,0 +1,52 @@
+{
+  "evidenceId": "FD-EVIDENCIA-01-MVP-1-AUTHORIZED-LEADS",
+  "type": "local-implementation-checkpoint",
+  "date": "2026-09-08",
+  "objective": "Documentar el contrato implementado localmente para el gate de leads autorizados del checkpoint MVP-1.",
+  "scope": "Migración local authorized_leads, servicio de autorización y gate del webhook entrante. No incluye panel, sender, outbox, automatización, allowlist administrativa individual ni operación con servicios externos.",
+  "project": "Copiloto WhatsApp Samuel",
+  "milestone": "MVP-1 — flujo demo autorizado",
+  "environment": "Worktree local feature/mvp-demo-authorized-flow; pruebas unitarias y build locales. No se inició Docker, Supabase, Evolution API ni otro runtime.",
+  "branch": "feature/mvp-demo-authorized-flow",
+  "commit": "697653850247da2737e944b5b5391ab1ad315e46",
+  "action": "Implementación local y validación estática/automatizada del gate de autorización de leads antes de persistencia y generación de candidatos IA.",
+  "sanitizedOriginalOutput": [
+    "authorized-leads.service.spec.ts: 6 tests PASS",
+    "evolution-webhook.service.spec.ts: 10 tests PASS",
+    "npm run build: PASS",
+    "git diff --check: PASS; sólo avisos CRLF preexistentes"
+  ],
+  "expected": "Aceptar sólo un lead activo autorizado para el negocio resuelto, con teléfono normalizado; rechazar de forma fail-closed JIDs inválidos, ausencia de allowlist, errores y coincidencias de otro negocio sin persistir ni invocar Gemini.",
+  "observed": "authorized_leads está aislada por business_id, exige teléfono de sólo dígitos y tiene unicidad (business_id, phone). El webhook resuelve primero el negocio activo y ejecuta el gate inmediatamente después; sólo tras autorizar puede hacer upsert de leads, persistir mensajes, calcular scoring, cargar historial, generar con Gemini y crear response_drafts.",
+  "status": "PASS_WITH_WARNINGS",
+  "findingsAndRisks": "La evidencia es local y no operativa. No valida migración aplicada, Supabase, Evolution API, WhatsApp, panel, sender, outbox, automatización ni envío real. Los avisos CRLF de git diff --check eran preexistentes.",
+  "decision": "Mantener el gate fail-closed y el flujo shadow receive-only. authorized_leads es la allowlist de leads entrantes por negocio y no sustituye una allowlist de operadores shadow ni una allowlist administrativa individual.",
+  "nextCheckpoint": "Implementar el panel mobile-first; no está implementado en este checkpoint.",
+  "requiredAuthorization": "Autorización explícita antes de iniciar servicios, aplicar migraciones remotas, conectar Evolution/WhatsApp, habilitar sender, automatización o cualquier envío.",
+  "contract": {
+    "table": "authorized_leads",
+    "purpose": "Allowlist de leads entrantes autorizados para persistencia y generación de candidatos IA.",
+    "businessIsolation": "Cada consulta exige business_id y la unicidad es (business_id, phone).",
+    "phone": "Identidad individual normalizada a dígitos sin sufijo JID; se aceptan únicamente JIDs @s.whatsapp.net o @c.us.",
+    "rejectedJids": "Se ignoran JIDs ausentes, de grupo y cualquier JID que no represente una identidad individual numérica válida.",
+    "failClosed": "Fila ausente, inactiva, de otro negocio, error de consulta o excepción devuelve no autorizado.",
+    "gatePosition": "Después de resolver el negocio activo y antes de upsert de leads, persistencia de mensajes, scoring, historial, Gemini y response_drafts.",
+    "allowlistDistinction": "La allowlist de leads autorizados controla remitentes entrantes por negocio. La allowlist shadow controla identidades/instancias del piloto receive-only; no es una allowlist de operadores administrativos individuales.",
+    "delivery": "No existe sender ni envío real en este checkpoint; SENDER=false, AUTO_SEND_MESSAGES=false y NO_LEAD_SEND=true se mantienen."
+  },
+  "validation": {
+    "authorizedLeadsUnit": "PASS — 6 tests",
+    "evolutionWebhookUnit": "PASS — 10 tests",
+    "build": "PASS",
+    "diffCheck": "PASS_WITH_WARNINGS — avisos CRLF preexistentes",
+    "operational": "NOT_RUN"
+  },
+  "safety": {
+    "runtimeStarted": false,
+    "externalServicesUsed": false,
+    "realNumbersUsed": false,
+    "secretsUsed": false,
+    "messagesSent": false,
+    "runtimeChangedByDocumentation": false
+  }
+}
