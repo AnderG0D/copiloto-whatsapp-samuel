@@ -1,0 +1,26 @@
+{
+  "objective": "Preparar un caso de estudio publicable sobre el proyecto, con estado y límites respaldados por fuentes aprobadas.",
+  "scope": [
+    "docs/public/caso-de-estudio.md",
+    "docs/public/evidencia-caso-estudio-20261006.json"
+  ],
+  "project": "Copiloto WhatsApp",
+  "milestone": "Hito 4.6; el estado publicado permanece activo e incompleto.",
+  "environment": "Clonación temporal local; no se accedió a servicios productivos.",
+  "branch": "docs/case-study-publication",
+  "commit": "d16c684efa36e6af7a3f5144bdc7aa8e6129ff04",
+  "action": "Contrastar el borrador con documentación de estado, evidencia local, estado técnico versionado y código; ejecutar las validaciones documentales requeridas.",
+  "sanitizedOriginalOutput": [
+    "npm run test:docs: exitoso; pruebas documentales aprobadas.",
+    "npm run docs:check: markdownFiles=63, generatedFiles=11, issues=[].",
+    "npm run docs:handoff:check: handoff verificado.",
+    "git diff --cached --check: exitoso, sin errores."
+  ],
+  "expected": "El caso distingue lo implementado, probado y desplegado; declara desarrollo inactivo y omite métricas no verificadas, datos personales, conversaciones y capturas.",
+  "observed": "El borrador separa implementación, pruebas, despliegue y estado. Afirma que no hay despliegue productivo acreditado. Todas las validaciones documentales requeridas terminaron correctamente.",
+  "status": "PASS",
+  "findingsAndRisks": "El registro del proyecto conserva el hito 4.6 como activo e incompleto. El estado técnico versionado y la evidencia runtime citados no equivalen a despliegue productivo ni a operación comercial completa.",
+  "decision": "Publicar el estado de inactividad junto con la distinción entre hito documental activo y desarrollo inactivo; conservar las limitaciones de evidencia.",
+  "nextCheckpoint": "Revisar el diff final, publicar la rama autorizada y abrir el PR; esperar y revisar sus checks.",
+  "requiredAuthorization": "Autorización del usuario para publicar el caso de estudio, crear una rama y abrir un PR: otorgada en esta solicitud."
+}
