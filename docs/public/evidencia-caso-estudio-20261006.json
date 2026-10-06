@@ -1,0 +1,29 @@
+{
+  "objective": "Preparar un caso de estudio publicable que distinga evidencia histórica de actividad en un entorno etiquetado como PRODUCTION de las pruebas locales posteriores del hito 4.6, y que exprese con precisión el estado y los límites.",
+  "scope": [
+    "docs/public/caso-de-estudio.md",
+    "docs/public/evidencia-caso-estudio-20261006.json"
+  ],
+  "project": "Copiloto WhatsApp",
+  "milestone": "Hito 4.6; activo e incompleto.",
+  "environment": "Preparación documental realizada localmente en una clonación temporal. No se accedió a producción durante esta revisión. La evidencia histórica citada proviene de capturas privadas del 24 de junio de 2026 que identifican Supabase como PRODUCTION.",
+  "branch": "docs/case-study-publication",
+  "commit": "ebcd7b01935fe60fefddc9646c9273619aa97cd2",
+  "action": "Contrastar y corregir el caso público y esta evidencia. La revisión documental local distingue la actividad histórica mostrada en capturas privadas del 24 de junio de 2026 de las pruebas posteriores, locales, aisladas y con datos sintéticos del hito 4.6; validar JSON, documentación y diff.",
+  "sanitizedOriginalOutput": [
+    "Fuente histórica privada aportada para esta revisión: capturas fechadas 2026-06-24 muestran actividad de recepción con mensajes reales y registros de leads y mensajes en Supabase identificado como PRODUCTION, con puntuaciones, clasificaciones y errores de esquema.",
+    "Límite de la fuente histórica: la evidencia no establece que todos los eventos se procesaran correctamente, disponibilidad continua, despliegue del panel administrativo en producción ni resultados comerciales.",
+    "Evidencia posterior del hito 4.6: pruebas locales, aisladas y con datos sintéticos; no se accedió a producción durante su revisión documental ni durante la preparación de esta publicación.",
+    "npm run test:docs: PASS; 119 pruebas aprobadas, 0 fallidas.",
+    "npm run docs:check: PASS; markdownFiles=63, generatedFiles=11, issues=[].",
+    "npm run docs:handoff:check: PASS; handoff verificado.",
+    "git diff --check: PASS; sin errores."
+  ],
+  "expected": "El caso identifica por separado la actividad histórica mostrada por capturas privadas y las pruebas locales posteriores del hito 4.6; informa desarrollo activo entre mayo y septiembre de 2026 e inactivo actualmente, mantiene el hito activo e incompleto, y omite material privado, datos identificables y métricas no respaldadas.",
+  "observed": "Diff completo revisado; solo cambiaron los dos archivos autorizados. El caso separa la actividad histórica documentada por capturas privadas de las pruebas locales posteriores del hito 4.6, conserva sus límites de evidencia y omite contenido identificable. JSON válido y todas las validaciones solicitadas pasaron.",
+  "status": "PASS",
+  "findingsAndRisks": "Las capturas privadas del 2026-06-24 muestran actividad de recepción y persistencia en Supabase identificado como PRODUCTION, puntuaciones, clasificaciones y errores de esquema. No prueban procesamiento correcto de todos los eventos, disponibilidad continua, despliegue productivo del panel administrativo ni resultados comerciales. Las pruebas posteriores del hito 4.6 son locales, aisladas y usan datos sintéticos. No se publican capturas, conversaciones, teléfonos, nombres ni otros datos identificables. La preparación de esta documentación no accedió a producción.",
+  "decision": "Documentar la evidencia histórica con sus límites y mantenerla separada de las pruebas locales posteriores. Mantener el hito 4.6 activo e incompleto y describir el desarrollo como inactivo actualmente.",
+  "nextCheckpoint": "Crear un commit en docs/case-study-publication, publicar esa rama existente y revisar los checks actualizados del PR #98; no fusionar.",
+  "requiredAuthorization": "Autorización para actualizar el PR #98 existente, crear un commit en docs/case-study-publication y publicar esa rama: otorgada en esta solicitud. La fusión no está autorizada."
+}
