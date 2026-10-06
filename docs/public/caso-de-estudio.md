@@ -1,6 +1,6 @@
 # Caso de estudio: asistencia segura para conversaciones de ventas
 
-> **Estado al 6 de octubre de 2026:** el desarrollo está inactivo. El seguimiento del proyecto mantiene el hito del piloto como activo e incompleto; su validación operativa y cierre siguen pendientes.
+> **Estado al 6 de octubre de 2026:** el desarrollo estuvo activo entre mayo y septiembre de 2026 y actualmente está inactivo. El hito 4.6 permanece activo e incompleto.
 
 ## El reto
 
@@ -8,39 +8,35 @@ Explorar cómo ayudar a un equipo a revisar conversaciones entrantes de WhatsApp
 
 ## La solución implementada
 
-Se construyó un backend en NestJS que recibe eventos de WhatsApp a través de Evolution API, aplica reglas de negocio y conserva información autorizada en Supabase. El flujo contempla clasificación de leads, construcción de contexto seguro y generación de borradores mediante una interfaz de proveedor de IA. Gemini es el proveedor inicial.
+Se construyó un backend en NestJS para recibir eventos de WhatsApp mediante Evolution API, aplicar reglas de negocio y conservar información autorizada en Supabase. El flujo contempla clasificación de leads, construcción de contexto seguro y generación de borradores mediante una interfaz de proveedor de IA. Gemini es el proveedor inicial.
 
-Un panel administrativo con autenticación permite revisar los borradores y aprobarlos, editarlos antes de aprobarlos o rechazarlos. El diseño mantiene la generación de IA como propuesta y deja las decisiones y efectos de negocio bajo control del backend y de una persona revisora.
+También se desarrolló un panel administrativo con autenticación para revisar borradores, aprobarlos, editarlos antes de aprobarlos o rechazarlos. La generación de IA propone contenido; las decisiones y los efectos de negocio quedan bajo control del backend y de una persona revisora.
 
-La preparación del piloto aislado mantiene el procesamiento en modo receive-only: puede verificar recepción, clasificación, contexto y persistencia de borradores de prueba, sin enviar respuestas a leads.
+## Actividad histórica mostrada en capturas del 24 de junio de 2026
 
-## Implementado
+Capturas privadas de esa fecha muestran actividad de recepción con mensajes reales y registros de leads y mensajes en Supabase, en un entorno identificado como `PRODUCTION`. También muestran puntuaciones y clasificaciones, además de errores de esquema.
 
-- Webhook y módulos de backend para recepción, clasificación y persistencia.
-- Contrato de proveedor de IA y generación de borradores con contexto controlado.
-- Panel administrativo para revisión humana de borradores.
-- Configuración aislada del piloto con protecciones contra envíos a leads.
+Esto documenta actividad histórica de recepción y persistencia en el entorno identificado de esa manera. No demuestra que todos los eventos se procesaran correctamente, disponibilidad continua, que el panel administrativo estuviera desplegado en producción ni resultados comerciales. Las capturas y sus datos no se publican.
 
-## Probado
+## Pruebas posteriores del hito 4.6
 
-- El estado técnico versionado en el repositorio consigna como aprobadas las pruebas unitarias, las pruebas end-to-end y la compilación del backend.
-- La evidencia local registra la revisión del panel y las acciones administrativas con datos sintéticos.
-- La evidencia del piloto registra una ejecución técnica aislada de recepción y persistencia de borradores, sin envíos a leads.
+Las pruebas posteriores del hito 4.6 se realizaron localmente, en aislamiento y con datos sintéticos. La evidencia local registra la revisión del panel y acciones administrativas; la evidencia runtime documenta verificaciones técnicas de recepción y persistencia de borradores sin enviar respuestas a leads.
 
-Estas comprobaciones acreditan comportamiento de código y validaciones locales o aisladas. No acreditan operación comercial completa.
+El estado técnico versionado en el repositorio consigna aprobadas las pruebas unitarias, las pruebas end-to-end y la compilación del backend. Estas validaciones locales no convierten la actividad histórica en una verificación de operación productiva. El hito 4.6 sigue activo e incompleto.
 
-## Desplegado
+## Despliegue
 
-No hay despliegue productivo acreditado. La evidencia disponible indica que no se verificó disponibilidad pública ni HTTPS productivo y que no se aplicaron cambios a infraestructura remota como parte de esas validaciones.
+La actividad histórica descrita arriba se limita a lo que muestran las capturas privadas del 24 de junio. No acredita disponibilidad continua, despliegue productivo del panel administrativo ni operación comercial completa. Las pruebas posteriores del hito 4.6 fueron locales y aisladas; no se accedió a producción durante esa revisión.
 
 ## Estado y límites
 
-El desarrollo está inactivo a la fecha indicada. El hito del piloto sigue registrado como activo porque quedan pendientes la validación operativa completa, la revisión de feedback y el acuerdo explícito sobre el alcance posterior. No se afirma que el piloto comercial se haya completado.
+El desarrollo estuvo activo entre mayo y septiembre de 2026 y actualmente está inactivo. El hito 4.6 permanece activo porque sus pendientes de validación operativa, revisión de feedback y acuerdo explícito sobre el alcance posterior no están cerrados. No se afirma que el hito o un piloto comercial se hayan completado.
 
-No se incluyen métricas de negocio, conversaciones, datos personales ni capturas. El sistema no debe presentarse como envío automático de respuestas ni como una solución desplegada en producción.
+No se incluyen métricas de negocio, conversaciones, capturas, nombres, teléfonos ni otros datos identificables. El sistema no debe presentarse como envío automático de respuestas ni atribuirse resultados comerciales sin evidencia.
 
 ## Fuentes del proyecto
 
 - Implementación: backend bajo `agent-core/src/` y migraciones bajo `supabase/migrations/`.
-- Validaciones automatizadas: `docs/_generated/project-state.json`; evidencia de ejecución local: `docs/control/hito-4.6-runtime-evidence.json`.
-- Estado, alcance y pendientes del piloto: documentación del hito correspondiente en el repositorio.
+- Validaciones automatizadas y evidencia local: `docs/_generated/project-state.json` y `docs/control/hito-4.6-runtime-evidence.json`.
+- Estado, alcance y pendientes del hito 4.6: documentación del hito correspondiente en el repositorio.
+- Actividad histórica: capturas privadas del 24 de junio de 2026, resumidas aquí sin publicar imágenes ni datos identificables.
