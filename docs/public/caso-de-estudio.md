@@ -1,3 +1,5 @@
+**Español | [English](case-study.md)**
+
 # Caso de estudio: asistencia segura para conversaciones de ventas
 
 > **Estado al 6 de octubre de 2026:** el desarrollo estuvo activo entre mayo y septiembre de 2026 y actualmente está inactivo. El hito 4.6 permanece activo e incompleto.
