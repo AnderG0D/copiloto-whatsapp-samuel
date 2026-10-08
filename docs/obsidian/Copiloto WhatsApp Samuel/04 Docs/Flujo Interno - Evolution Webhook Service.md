@@ -1,75 +1,48 @@
 ---
 type: technical-doc
 project: Copiloto WhatsApp Samuel
+classification: human
 status: active
-updated: 2026-09-03
+updated: 2026-10-07
 ---
+
+**Language / Idioma:** [English](Evolution Webhook Service - English.md) · [Español](Flujo Interno - Evolution Webhook Service.md)
 
 # Flujo Interno — Evolution Webhook Service
 
 ## Responsabilidad actual
 
-Orquestar la entrada de mensajes válidos desde su persistencia y scoring hasta
-la construcción de contexto, la generación segura de un borrador y su
-persistencia como `PROPOSED`. En el piloto Edgar, la notificación opcional solo
-puede dirigirse al operador.
+El endpoint `POST /webhooks/evolution` delega el payload a `EvolutionWebhookService`. El servicio tiene una salida temprana para instancias shadow y, para las demás instancias, procesa mensajes entrantes autorizados, actualiza el lead, registra el mensaje, calcula su scoring y genera un borrador `PROPOSED`.
 
-## Secuencia conocida
+## Rama shadow de solo recepción
 
-1. Recibir payload.
-2. Normalizar el nombre del evento.
-3. Aceptar `messages.upsert`.
-4. Ignorar `fromMe`.
-5. Ignorar grupos.
-6. Extraer mensaje.
-7. Extraer teléfono, nombre e ID.
-8. Identificar la instancia.
-9. Buscar negocio activo.
-10. Crear o actualizar lead.
-11. Calcular señales y score.
-12. Guardar mensaje.
-13. Evitar duplicado.
-14. Actualizar lead.
-15. Construir contexto seguro.
-16. Generar borrador mediante `AiProvider`/Gemini.
-17. Persistir `response_drafts` como `PROPOSED`.
-18. Notificar opcionalmente al operador.
-19. Responder resultado técnico al webhook sin enviar a la lead.
+Antes de analizar el pipeline normal, `ShadowReceiveOnlyGuard` revisa si `instance` empieza con `evolution-shadow-`. Si es una instancia shadow, valida el piloto, el evento `messages.upsert`, que el mensaje no sea propio ni de grupo, que tenga identidad individual y texto, y que la identidad esté permitida para ese piloto. La decisión termina aquí: el webhook devuelve aceptación o rechazo con `persisted: false`. No persiste datos, no genera borrador y no continúa por la ruta normal. Una identidad o instancia shadow desconocida se rechaza.
 
-## Diagrama
+## Secuencia para instancias no shadow
 
-```mermaid
-flowchart TD
-    A["Payload"] --> B{"Evento válido"}
-    B -- "No" --> C["Ignorar"]
-    B -- "Sí" --> D["Normalizar mensaje"]
-    D --> E["Resolver negocio y lead"]
-    E --> F["Scoring"]
-    F --> G["Guardar mensaje"]
-    G --> H{"Duplicado"}
-    H -- "Sí" --> I["No volver a sumar"]
-    H -- "No" --> J["Actualizar lead"]
-```
+1. Recibir el payload y evaluar primero la guardia shadow.
+2. Normalizar el nombre del evento y aceptar solo `messages.upsert`.
+3. Ignorar mensajes propios (`fromMe`), de grupo, sin identidad individual válida o sin texto.
+4. Extraer instancia, teléfono, nombre, ID externo y texto.
+5. Buscar el negocio activo asociado a la instancia y comprobar que el lead esté autorizado.
+6. Hacer upsert del lead por `business_id`, `phone`; este paso actualiza `last_message` y sus marcas de tiempo antes de comprobar si el mensaje ya existe.
+7. Calcular el score usando el score actual del lead.
+8. Insertar el mensaje entrante en `messages`, incluyendo `raw_payload` y los datos de scoring. La restricción de unicidad detecta el duplicado en este insert.
+9. Si el insert detecta duplicado (`23505`), devolver sin actualizar el score/clasificación ni generar borrador. El upsert del lead del paso 6 ya ocurrió.
+10. Si el insert es nuevo, actualizar score, clasificación y razón del lead.
+11. Construir contexto con el mensaje actual y hasta diez mensajes previos de roles permitidos; generar un borrador mediante `ResponseDraftService`.
+12. Guardar el borrador en `response_drafts` con estado `PROPOSED` y devolver el resultado técnico al webhook.
 
-## Lo que no debe hacer todavía
+## Abstracción de IA
 
-- Consultar inventario.
-- Enviar respuestas a leads.
-- Autorizar a Samuel.
-- Ejecutar reportes.
+`ResponseDraftService` depende del contrato neutral `AiProvider` e invoca `generateText`; no depende directamente de un SDK de proveedor. El módulo de borradores enlaza actualmente `AI_PROVIDER` con `GeminiProvider`. La IA propone texto y el servicio persiste ese texto como borrador.
 
-## Dirección futura
+## Envío y notificaciones
 
-La generación de borradores ya forma parte del pipeline validado desde el Hito
-4.3. Debe mantenerse encapsulada en sus servicios y no convertir el webhook en
-un servicio gigante. La decisión humana se persiste por el flujo de revisión;
-aprobar no equivale a enviar.
+Este flujo no envía mensajes a WhatsApp ni notifica al operador. Generar y guardar un borrador `PROPOSED` no equivale a aprobarlo ni enviarlo.
 
-## Seguridad
+## Registros y privacidad
 
-- Logs mínimos.
-- Nada de secretos.
-- Teléfonos enmascarados fuera de depuración autorizada.
-- `raw_payload` fuera del contexto de IA.
-- Errores externos traducidos sin filtrar datos.
+La nota anterior afirmaba que los logs eran mínimos y que los teléfonos estaban enmascarados; eso no coincide con el código actual. El logger del servicio registra teléfono, nombre del cliente y texto completo del mensaje en el log de éxito; también registra teléfonos en otros mensajes de log. No hay enmascaramiento visible en esos registros. Esta nota describe los campos, pero no incluye valores reales.
 
+El payload crudo se guarda en `messages.raw_payload`. El contexto de generación se construye con campos seleccionados de mensajes previos y el mensaje actual, no con el payload crudo completo.
