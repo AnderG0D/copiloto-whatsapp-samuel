@@ -44,12 +44,8 @@ Agrega una sola vez a `Panel Principal - Pensar-Hacer.md`:
 
 El Panel del proyecto ya usa esa misma nota. Desde entonces, un cambio en la acción canónica se refleja en ambos lugares.
 
-## 5. Prueba controlada
+## 5. Ejecución manual
 
-Ejecuta manualmente el workflow `Documentation sync` o fusiona un cambio técnico pequeño en `main`. El resultado correcto es:
+En GitHub abre **Actions → Documentation sync → Run workflow**. En el selector de rama, elige **main** y confirma con **Run workflow**.
 
-1. se ejecutan unitarias, e2e y build;
-2. se actualiza solo contenido generado o bloques `AUTO`;
-3. se abre una rama `docs/auto-sync-*`;
-4. aparece un PR documental para revisión;
-5. ningún ADR, roadmap o archivo histórico cambia.
+Cuando el workflow genere cambios documentales, abrirá un PR automático nuevo. No actualiza un PR documental que ya exista; cada ejecución crea su propio PR cuando detecta cambios.
