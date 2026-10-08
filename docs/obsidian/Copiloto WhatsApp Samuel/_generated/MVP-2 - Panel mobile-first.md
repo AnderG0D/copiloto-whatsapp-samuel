@@ -2,7 +2,7 @@
 type: generated-mvp-2-mobile-first-panel-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-09-08
+updated: 2026-10-08
 ---
 
 # MVP-2 — Panel mobile-first

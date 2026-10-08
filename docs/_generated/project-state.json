@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
-  "observedDate": "2026-09-08",
+  "observedDate": "2026-10-08",
   "repository": "AnderG0D/copiloto-whatsapp-samuel",
   "source": {
     "ref": "HEAD",
     "branch": "main",
-    "sha": "c4f3a798cb95f73c5f34a1e3087bf1778891f978",
-    "shortSha": "c4f3a79",
-    "subject": "Merge pull request #96 from AnderG0D/feature/mvp-demo-authorized-flow",
-    "committedAt": "2026-09-08T21:06:20-06:00",
+    "sha": "caa63ebd0e58c5cb418bfad80de90df2799397b3",
+    "shortSha": "caa63eb",
+    "subject": "Merge pull request #103 from AnderG0D/feature/manual-documentation-sync-dispatch",
+    "committedAt": "2026-10-08T00:11:28-06:00",
     "pullRequest": {
-      "number": 96,
-      "title": "feat(admin): add authorized leads and mobile-first review panel",
-      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/96",
+      "number": 103,
+      "title": "feat: enable manual documentation sync",
+      "url": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/103",
       "state": "closed",
-      "mergedAt": "2026-09-09T03:06:20Z",
+      "mergedAt": "2026-10-08T06:11:29Z",
       "source": "github-api"
     },
-    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34305820473"
+    "ciUrl": "https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/37736263204"
   },
   "runtime": {
     "node": "22 (GitHub Actions)",
