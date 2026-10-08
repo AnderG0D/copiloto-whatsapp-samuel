@@ -2,7 +2,7 @@
 type: generated-technical-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-09-08
+updated: 2026-10-07
 ---
 
 # Evidencia técnica
@@ -10,10 +10,10 @@ updated: 2026-09-08
 <!-- AUTO:BEGIN technical-evidence -->
 ## Revisión observada
 
-- Fuente: `main` en `c4f3a79`, asociado al [PR #96](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/96).
-- Commit completo: `c4f3a798cb95f73c5f34a1e3087bf1778891f978`.
-- Mensaje: Merge pull request #96 from AnderG0D/feature/mvp-demo-authorized-flow.
-- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/34305820473).
+- Fuente: `main` en `df97a0c`, asociado al [PR #100](https://github.com/AnderG0D/copiloto-whatsapp-samuel/pull/100).
+- Commit completo: `df97a0c2f591d3d75ef16d2650fd2cd4aded4262`.
+- Mensaje: Merge pull request #100 from AnderG0D/docs/readme-bilingual-20261007.
+- Ejecución de CI: [abrir evidencia](https://github.com/AnderG0D/copiloto-whatsapp-samuel/actions/runs/37730985046).
 
 ## Validación
 

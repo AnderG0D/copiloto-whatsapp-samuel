@@ -2,7 +2,7 @@
 type: generated-mvp-1-authorized-leads-evidence
 project: Copiloto WhatsApp Samuel
 generated: true
-updated: 2026-09-08
+updated: 2026-10-07
 ---
 
 # MVP-1 — Leads autorizados
