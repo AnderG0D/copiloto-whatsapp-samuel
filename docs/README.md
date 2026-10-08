@@ -1,60 +1,62 @@
-# Documentación como código
+**English | [Español](README.es.md)**
 
-Esta carpeta convierte la documentación del Copiloto WhatsApp Samuel en una parte verificable del repositorio.
+# Documentation as Code
 
-## Fuente de verdad
+This folder makes the Copiloto WhatsApp Samuel documentation a verifiable part of the repository.
 
-- `obsidian/Copiloto WhatsApp Samuel/`: notas que se abren desde Obsidian.
-- `control/`: política y criterios humanos que gobiernan la automatización.
-- `obsidian/Copiloto WhatsApp Samuel/_generated/`: hechos derivados del código y GitHub.
-- [Guía operativa ChatGPT Work → Codex CLI → PowerShell](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Flujo%20de%20Trabajo%20ChatGPT%20Work%20Codex%20GitHub.md): reglas específicas de ejecución del Copiloto.
+## Source of truth
 
-El código y GitHub prueban qué existe. Los ADR, el alcance, la visión y el roadmap expresan decisiones humanas.
+- `obsidian/Copiloto WhatsApp Samuel/`: notes opened from Obsidian.
+- `control/`: policy and human criteria that govern automation.
+- `obsidian/Copiloto WhatsApp Samuel/_generated/`: facts derived from code and GitHub.
+- [ChatGPT Work → Codex CLI → PowerShell Operating Guide](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Flujo%20de%20Trabajo%20ChatGPT%20Work%20Codex%20GitHub.md): execution rules specific to the Copiloto.
 
-## Clases de documento
+Code and GitHub prove what exists. ADRs, scope, vision and roadmap express human decisions.
 
-| Clase | Puede cambiar automáticamente | Ejemplos |
+## Document classes
+
+| Class | Can change automatically | Examples |
 | --- | --- | --- |
-| `generated` | Archivo completo | Estado, evidencia, arquitectura y siguiente acción |
-| `mixed` | Solo bloques `AUTO` | Panel, MOC, hito activo y mapas técnicos |
-| `human` | No | Visión, alcance, diseño funcional y guías |
-| `protected` | Nunca | ADR y archivo histórico |
+| `generated` | Entire file | Status, evidence, architecture and next action |
+| `mixed` | `AUTO` blocks only | Dashboard, MOC, active milestone and technical maps |
+| `human` | No | Vision, scope, functional design and guides |
+| `protected` | Never | ADR and historical archive |
 
-La clasificación exacta vive en `control/documentation-policy.json`.
+The exact classification is in `control/documentation-policy.json`.
 
-## Evidencia técnica reproducible
+## Reproducible technical evidence
 
-La regla transversal `FD-EVIDENCIA-01` vive en `control/documentation-policy.json`, bajo `technicalEvidenceContract`. Toda auditoría, revisión de código o validación de runtime, Docker, Supabase, pipeline o documentación debe registrar evidencia reproducible, sanitizada y trazable.
+The cross-cutting rule `FD-EVIDENCIA-01` is in `control/documentation-policy.json`, under `technicalEvidenceContract`. Every audit, code review or runtime, Docker, Supabase, pipeline or documentation validation must record reproducible, sanitized and traceable evidence.
 
-Usa la plantilla [Estándar de Evidencia Técnica Reproducible](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Estándar%20de%20Evidencia%20Técnica%20Reproducible.md). El contrato exige objetivo, alcance, contexto de Git y entorno, acción, salida original sanitizada, esperado/observado, estado, riesgos, decisión, siguiente checkpoint y autorización cuando aplique. Los únicos estados válidos son `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` y `UNKNOWN`.
+Use the [Reproducible Technical Evidence Standard](obsidian/Copiloto%20WhatsApp%20Samuel/04%20Docs/Estándar%20de%20Evidencia%20Técnica%20Reproducible.md) template. The contract requires the objective, scope, Git and environment context, action, sanitized original output, expected/observed results, status, risks, decision, next checkpoint and authorization when applicable. The only valid statuses are `PASS`, `PASS_WITH_WARNINGS`, `FAIL`, `BLOCKED`, `NOT_RUN` and `UNKNOWN`.
 
-No inventes evidencia ni conserves logs crudos, secretos, datos personales, payloads sensibles o datos de leads reales. Si la evidencia no existe, registra `UNKNOWN`, `BLOCKED` o `NOT_RUN`.
+Do not invent evidence or retain raw logs, secrets, personal data, sensitive payloads or real lead data. If evidence does not exist, record `UNKNOWN`, `BLOCKED` or `NOT_RUN`.
 
-## Una sola siguiente acción
+## One next action
 
-La nota canónica es:
+The canonical note is:
 
 ```text
 Copiloto WhatsApp Samuel/_generated/Siguiente accion.md
 ```
 
-El Panel del proyecto ya la transcluye. En `Panel Principal - Pensar-Hacer v1.md` basta agregar una sola vez:
+The Project Dashboard already transcludes it. In `Panel Principal - Pensar-Hacer v1.md`, add it only once:
 
 ```md
 ![[Copiloto WhatsApp Samuel/_generated/Siguiente accion]]
 ```
 
-No copies la acción manualmente a otros paneles.
+Do not manually copy the action to other dashboards.
 
-## Sincronización con Obsidian
+## Obsidian synchronization
 
-La carpeta `docs/obsidian/Copiloto WhatsApp Samuel/` debe verse desde el vault mediante un enlace de directorio o un proceso de sincronización unidireccional desde el repo hacia el vault. No mantengas dos copias editables independientes.
+The `docs/obsidian/Copiloto WhatsApp Samuel/` folder must be visible from the vault through a directory link or a one-way synchronization process from the repo to the vault. Do not maintain two independent editable copies.
 
-## Flujo esperado
+## Expected workflow
 
-1. Se fusiona código en `main`.
-2. CI prueba el backend y recolecta hechos técnicos.
-3. Los scripts regeneran únicamente la zona administrada.
-4. La validación confirma que ADR, archivo, alcance y roadmap no cambiaron.
-5. GitHub abre un PR documental.
-6. Al fusionarlo, Obsidian muestra el estado y la siguiente acción nuevos.
+1. Code is merged into `main`.
+2. CI tests the backend and collects technical facts.
+3. Scripts regenerate only the managed area.
+4. Validation confirms that ADRs, the archive, scope and roadmap have not changed.
+5. GitHub opens a documentation PR.
+6. When it is merged, Obsidian shows the new status and next action.
